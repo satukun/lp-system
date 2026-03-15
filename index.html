@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>サービス名 | 今日の働き手がすぐ見つかる</title>
+  <style>
+    /* === CSS Variables (design-system.md §2, §4) === */
+    :root {
+      --color-primary: #FFD700;
+      --color-primary-dark: #E6C200;
+      --color-secondary: #1A1A2E;
+      --color-text: #333333;
+      --color-text-light: #666666;
+      --color-bg: #FFFFFF;
+      --color-bg-alt: #F5F5F0;
+      --color-border: #E0E0E0;
+      --space-xs: 8px;
+      --space-sm: 16px;
+      --space-md: 24px;
+      --space-lg: 48px;
+      --space-xl: 80px;
+    }
+
+    /* === Reset & Base (design-system.md §3) === */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+      color: var(--color-text);
+      font-size: 16px;
+      line-height: 1.8;
+      letter-spacing: 0.04em;
+      background: var(--color-bg);
+    }
+    img { max-width: 100%; height: auto; display: block; border-radius: 8px; }
+    a { text-decoration: none; color: inherit; }
+
+    /* === Layout (design-system.md §7) === */
+    .container {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+    .section-padding {
+      padding: var(--space-xl) 0;
+    }
+
+    /* === Typography (design-system.md §3) === */
+    .section-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--color-primary-dark);
+      letter-spacing: 0.08em;
+      text-align: center;
+      margin-bottom: var(--space-xs);
+    }
+    .section-heading {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--color-secondary);
+      line-height: 1.4;
+      letter-spacing: 0.02em;
+      text-align: center;
+      margin-bottom: var(--space-lg);
+    }
+
+    /* === Buttons (design-system.md §5) === */
+    .btn-primary {
+      display: inline-block;
+      background: var(--color-primary);
+      color: var(--color-secondary);
+      padding: 16px 32px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 16px;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s;
+      text-align: center;
+    }
+    .btn-primary:hover { background: var(--color-primary-dark); }
+    .btn-secondary {
+      display: inline-block;
+      background: transparent;
+      color: var(--color-secondary);
+      padding: 16px 32px;
+      border: 2px solid var(--color-secondary);
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+    .btn-secondary:hover { background: var(--color-secondary); color: #FFFFFF; }
+    .btn-group { display: flex; gap: var(--space-sm); align-items: center; flex-wrap: wrap; }
+    .btn-group-center { justify-content: center; }
+
+    /* === Cards (design-system.md §6) === */
+    .card {
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: 12px;
+      padding: 24px;
+      transition: box-shadow 0.2s;
+    }
+    .card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+    .card-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--color-secondary);
+      line-height: 1.4;
+      letter-spacing: 0.02em;
+      margin-bottom: var(--space-xs);
+    }
+    .card-text {
+      font-size: 14px;
+      color: var(--color-text-light);
+      line-height: 1.8;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-md);
+    }
+
+    /* === S1: Header === */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--color-bg);
+      border-bottom: 1px solid var(--color-border);
+    }
+    .header .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+    }
+    .header-logo {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--color-secondary);
+    }
+    .header-nav { display: flex; gap: 32px; align-items: center; }
+    .header-nav a {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--color-text);
+      transition: color 0.2s;
+    }
+    .header-nav a:hover { color: var(--color-primary-dark); }
+    .header-cta .btn-primary { padding: 10px 24px; font-size: 14px; }
+    .hamburger {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      width: 32px;
+      height: 32px;
+      position: relative;
+    }
+    .hamburger span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: var(--color-secondary);
+      position: absolute;
+      left: 5px;
+      transition: all 0.2s;
+    }
+    .hamburger span:nth-child(1) { top: 8px; }
+    .hamburger span:nth-child(2) { top: 15px; }
+    .hamburger span:nth-child(3) { top: 22px; }
+    .hamburger.active span:nth-child(1) { top: 15px; transform: rotate(45deg); }
+    .hamburger.active span:nth-child(2) { opacity: 0; }
+    .hamburger.active span:nth-child(3) { top: 15px; transform: rotate(-45deg); }
+    .drawer {
+      display: none;
+      position: fixed;
+      top: 64px;
+      left: 0;
+      width: 100%;
+      height: calc(100vh - 64px);
+      background: var(--color-bg);
+      z-index: 99;
+      padding: var(--space-md);
+    }
+    .drawer.active { display: block; }
+    .drawer a {
+      display: block;
+      padding: 16px 0;
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--color-text);
+      border-bottom: 1px solid var(--color-border);
+    }
+    .drawer .btn-primary {
+      width: 100%;
+      margin-top: var(--space-md);
+      display: block;
+    }
+
+    /* === S2: Hero === */
+    .hero {
+      background: var(--color-bg);
+      min-height: 600px;
+      display: flex;
+      align-items: center;
+    }
+    .hero .container {
+      display: grid;
+      grid-template-columns: 6fr 4fr;
+      gap: var(--space-lg);
+      align-items: center;
+    }
+    .hero-main-copy {
+      font-size: 40px;
+      font-weight: 700;
+      color: var(--color-secondary);
+      line-height: 1.4;
+      letter-spacing: 0.02em;
+      margin-bottom: var(--space-sm);
+    }
+    .hero-sub-copy {
+      font-size: 16px;
+      color: var(--color-text-light);
+      margin-bottom: var(--space-md);
+    }
+    .trust-badges {
+      margin-top: var(--space-sm);
+      font-size: 14px;
+      color: var(--color-text-light);
+    }
+    .trust-badges span { margin: 0 4px; }
+
+    /* === S3: Message === */
+    .message { background: var(--color-bg-alt); }
+    .message-inner {
+      max-width: 720px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .message-heading {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--color-secondary);
+      line-height: 1.6;
+      margin-bottom: var(--space-sm);
+    }
+    .message-body {
+      font-size: 16px;
+      color: var(--color-text-light);
+    }
+
+    /* === S4: Problems === */
+    .problems { background: var(--color-bg); }
+    .problem-card { text-align: center; }
+    .problem-card .card-icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto var(--space-sm);
+      border-radius: 8px;
+    }
+
+    /* === S5: Features === */
+    .features { background: var(--color-bg-alt); }
+    .feature-card .point-badge {
+      display: inline-block;
+      background: var(--color-primary);
+      color: var(--color-secondary);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 4px;
+      margin-bottom: var(--space-sm);
+    }
+    .feature-card .card-image {
+      width: 100%;
+      aspect-ratio: 16/10;
+      object-fit: cover;
+      margin-top: var(--space-sm);
+      border-radius: 8px;
+    }
+
+    /* === S6: Categories === */
+    .categories { background: var(--color-bg); }
+    .grid-6 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .category-card .card-image {
+      width: 100%;
+      aspect-ratio: 3/2;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: var(--space-xs);
+    }
+    .category-card .card-title { font-size: 16px; }
+    .category-card .card-text { font-size: 13px; }
+
+    /* === S7: Case Studies === */
+    .case-studies { background: var(--color-bg-alt); }
+    .case-card .card-image {
+      width: 100%;
+      aspect-ratio: 16/10;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: var(--space-sm);
+    }
+    .case-card .company-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--color-secondary);
+      margin-bottom: var(--space-xs);
+    }
+    .text-link {
+      color: var(--color-primary-dark);
+      text-decoration: underline;
+      font-weight: 500;
+      text-align: center;
+      display: block;
+      margin: var(--space-md) 0;
+    }
+
+    /* === S8: Flow === */
+    .flow { background: var(--color-bg); }
+    .flow-steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-md);
+      position: relative;
+    }
+    .flow-step { text-align: center; position: relative; }
+    .flow-step-number {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--color-primary);
+      color: var(--color-secondary);
+      font-size: 18px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto var(--space-sm);
+    }
+    .flow-step-icon {
+      width: 56px;
+      height: 56px;
+      margin: 0 auto var(--space-xs);
+      border-radius: 8px;
+    }
+    .flow-step-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--color-secondary);
+      margin-bottom: var(--space-xs);
+    }
+    .flow-step-desc {
+      font-size: 14px;
+      color: var(--color-text-light);
+      line-height: 1.8;
+    }
+
+    /* === S9: FAQ & Form === */
+    .faq-form { background: var(--color-bg-alt); }
+    .faq-form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-lg);
+    }
+    .faq-heading {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--color-secondary);
+      margin-bottom: var(--space-md);
+    }
+    .faq-item {
+      border-bottom: 1px solid var(--color-border);
+    }
+    .faq-question {
+      width: 100%;
+      background: none;
+      border: none;
+      padding: 16px 0;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--color-text);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      text-align: left;
+      font-family: inherit;
+      line-height: 1.6;
+    }
+    .faq-question::after {
+      content: "";
+      width: 10px;
+      height: 10px;
+      border-right: 2px solid var(--color-text-light);
+      border-bottom: 2px solid var(--color-text-light);
+      transform: rotate(45deg);
+      transition: transform 0.2s;
+      flex-shrink: 0;
+      margin-left: 16px;
+    }
+    .faq-item.active .faq-question::after { transform: rotate(-135deg); }
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+    }
+    .faq-answer-inner {
+      padding: 0 0 16px 0;
+      font-size: 14px;
+      color: var(--color-text-light);
+      line-height: 1.8;
+    }
+    .form-section {
+      background: var(--color-bg);
+      border-radius: 12px;
+      padding: var(--space-md);
+      border: 1px solid var(--color-border);
+    }
+    .form-heading {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--color-secondary);
+      text-align: center;
+      margin-bottom: var(--space-xs);
+    }
+    .form-label-tag {
+      font-size: 12px;
+      color: var(--color-primary-dark);
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-align: center;
+      margin-bottom: var(--space-md);
+    }
+    .form-group { margin-bottom: var(--space-sm); }
+    .form-group label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--color-text);
+      margin-bottom: 8px;
+    }
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      font-size: 16px;
+      font-family: inherit;
+      background: var(--color-bg);
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--color-primary);
+    }
+    .form-checkbox {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin: var(--space-sm) 0;
+      font-size: 14px;
+      color: var(--color-text-light);
+    }
+    .form-checkbox input { margin-top: 4px; }
+    .form-checkbox a {
+      color: var(--color-primary-dark);
+      text-decoration: underline;
+    }
+    .form-submit {
+      width: 100%;
+      background: var(--color-primary);
+      color: var(--color-secondary);
+      padding: 16px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .form-submit:hover { background: var(--color-primary-dark); }
+
+    /* === S10: Closing === */
+    .closing {
+      background: var(--color-primary-dark);
+      text-align: center;
+    }
+    .closing-copy {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--color-secondary);
+      margin-bottom: var(--space-md);
+    }
+    .closing .btn-primary {
+      background: var(--color-secondary);
+      color: #FFFFFF;
+    }
+    .closing .btn-primary:hover { opacity: 0.9; }
+    .closing .btn-secondary {
+      border-color: var(--color-secondary);
+      color: var(--color-secondary);
+    }
+    .closing .btn-secondary:hover {
+      background: var(--color-secondary);
+      color: #FFFFFF;
+    }
+
+    /* === S11: Footer === */
+    .footer { background: var(--color-secondary); }
+    .footer .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: var(--space-lg);
+      padding-bottom: var(--space-lg);
+    }
+    .footer-logo {
+      font-size: 20px;
+      font-weight: 700;
+      color: #FFFFFF;
+    }
+    .footer-links { display: flex; gap: 24px; flex-wrap: wrap; }
+    .footer-links a {
+      font-size: 13px;
+      color: #FFFFFF;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+    }
+    .footer-links a:hover { opacity: 1; color: var(--color-primary); }
+    .footer-copy {
+      text-align: center;
+      font-size: 13px;
+      color: #FFFFFF;
+      opacity: 0.5;
+      padding-bottom: var(--space-md);
+    }
+
+    /* === Responsive (lp-structure.md: 1023px以下) === */
+    @media (max-width: 1023px) {
+      :root { --space-xl: 56px; }
+      .header-nav, .header-cta { display: none; }
+      .hamburger { display: block; }
+      .hero { min-height: auto; padding: var(--space-lg) 0; }
+      .hero .container { grid-template-columns: 1fr; }
+      .hero-main-copy { font-size: 28px; }
+      .section-heading { font-size: 22px; }
+      .grid-3 { grid-template-columns: 1fr; }
+      .grid-6 { grid-template-columns: repeat(2, 1fr); }
+      .flow-steps { grid-template-columns: 1fr; gap: var(--space-md); }
+      .faq-form-grid { grid-template-columns: 1fr; }
+      .footer .container { flex-direction: column; text-align: center; gap: var(--space-md); }
+      .footer-links { justify-content: center; }
+      .container { padding: 0 16px; }
+      .btn-primary, .btn-secondary { font-size: 15px; }
+      .card-title { font-size: 16px; }
+      .message-heading { font-size: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- S1: Header -->
+  <header class="header">
+    <div class="container">
+      <div class="header-logo">サービス名</div>
+      <nav class="header-nav">
+        <a href="#features">特徴</a>
+        <a href="#categories">業種</a>
+        <a href="#case-studies">事例</a>
+        <a href="#flow">お申込みの流れ</a>
+      </nav>
+      <div class="header-cta">
+        <a href="#contact" class="btn-primary">無料でアカウント開設</a>
+      </div>
+      <button class="hamburger" onclick="toggleDrawer()" aria-label="メニュー">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <div class="drawer" id="drawer">
+      <a href="#features" onclick="closeDrawer()">特徴</a>
+      <a href="#categories" onclick="closeDrawer()">業種</a>
+      <a href="#case-studies" onclick="closeDrawer()">事例</a>
+      <a href="#flow" onclick="closeDrawer()">お申込みの流れ</a>
+      <a href="#contact" class="btn-primary" onclick="closeDrawer()">無料でアカウント開設</a>
+    </div>
+  </header>
+
+  <!-- S2: Hero & Trust Badges -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-content">
+        <h1 class="hero-main-copy">サービス名なら、今日の<br>働き手がすぐ見つかる</h1>
+        <p class="hero-sub-copy">1,370万人の働き手の中から、希望の人材マッチング</p>
+        <div class="btn-group">
+          <a href="#contact" class="btn-primary">無料でアカウント開設</a>
+          <a href="#contact" class="btn-secondary">資料をダウンロード</a>
+        </div>
+        <p class="trust-badges">
+          <span>応募課金0円</span>・<span>最短即日マッチング</span>・<span>基本掲載無料</span>
+        </p>
+      </div>
+      <div class="hero-visual">
+        <img src="https://placehold.co/520x400/F5F5F0/666666?text=Hero+Visual" alt="サービスのメインビジュアル">
+      </div>
+    </div>
+  </section>
+
+  <!-- S3: Message -->
+  <section class="message section-padding">
+    <div class="container">
+      <div class="message-inner">
+        <p class="section-label">OVERVIEW</p>
+        <h2 class="message-heading">サービス名は「働きたい時間」と「働いて欲しい時間」を<br>マッチングするスキマバイト募集サービスです</h2>
+        <p class="message-body">企業は求めて欲しい時間やあるスキルを登録するだけで条件に合ったワーカーを呼ぶことができます。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- S4: Problem Identification -->
+  <section class="problems section-padding">
+    <div class="container">
+      <p class="section-label">PROBLEMS</p>
+      <h2 class="section-heading">こんなお悩みありませんか？</h2>
+      <div class="grid-3">
+        <div class="card problem-card">
+          <img class="card-icon" src="https://placehold.co/80x80/F5F5F0/666666?text=icon" alt="急いでいるビジネスパーソンのイラスト">
+          <h3 class="card-title">急な発注や欠員でスタッフが確保できない</h3>
+          <p class="card-text">突然のシフト変更や繁忙期に対応できず、サービス品質が低下してしまう。</p>
+        </div>
+        <div class="card problem-card">
+          <img class="card-icon" src="https://placehold.co/80x80/F5F5F0/666666?text=icon" alt="困っている表情の採用担当者のイラスト">
+          <h3 class="card-title">現場が郊外なのでなかなか人が集まらない</h3>
+          <p class="card-text">都心から離れた勤務地では応募が少なく、常に人手不足の状態が続いている。</p>
+        </div>
+        <div class="card problem-card">
+          <img class="card-icon" src="https://placehold.co/80x80/F5F5F0/666666?text=icon" alt="カレンダーとシフト表のイラスト">
+          <h3 class="card-title">人員が安定せず繁忙期の稼働が安定しない</h3>
+          <p class="card-text">季節変動が大きく、ピーク時に必要な人数を確保できない。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- S5: Features & Benefits -->
+  <section class="features section-padding" id="features">
+    <div class="container">
+      <p class="section-label">FEATURES</p>
+      <h2 class="section-heading">サービス名が選ばれる理由</h2>
+      <div class="grid-3">
+        <div class="card feature-card">
+          <span class="point-badge">POINT1</span>
+          <h3 class="card-title">最短即日でマッチング</h3>
+          <p class="card-text">全文を書く場合にはここに記載。お仕事の内容とスキルを登録するだけでマッチング開始。急な欠員にも対応できます。</p>
+          <img class="card-image" src="https://placehold.co/400x250/F5F5F0/666666?text=Feature+1" alt="スマートフォンでマッチング画面を見ているイラスト">
+        </div>
+        <div class="card feature-card">
+          <span class="point-badge">POINT2</span>
+          <h3 class="card-title">希望の人材を呼べる</h3>
+          <p class="card-text">条件に合ったワーカーのみマッチングします。求人に合ったワーカーを直接マッチング。過去の実績評価も参考にできます。</p>
+          <img class="card-image" src="https://placehold.co/400x250/F5F5F0/666666?text=Feature+2" alt="人材リストから選んでいるイラスト">
+        </div>
+        <div class="card feature-card">
+          <span class="point-badge">POINT3</span>
+          <h3 class="card-title">実績あるワーカーと出会える</h3>
+          <p class="card-text">豊富な実績のワーカーが多数登録。評価の高い人材を優先的にマッチング。リピーターの確保も容易です。</p>
+          <img class="card-image" src="https://placehold.co/400x250/F5F5F0/666666?text=Feature+3" alt="握手するビジネスパーソンのイラスト">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- S6: Categories -->
+  <section class="categories section-padding" id="categories">
+    <div class="container">
+      <p class="section-label">CATEGORIES</p>
+      <h2 class="section-heading">募集できる仕事</h2>
+      <div class="grid-6">
+        <div class="card category-card">
+          <img class="card-image" src="https://placehold.co/340x220/F5F5F0/666666?text=飲食" alt="飲食店の写真">
+          <h3 class="card-title">飲食</h3>
+          <p class="card-text">洗い場 / ホール / 調理 / 軽作業 など</p>
+        </div>
+        <div class="card category-card">
+          <img class="card-image" src="https://placehold.co/340x220/F5F5F0/666666?text=小売" alt="小売店の写真">
+          <h3 class="card-title">小売</h3>
+          <p class="card-text">レジ / 陳列 / 接客 / 棚卸 など</p>
+        </div>
+        <div class="card category-card">
+          <img class="card-image" src="https://placehold.co/340x220/F5F5F0/666666?text=オフィスワーク" alt="オフィスの写真">
+          <h3 class="card-title">オフィスワーク</h3>
+          <p class="card-text">電話対応 / データ入力 / 事務作業 など</p>
+        </div>
+        <div class="card category-card">
+          <img class="card-image" src="https://placehold.co/340x220/F5F5F0/666666?text=配送" alt="配送の写真">
+          <h3 class="card-title">配送</h3>
+          <p class="card-text">フードデリバリー / 荷物配送 など</p>
+        </div>
+        <div class="card category-card">
+          <img class="card-image" src="https://placehold.co/340x220/F5F5F0/666666?text=物流" alt="倉庫の写真">
+          <h3 class="card-title">物流</h3>
+          <p class="card-text">ピッキング / 梱包 / 仕分け / 配送 など</p>
+        </div>
+        <div class="card category-card">
+          <img class="card-image" src="https://placehold.co/340x220/F5F5F0/666666?text=その他" alt="多様な職種の写真">
+          <h3 class="card-title">その他</h3>
+          <p class="card-text">引越し / 清掃 / 美容 / 介護施設 など</p>
+        </div>
+      </div>
+      <div class="btn-group btn-group-center" style="margin-top: var(--space-lg);">
+        <a href="#contact" class="btn-primary">無料でアカウント開設</a>
+        <a href="#contact" class="btn-secondary">資料をダウンロード</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- S7: Case Studies -->
+  <section class="case-studies section-padding" id="case-studies">
+    <div class="container">
+      <p class="section-label">CASE STUDIES</p>
+      <h2 class="section-heading">導入事例</h2>
+      <div class="grid-3">
+        <div class="card case-card">
+          <img class="card-image" src="https://placehold.co/400x250/F5F5F0/666666?text=Case+1" alt="物流倉庫で働くスタッフの写真">
+          <p class="company-name">サンプル物流株式会社</p>
+          <p class="card-text">繁忙期に必要な20名の確保が困難でしたが、導入後は平均3日で充足。コスト削減にも成功。</p>
+        </div>
+        <div class="card case-card">
+          <img class="card-image" src="https://placehold.co/400x250/F5F5F0/666666?text=Case+2" alt="食品工場のラインで働くスタッフの写真">
+          <p class="company-name">サンプル食品株式会社</p>
+          <p class="card-text">急な欠員への対応が課題でしたが、当日マッチングで生産ラインの稼働率が安定。</p>
+        </div>
+        <div class="card case-card">
+          <img class="card-image" src="https://placehold.co/400x250/F5F5F0/666666?text=Case+3" alt="小売店で接客するスタッフの写真">
+          <p class="company-name">サンプルリテール株式会社</p>
+          <p class="card-text">年末商戦の人員確保に活用。スポットスタッフの活用で売上前年比120%を達成。</p>
+        </div>
+      </div>
+      <a href="#" class="text-link">他の導入事例を見る</a>
+      <div class="btn-group btn-group-center">
+        <a href="#contact" class="btn-primary">無料でアカウント開設</a>
+        <a href="#contact" class="btn-secondary">資料をダウンロード</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- S8: Implementation Flow -->
+  <section class="flow section-padding" id="flow">
+    <div class="container">
+      <p class="section-label">FLOW</p>
+      <h2 class="section-heading">お申込みの流れ</h2>
+      <div class="flow-steps">
+        <div class="flow-step">
+          <div class="flow-step-number">1</div>
+          <img class="flow-step-icon" src="https://placehold.co/56x56/F5F5F0/666666?text=📝" alt="フォーム入力のアイコン">
+          <h3 class="flow-step-title">利用申込み</h3>
+          <p class="flow-step-desc">利用規約にご同意の上、フォームにメールアドレスのご入力をお願いします。ご登録手続きについてご連絡いたします。</p>
+        </div>
+        <div class="flow-step">
+          <div class="flow-step-number">2</div>
+          <img class="flow-step-icon" src="https://placehold.co/56x56/F5F5F0/666666?text=⚙️" alt="アカウント設定のアイコン">
+          <h3 class="flow-step-title">アカウントの作成</h3>
+          <p class="flow-step-desc">ご登録手続きの案内に沿って情報の入力をお願いします。アカウントの作成は無料です。作成に関してのご不明点はメールにてお問い合わせいただけます。</p>
+        </div>
+        <div class="flow-step">
+          <div class="flow-step-number">3</div>
+          <img class="flow-step-icon" src="https://placehold.co/56x56/F5F5F0/666666?text=📋" alt="求人公開のアイコン">
+          <h3 class="flow-step-title">求人の公開</h3>
+          <p class="flow-step-desc">管理画面へログインし、求人情報へご記入をお願いします。求人作成のためのガイドラインも用意しておりますので、ご参考ください。</p>
+        </div>
+        <div class="flow-step">
+          <div class="flow-step-number">4</div>
+          <img class="flow-step-icon" src="https://placehold.co/56x56/F5F5F0/666666?text=🤝" alt="マッチング成立のアイコン">
+          <h3 class="flow-step-title">マッチング</h3>
+          <p class="flow-step-desc">求人に記載の勤務時間にワーカーの受け入れをお願いします。電話連絡は不要で自己紹介についてはアプリ上で確認いただけます。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- S9: Lead Form & FAQ -->
+  <section class="faq-form section-padding" id="contact">
+    <div class="container">
+      <div class="faq-form-grid">
+        <!-- FAQ -->
+        <div class="faq-section">
+          <p class="section-label" style="text-align:left;">FAQ</p>
+          <h2 class="faq-heading">よくある質問</h2>
+          <div class="faq-item">
+            <button class="faq-question" onclick="toggleFaq(this)">マッチング後のキャンセルについて知りたい</button>
+            <div class="faq-answer"><div class="faq-answer-inner">ワーカーのキャンセルは勤務開始前であれば可能です。キャンセル率が高いワーカーには制限がかかる仕組みです。</div></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-question" onclick="toggleFaq(this)">ワーカーがキャンセルしたら、欠勤したらどうするの？</button>
+            <div class="faq-answer"><div class="faq-answer-inner">代替ワーカーの自動マッチング機能があります。また、キャンセル・欠勤したワーカーにはペナルティが適用されます。</div></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-question" onclick="toggleFaq(this)">どんな人が来るか事前に分かる？</button>
+            <div class="faq-answer"><div class="faq-answer-inner">マッチング成立後、ワーカーのプロフィール（経験・評価・自己紹介）をアプリ上で確認できます。</div></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-question" onclick="toggleFaq(this)">利用できない職種はある？</button>
+            <div class="faq-answer"><div class="faq-answer-inner">法令に抵触する業務、危険を伴う業務など一部制限がございます。詳細はご相談ください。</div></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-question" onclick="toggleFaq(this)">求人公開後の流れを知りたい</button>
+            <div class="faq-answer"><div class="faq-answer-inner">求人公開後、条件に合ったワーカーへ自動通知されます。ワーカーが応募するとマッチングが成立し、アプリ上で当日の詳細を確認できます。</div></div>
+          </div>
+        </div>
+        <!-- Form -->
+        <div class="form-section">
+          <h2 class="form-heading">まずは資料請求</h2>
+          <p class="form-label-tag">CONTACT</p>
+          <div class="form-group">
+            <label>お名前 <span style="color:#E24B4A;">*</span></label>
+            <input type="text" placeholder="山田 太郎" required>
+          </div>
+          <div class="form-group">
+            <label>会社名 <span style="color:#E24B4A;">*</span></label>
+            <input type="text" placeholder="株式会社サンプル" required>
+          </div>
+          <div class="form-group">
+            <label>メールアドレス <span style="color:#E24B4A;">*</span></label>
+            <input type="email" placeholder="example@timee.co.jp" required>
+          </div>
+          <div class="form-group">
+            <label>電話番号 <span style="color:#E24B4A;">*</span></label>
+            <input type="tel" placeholder="03-1234-5678" required>
+          </div>
+          <div class="form-group">
+            <label>従業員数 <span style="color:#E24B4A;">*</span></label>
+            <select required>
+              <option value="" disabled selected>選択してください</option>
+              <option>1〜10名</option>
+              <option>11〜50名</option>
+              <option>51〜100名</option>
+              <option>101〜300名</option>
+              <option>301〜1000名</option>
+              <option>1001名以上</option>
+            </select>
+          </div>
+          <div class="form-checkbox">
+            <input type="checkbox" id="privacy" required>
+            <label for="privacy"><a href="#">プライバシーポリシー</a>に同意する</label>
+          </div>
+          <button type="submit" class="form-submit">資料を請求する</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- S10: Closing Message -->
+  <section class="closing section-padding">
+    <div class="container">
+      <p class="closing-copy">まずは資料請求してみませんか？</p>
+      <div class="btn-group btn-group-center">
+        <a href="#contact" class="btn-primary">無料でアカウント開設</a>
+        <a href="#contact" class="btn-secondary">資料をダウンロード</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- S11: Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-logo">サービス名</div>
+      <div class="footer-links">
+        <a href="#">アプリについて</a>
+        <a href="#">サポート</a>
+        <a href="#">ネットワーク対策研究</a>
+        <a href="#">プライバシーポリシー</a>
+        <a href="#">利用規約</a>
+        <a href="#">電子公告</a>
+      </div>
+    </div>
+    <p class="footer-copy">© 2025 サービス名, Inc.</p>
+  </footer>
+
+  <script>
+    function toggleDrawer() {
+      var h = document.querySelector('.hamburger');
+      var d = document.getElementById('drawer');
+      h.classList.toggle('active');
+      d.classList.toggle('active');
+    }
+    function closeDrawer() {
+      document.querySelector('.hamburger').classList.remove('active');
+      document.getElementById('drawer').classList.remove('active');
+    }
+    function toggleFaq(btn) {
+      var item = btn.parentElement;
+      var answer = item.querySelector('.faq-answer');
+      var isActive = item.classList.contains('active');
+      document.querySelectorAll('.faq-item').forEach(function(el) {
+        el.classList.remove('active');
+        el.querySelector('.faq-answer').style.maxHeight = null;
+      });
+      if (!isActive) {
+        item.classList.add('active');
+        answer.style.maxHeight = answer.scrollHeight + 'px';
+      }
+    }
+  </script>
+</body>
+</html>
