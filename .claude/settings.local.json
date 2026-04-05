@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(gh repo:*)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(chmod +x /Users/YOT/lp-systems/start-dev.sh)",
+      "Read(//usr/local/bin/**)",
+      "Read(//usr/bin/**)",
+      "Bash(ln -sf /opt/homebrew/bin/node /usr/local/bin/node)",
+      "Bash(export PATH=\"/opt/homebrew/bin:$PATH\")",
+      "Bash(/opt/homebrew/bin/node node_modules/.bin/next dev --help)"
+    ]
+  }
+}
