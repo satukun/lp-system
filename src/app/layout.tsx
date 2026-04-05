@@ -13,7 +13,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ja">
-      <body className="mesh-bg min-h-screen">
+      <body>
         {children}
       </body>
     </html>

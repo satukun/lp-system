@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useRef } from "react";
-import type { LPData, SectionKey } from "@/lib/types";
+import type { LPData, SectionKey, SectionLayouts, LayoutIndex } from "@/lib/types";
 import SectionCard from "@/components/ui/SectionCard";
+import LayoutPicker from "@/components/wizard/LayoutPicker";
 import S1HeaderForm from "./sections/S1HeaderForm";
 import S2HeroForm from "./sections/S2HeroForm";
 import S3MessageForm from "./sections/S3MessageForm";
@@ -22,6 +23,9 @@ interface Props {
   onReorder: (order: SectionKey[]) => void;
   hiddenSections: SectionKey[];
   onToggleHidden: (key: SectionKey) => void;
+  sectionLayouts: SectionLayouts;
+  onChangeLayout: (key: SectionKey, layout: LayoutIndex) => void;
+  onSectionOpen?: (key: SectionKey) => void;
 }
 
 const SECTION_META: Record<SectionKey, { id: string; title: string; badge: string }> = {
@@ -38,7 +42,13 @@ const SECTION_META: Record<SectionKey, { id: string; title: string; badge: strin
   s11: { id: "S11", title: "Footer",                badge: "固定" },
 };
 
-export default function EditorPanel({ data, onChange, sectionOrder, onReorder, hiddenSections, onToggleHidden }: Props) {
+const LAYOUT_LABELS = ["A", "B", "C"] as const;
+
+export default function EditorPanel({
+  data, onChange, sectionOrder, onReorder,
+  hiddenSections, onToggleHidden,
+  sectionLayouts, onChangeLayout, onSectionOpen,
+}: Props) {
   const [dragOverKey, setDragOverKey] = useState<SectionKey | null>(null);
   const draggingKey = useRef<SectionKey | null>(null);
 
@@ -56,10 +66,7 @@ export default function EditorPanel({ data, onChange, sectionOrder, onReorder, h
   const handleDrop = (targetKey: SectionKey) => (e: React.DragEvent) => {
     e.preventDefault();
     const from = draggingKey.current;
-    if (!from || from === targetKey) {
-      setDragOverKey(null);
-      return;
-    }
+    if (!from || from === targetKey) { setDragOverKey(null); return; }
     const newOrder = [...sectionOrder];
     const fromIdx = newOrder.indexOf(from);
     const toIdx = newOrder.indexOf(targetKey);
@@ -95,13 +102,12 @@ export default function EditorPanel({ data, onChange, sectionOrder, onReorder, h
     <div className="flex flex-col gap-2 p-4">
       <div className="mb-2">
         <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-widest">セクション編集</h2>
-        <p className="text-xs text-slate-600 mt-0.5">
-          ☰ をドラッグして並び替え／タイトルをクリックして展開
-        </p>
+        <p className="text-xs text-slate-600 mt-0.5">☰ ドラッグで並び替え / タイトルクリックで展開</p>
       </div>
 
       {sectionOrder.map((key) => {
         const meta = SECTION_META[key];
+        const currentLayoutIdx = sectionLayouts[key] as LayoutIndex;
         return (
           <div key={key} onDragEnd={handleDragEnd}>
             <SectionCard
@@ -111,12 +117,24 @@ export default function EditorPanel({ data, onChange, sectionOrder, onReorder, h
               defaultOpen={key === "s2"}
               hidden={hiddenSections.includes(key)}
               onToggleHidden={() => onToggleHidden(key)}
+              onOpen={() => onSectionOpen?.(key)}
               draggable
               onDragStart={handleDragStart(key)}
               onDragOver={handleDragOver(key)}
               onDrop={handleDrop(key)}
               isDragOver={dragOverKey === key}
+              layoutLabel={LAYOUT_LABELS[currentLayoutIdx]}
             >
+              {/* レイアウトピッカー */}
+              <div className="mb-4 pb-4 border-b border-white/5">
+                <LayoutPicker
+                  sectionKey={key}
+                  value={currentLayoutIdx}
+                  onChange={(layout) => onChangeLayout(key, layout)}
+                />
+              </div>
+
+              {/* コンテンツフォーム */}
               {renderForm(key)}
             </SectionCard>
           </div>

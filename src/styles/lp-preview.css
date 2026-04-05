@@ -60,7 +60,7 @@
 
 /* Section heading — cqwでスケール */
 .lp-preview-root .lp-heading {
-  font-size: clamp(18px, 2.8cqw, 28px);
+  font-size: clamp(22px, 2.8cqw, 28px);
   font-weight: 700;
   color: var(--color-secondary);
   line-height: 1.4;
@@ -108,10 +108,10 @@
   display: inline-block;
   background: var(--color-primary);
   color: var(--color-secondary);
-  padding: 14px 28px;
+  padding: 16px 32px;
   border-radius: 8px;
   font-weight: 600;
-  font-size: clamp(13px, 1.4cqw, 16px);
+  font-size: clamp(15px, 1.4cqw, 16px);
   border: none;
   cursor: pointer;
   text-decoration: none;
@@ -125,11 +125,11 @@
   display: inline-block;
   background: transparent;
   color: var(--color-secondary);
-  padding: 12px 26px;
+  padding: 14px 30px;
   border: 2px solid var(--color-secondary);
   border-radius: 8px;
   font-weight: 600;
-  font-size: clamp(13px, 1.4cqw, 16px);
+  font-size: clamp(15px, 1.4cqw, 16px);
   cursor: pointer;
   text-decoration: none;
   transition: all 0.2s;
@@ -143,7 +143,7 @@
 /* ── S2: Hero ── */
 .lp-preview-root .lp-hero {
   background: var(--color-bg);
-  min-height: 540px;
+  min-height: 600px;
   padding: var(--space-xl) 0;
   display: flex;
   align-items: center;
@@ -155,7 +155,7 @@
   align-items: center;
 }
 .lp-preview-root .lp-hero-copy h1 {
-  font-size: clamp(22px, 3.8cqw, 40px);
+  font-size: clamp(28px, 3.8cqw, 40px);
   font-weight: 700;
   color: var(--color-secondary);
   line-height: 1.4;
@@ -163,7 +163,7 @@
   margin: 0 0 16px 0;
 }
 .lp-preview-root .lp-hero-copy p {
-  font-size: clamp(13px, 1.5cqw, 16px);
+  font-size: clamp(15px, 1.5cqw, 16px);
   color: var(--color-text-light);
   margin: 0 0 32px 0;
 }
@@ -202,7 +202,7 @@
   padding: 0 24px;
 }
 .lp-preview-root .lp-message h2 {
-  font-size: clamp(18px, 2.5cqw, 26px);
+  font-size: clamp(22px, 2.5cqw, 28px);
   font-weight: 700;
   color: var(--color-secondary);
   margin: 0 0 24px 0;
@@ -242,14 +242,14 @@
   margin: 0 auto 16px;
 }
 .lp-preview-root .lp-card-title {
-  font-size: clamp(15px, 1.7cqw, 18px);
+  font-size: clamp(16px, 1.7cqw, 18px);
   font-weight: 600;
   color: var(--color-secondary);
   margin: 0 0 8px 0;
   line-height: 1.4;
 }
 .lp-preview-root .lp-card-desc {
-  font-size: clamp(12px, 1.3cqw, 14px);
+  font-size: clamp(13px, 1.3cqw, 14px);
   color: var(--color-text-light);
   margin: 0;
   line-height: 1.8;
@@ -516,59 +516,71 @@
    — vw非依存でプレビューパネル幅に正確に反応
    ════════════════════════════════════════════════ */
 
+/* ════════════════════════════════════════════════
+   Container Query Breakpoints
+   NOTE: .lp-preview-root prefix is required in all selectors to match
+   the specificity (0-2-0) of the base styles (.lp-preview-root .lp-xxx).
+   Without it, base styles (specificity 0-2-0) would override these
+   container query rules (specificity 0-1-0) and layouts would never change.
+   ════════════════════════════════════════════════ */
+
 /* ── Tablet (≤ 768px) ── */
 @container lp-root (max-width: 768px) {
-  .lp-section,
-  .lp-section-alt,
-  .lp-message,
-  .lp-hero,
-  .lp-closing {
-    padding: 48px 0;
+  .lp-preview-root .lp-section,
+  .lp-preview-root .lp-section-alt,
+  .lp-preview-root .lp-message,
+  .lp-preview-root .lp-hero,
+  .lp-preview-root .lp-closing {
+    padding: 64px 0;
   }
 
-  .lp-hero-inner {
+  .lp-preview-root .lp-hero {
+    min-height: 400px;
+  }
+
+  .lp-preview-root .lp-hero-inner {
     grid-template-columns: 1fr;
     gap: 32px;
   }
 
-  .lp-hero-visual {
+  .lp-preview-root .lp-hero-visual {
     display: none;
   }
 
-  .lp-hero-actions {
+  .lp-preview-root .lp-hero-actions {
     flex-direction: column;
     align-items: flex-start;
   }
 
-  .lp-cards-3 {
+  .lp-preview-root .lp-cards-3 {
     grid-template-columns: repeat(2, 1fr);
     gap: 16px;
   }
 
-  .lp-cards-6 {
+  .lp-preview-root .lp-cards-6 {
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
   }
 
-  .lp-flow-steps {
+  .lp-preview-root .lp-flow-steps {
     grid-template-columns: repeat(2, 1fr);
     gap: 24px;
   }
 
-  .lp-flow-step:not(:last-child)::after {
+  .lp-preview-root .lp-flow-step:not(:last-child)::after {
     display: none;
   }
 
-  .lp-contact-grid {
+  .lp-preview-root .lp-contact-grid {
     grid-template-columns: 1fr;
     gap: 32px;
   }
 
-  .lp-nav {
+  .lp-preview-root .lp-nav {
     display: none;
   }
 
-  .lp-footer-inner {
+  .lp-preview-root .lp-footer-inner {
     flex-direction: column;
     align-items: flex-start;
     gap: 16px;
@@ -577,75 +589,190 @@
 
 /* ── SP (≤ 480px) ── */
 @container lp-root (max-width: 480px) {
-  .lp-container {
+  .lp-preview-root .lp-container {
     padding: 0 16px;
   }
 
-  .lp-section,
-  .lp-section-alt,
-  .lp-message,
-  .lp-hero,
-  .lp-closing {
+  .lp-preview-root .lp-section,
+  .lp-preview-root .lp-section-alt,
+  .lp-preview-root .lp-message,
+  .lp-preview-root .lp-closing {
+    padding: 56px 0;
+  }
+
+  /* Hero: min-height auto on SP + show image below copy */
+  .lp-preview-root .lp-hero {
+    min-height: 0;
+    align-items: flex-start;
     padding: 40px 0;
   }
 
-  .lp-heading {
+  .lp-preview-root .lp-hero-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  /* Show image on SP per spec "コピー → 画像" */
+  .lp-preview-root .lp-hero-visual {
+    display: block;
+  }
+
+  .lp-preview-root .lp-hero-visual img {
+    width: 100%;
+    border-radius: 8px;
+  }
+
+  .lp-preview-root .lp-hero-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .lp-preview-root .lp-hero-actions .btn-primary,
+  .lp-preview-root .lp-hero-actions .btn-secondary {
+    width: 100%;
+    text-align: center;
+  }
+
+  .lp-preview-root .lp-heading {
     margin-bottom: 24px;
   }
 
-  .lp-cards-3 {
+  /* S4/S5/S7 — 1 column */
+  .lp-preview-root .lp-cards-3 {
     grid-template-columns: 1fr;
     gap: 12px;
   }
 
-  .lp-cards-6 {
-    grid-template-columns: 1fr;
+  /* S6 Categories — spec: 2列グリッド */
+  .lp-preview-root .lp-cards-6 {
+    grid-template-columns: repeat(2, 1fr);
     gap: 10px;
   }
 
-  .lp-flow-steps {
+  /* S8 Flow — 1 column vertical */
+  .lp-preview-root .lp-flow-steps {
     grid-template-columns: 1fr;
     gap: 16px;
   }
 
-  .lp-cta-area {
+  .lp-preview-root .lp-cta-area {
     flex-direction: column;
     align-items: center;
   }
 
-  .lp-cta-area .btn-primary,
-  .lp-cta-area .btn-secondary {
+  .lp-preview-root .lp-cta-area .btn-primary,
+  .lp-preview-root .lp-cta-area .btn-secondary {
     width: 100%;
     text-align: center;
   }
 
-  .lp-closing-actions {
+  .lp-preview-root .lp-closing-actions {
     flex-direction: column;
     align-items: center;
   }
 
-  .lp-closing-actions .btn-primary,
-  .lp-closing-actions .btn-secondary {
+  .lp-preview-root .lp-closing-actions .btn-primary,
+  .lp-preview-root .lp-closing-actions .btn-secondary {
     width: 100%;
     text-align: center;
   }
 
-  .lp-hero-actions .btn-primary,
-  .lp-hero-actions .btn-secondary {
-    width: 100%;
-    text-align: center;
-  }
-
-  .lp-form {
+  .lp-preview-root .lp-form {
     padding: 20px 16px;
   }
 
-  .lp-footer-links {
-    gap: 12px;
-    flex-direction: column;
+  /* Footer: spec "縦積み中央揃え" */
+  .lp-preview-root .lp-footer-inner {
+    align-items: center;
+    text-align: center;
   }
 
-  .lp-header-inner .btn-primary {
+  .lp-preview-root .lp-footer-links {
+    gap: 12px;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .lp-preview-root .lp-footer-copy {
+    text-align: center;
+  }
+
+  .lp-preview-root .lp-header-inner .btn-primary {
     display: none;
   }
+}
+
+/* ── S3 Message Card Variant ── */
+.lp-preview-root .lp-message-card {
+  background: var(--color-bg);
+  border-left: 4px solid var(--color-primary);
+  border-radius: 0 12px 12px 0;
+  padding: 32px 40px;
+  text-align: left;
+}
+
+@container lp-root (max-width: 480px) {
+  .lp-preview-root .lp-message-card {
+    padding: 20px 20px;
+    border-radius: 0 8px 8px 0;
+  }
+}
+
+/* ── S8 Flow Step Variants ── */
+.lp-preview-root .lp-flow-steps--square .lp-flow-step:not(:last-child)::after {
+  display: none;
+}
+.lp-preview-root .lp-flow-steps--square .lp-flow-step-num {
+  background: var(--color-secondary);
+  color: var(--color-primary);
+  border-radius: 6px;
+}
+
+.lp-preview-root .lp-flow-steps--card .lp-flow-step:not(:last-child)::after {
+  display: none;
+}
+.lp-preview-root .lp-flow-steps--card .lp-flow-step {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 24px 16px;
+}
+.lp-preview-root .lp-flow-steps--card .lp-flow-step:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+.lp-preview-root .lp-flow-steps--card .lp-flow-step-num {
+  background: var(--color-primary);
+  color: var(--color-secondary);
+}
+
+@container lp-root (max-width: 768px) {
+  .lp-preview-root .lp-flow-steps--card {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+}
+@container lp-root (max-width: 480px) {
+  .lp-preview-root .lp-flow-steps--card {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+/* ── S10 Stacked CTA Variant ── */
+.lp-preview-root .lp-closing-actions--stacked {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  max-width: 400px;
+  margin: 0 auto;
+}
+.lp-preview-root .lp-closing-actions--stacked .btn-primary {
+  width: 100%;
+  text-align: center;
+}
+.lp-preview-root .lp-closing-actions--stacked .btn-secondary {
+  width: 100%;
+  text-align: center;
 }

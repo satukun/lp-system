@@ -103,6 +103,13 @@ export type SectionKey = 's1' | 's2' | 's3' | 's4' | 's5' | 's6' | 's7' | 's8' |
 
 export const DEFAULT_SECTION_ORDER: SectionKey[] = ['s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11'];
 
+export type LayoutIndex = 0 | 1 | 2;
+export type SectionLayouts = Record<SectionKey, LayoutIndex>;
+export const DEFAULT_SECTION_LAYOUTS: SectionLayouts = {
+  s1: 0, s2: 0, s3: 0, s4: 0, s5: 0,
+  s6: 0, s7: 0, s8: 0, s9: 0, s10: 0, s11: 0,
+};
+
 export interface StockedLP {
   id: string;
   name: string;
@@ -110,6 +117,7 @@ export interface StockedLP {
   data: LPData;
   sectionOrder: SectionKey[];
   hiddenSections: SectionKey[];
+  sectionLayouts: SectionLayouts;
 }
 
 export interface LPData {
