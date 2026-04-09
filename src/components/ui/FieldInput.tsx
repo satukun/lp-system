@@ -9,30 +9,46 @@ interface FieldInputProps {
 }
 
 export default function FieldInput({ label, value, onChange, placeholder, multiline = false, rows = 3, hint }: FieldInputProps) {
-  const baseClass =
-    "w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-400/60 focus:bg-white/8 transition-all duration-150 resize-none";
+  const inputStyle: React.CSSProperties = {
+    width: "100%",
+    background: "var(--col-bg)",
+    border: "1px solid var(--col-border-2)",
+    borderRadius: 6,
+    padding: "7px 10px",
+    fontSize: 13,
+    color: "var(--col-text)",
+    outline: "none",
+    resize: multiline ? "vertical" : "none",
+    fontFamily: "inherit",
+    lineHeight: 1.6,
+    transition: "border-color 150ms",
+  };
 
   return (
-    <div className="flex flex-col gap-1.5">
-      <label className="text-xs font-semibold text-slate-300">{label}</label>
+    <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+      <label style={{ fontSize: 11, fontWeight: 600, color: "var(--col-text-2)" }}>{label}</label>
       {multiline ? (
         <textarea
-          className={baseClass}
+          style={inputStyle}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           rows={rows}
+          onFocus={(e) => (e.currentTarget.style.borderColor = "var(--col-border-2)")}
+          onBlur={(e) => (e.currentTarget.style.borderColor = "var(--col-border-2)")}
         />
       ) : (
         <input
           type="text"
-          className={baseClass}
+          style={inputStyle}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
+          onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(55,53,47,0.4)")}
+          onBlur={(e) => (e.currentTarget.style.borderColor = "var(--col-border-2)")}
         />
       )}
-      {hint && <p className="text-xs text-slate-500">{hint}</p>}
+      {hint && <p style={{ fontSize: 11, color: "var(--col-text-3)", margin: 0 }}>{hint}</p>}
     </div>
   );
 }

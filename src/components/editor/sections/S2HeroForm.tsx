@@ -44,7 +44,7 @@ export default function S2HeroForm({ data, onChange }: Props) {
         placeholder="資料をダウンロード"
       />
       <div className="flex flex-col gap-2">
-        <p className="text-xs font-semibold text-slate-300">信頼バッジ（3つ）</p>
+        <p style={{ fontSize: 11, fontWeight: 600, color: "var(--col-text-2)", margin: 0 }}>信頼バッジ（3つ）</p>
         {data.trustBadges.map((badge, i) => (
           <FieldInput
             key={i}

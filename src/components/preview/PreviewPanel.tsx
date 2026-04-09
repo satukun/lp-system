@@ -18,6 +18,20 @@ export interface PreviewPanelHandle {
 
 type DeviceType = "pc" | "tablet" | "sp";
 
+const SECTION_LABELS: Record<SectionKey, string> = {
+  s1:  "S1 Header",
+  s2:  "S2 Hero",
+  s3:  "S3 Message",
+  s4:  "S4 Problems",
+  s5:  "S5 Features",
+  s6:  "S6 Categories",
+  s7:  "S7 Case Studies",
+  s8:  "S8 Flow",
+  s9:  "S9 Form & FAQ",
+  s10: "S10 Closing",
+  s11: "S11 Footer",
+};
+
 const DEVICES: { key: DeviceType; label: string; width: number | null; icon: React.ReactNode }[] = [
   {
     key: "pc", label: "PC", width: null,
@@ -73,28 +87,30 @@ const PreviewPanel = forwardRef<PreviewPanelHandle, Props>(function PreviewPanel
   return (
     <div className="flex flex-col w-full h-full overflow-hidden">
       {/* デバイス切替 */}
-      <div
-        className="flex-shrink-0 flex items-center justify-between px-4 py-2 border-b"
-        style={{ background: "rgba(255,255,255,0.04)", borderColor: "rgba(255,255,255,0.08)" }}
-      >
-        <div className="flex items-center gap-1">
+      <div style={{
+        flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "space-between",
+        padding: "6px 14px", background: "var(--col-bg)", borderBottom: "1px solid var(--col-border)",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
           {DEVICES.map((d) => (
             <button
               key={d.key}
               onClick={() => setDevice(d.key)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150"
-              style={
-                device === d.key
-                  ? { background: "rgba(96,165,250,0.2)", color: "#93c5fd", border: "1px solid rgba(96,165,250,0.35)" }
-                  : { background: "transparent", color: "rgba(255,255,255,0.35)", border: "1px solid transparent" }
-              }
+              style={{
+                display: "flex", alignItems: "center", gap: 5,
+                padding: "4px 10px", borderRadius: 6, fontSize: 12, fontWeight: 500,
+                cursor: "pointer", transition: "all 150ms",
+                ...(device === d.key
+                  ? { background: "var(--col-surface-3)", color: "var(--col-text)", border: "1px solid var(--col-border-2)" }
+                  : { background: "transparent", color: "var(--col-text-3)", border: "1px solid transparent" }),
+              }}
             >
               {d.icon}
               {d.label}
             </button>
           ))}
         </div>
-        <span className="text-xs font-mono" style={{ color: "rgba(255,255,255,0.25)" }}>
+        <span style={{ fontSize: 11, fontFamily: "monospace", color: "var(--col-text-3)" }}>
           {deviceWidth ? `${deviceWidth}px` : "100%"}
         </span>
       </div>
@@ -103,15 +119,21 @@ const PreviewPanel = forwardRef<PreviewPanelHandle, Props>(function PreviewPanel
       <div
         ref={scrollContainerRef}
         className="relative flex-1 overflow-auto"
-        style={{ background: deviceWidth ? "#e5e7eb" : "transparent" }}
+        style={{ background: deviceWidth ? "var(--col-surface-2)" : "var(--col-bg)" }}
       >
         {isUpdating && (
-          <div className="absolute inset-0 z-50 pointer-events-none">
-            <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-500 via-cyan-400 to-emerald-400 animate-pulse" />
-            <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-blue-600/90 text-white text-xs px-3 py-1.5 rounded-full shadow-lg backdrop-blur-sm">
-              <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+          <div style={{ position: "absolute", inset: 0, zIndex: 50, pointerEvents: "none" }}>
+            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: "var(--col-action)", opacity: 0.4 }} className="shimmer" />
+            <div style={{
+              position: "absolute", top: 10, right: 10,
+              display: "flex", alignItems: "center", gap: 6,
+              background: "var(--col-surface)", border: "1px solid var(--col-border-2)",
+              color: "var(--col-text-2)", fontSize: 11, padding: "5px 10px", borderRadius: 20,
+              boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
+            }}>
+              <svg style={{ width: 10, height: 10 }} className="animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <circle style={{ opacity: 0.25 }} cx="12" cy="12" r="10" strokeWidth="4" />
+                <path style={{ opacity: 0.75 }} fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
               </svg>
               更新中
             </div>
@@ -134,7 +156,16 @@ const PreviewPanel = forwardRef<PreviewPanelHandle, Props>(function PreviewPanel
             {sectionOrder
               .filter((key) => !hiddenSections.includes(key))
               .map((key) => (
-                <div key={key} id={`preview-section-${key}`}>
+                <div key={key} id={`preview-section-${key}`} style={{ position: "relative" }}>
+                  <div style={{
+                    position: "absolute", top: 8, left: 8, zIndex: 10,
+                    fontSize: 10, fontWeight: 700, fontFamily: "monospace",
+                    padding: "2px 7px", borderRadius: 4,
+                    background: "rgba(55,53,47,0.75)", color: "#fff",
+                    pointerEvents: "none", letterSpacing: "0.04em",
+                  }}>
+                    {SECTION_LABELS[key]}
+                  </div>
                   {renderSection(key, data, sectionLayouts[key])}
                 </div>
               ))}

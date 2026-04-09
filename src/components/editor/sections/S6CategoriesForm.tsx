@@ -22,8 +22,8 @@ export default function S6CategoriesForm({ data, onChange }: Props) {
       />
       <div className="grid grid-cols-2 gap-2">
         {data.cards.map((card, i) => (
-          <div key={i} className="flex flex-col gap-2 p-2.5 rounded-lg bg-white/3 border border-white/8">
-            <p className="text-xs font-semibold text-violet-300">カテゴリ {i + 1}</p>
+          <div key={i} style={{ display: "flex", flexDirection: "column", gap: 8, padding: 10, borderRadius: 6, background: "var(--col-surface-2)", border: "1px solid var(--col-border)" }}>
+            <p style={{ fontSize: 11, fontWeight: 600, color: "var(--col-text-2)", margin: 0 }}>カテゴリ {i + 1}</p>
             <FieldInput
               label="カテゴリ名"
               value={card.name}

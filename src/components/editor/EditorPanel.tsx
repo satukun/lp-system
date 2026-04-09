@@ -26,20 +26,21 @@ interface Props {
   sectionLayouts: SectionLayouts;
   onChangeLayout: (key: SectionKey, layout: LayoutIndex) => void;
   onSectionOpen?: (key: SectionKey) => void;
+  onCollapse?: () => void;
 }
 
-const SECTION_META: Record<SectionKey, { id: string; title: string; badge: string }> = {
-  s1:  { id: "S1",  title: "Header",                badge: "固定" },
-  s2:  { id: "S2",  title: "Hero & Trust Badges",   badge: "可変" },
-  s3:  { id: "S3",  title: "Message",               badge: "可変" },
-  s4:  { id: "S4",  title: "Problem Identification", badge: "可変" },
-  s5:  { id: "S5",  title: "Features & Benefits",   badge: "可変" },
-  s6:  { id: "S6",  title: "Categories",            badge: "可変" },
-  s7:  { id: "S7",  title: "Case Studies",          badge: "可変" },
-  s8:  { id: "S8",  title: "Implementation Flow",   badge: "可変" },
-  s9:  { id: "S9",  title: "Lead Form & FAQ",       badge: "可変" },
-  s10: { id: "S10", title: "Closing Message",       badge: "可変" },
-  s11: { id: "S11", title: "Footer",                badge: "固定" },
+const SECTION_META: Record<SectionKey, { id: string; title: string }> = {
+  s1:  { id: "S1",  title: "Header" },
+  s2:  { id: "S2",  title: "Hero & Trust Badges" },
+  s3:  { id: "S3",  title: "Message" },
+  s4:  { id: "S4",  title: "Problem Identification" },
+  s5:  { id: "S5",  title: "Features & Benefits" },
+  s6:  { id: "S6",  title: "Categories" },
+  s7:  { id: "S7",  title: "Case Studies" },
+  s8:  { id: "S8",  title: "Implementation Flow" },
+  s9:  { id: "S9",  title: "Lead Form & FAQ" },
+  s10: { id: "S10", title: "Closing Message" },
+  s11: { id: "S11", title: "Footer" },
 };
 
 const LAYOUT_LABELS = ["A", "B", "C"] as const;
@@ -47,7 +48,7 @@ const LAYOUT_LABELS = ["A", "B", "C"] as const;
 export default function EditorPanel({
   data, onChange, sectionOrder, onReorder,
   hiddenSections, onToggleHidden,
-  sectionLayouts, onChangeLayout, onSectionOpen,
+  sectionLayouts, onChangeLayout, onSectionOpen, onCollapse,
 }: Props) {
   const [dragOverKey, setDragOverKey] = useState<SectionKey | null>(null);
   const draggingKey = useRef<SectionKey | null>(null);
@@ -99,10 +100,25 @@ export default function EditorPanel({
   };
 
   return (
-    <div className="flex flex-col gap-2 p-4">
-      <div className="mb-2">
-        <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-widest">セクション編集</h2>
-        <p className="text-xs text-slate-600 mt-0.5">☰ ドラッグで並び替え / タイトルクリックで展開</p>
+    <div style={{ display: "flex", flexDirection: "column", gap: 8, padding: 16 }}>
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 4 }}>
+        <div>
+          <h2 style={{ fontSize: 11, fontWeight: 600, color: "var(--col-text-3)", textTransform: "uppercase", letterSpacing: "0.08em", margin: 0 }}>セクション編集</h2>
+          <p style={{ fontSize: 11, color: "var(--col-text-3)", marginTop: 3, marginBottom: 0 }}>ドラッグで並び替え · タイトルクリックで展開</p>
+        </div>
+        {onCollapse && (
+          <button
+            onClick={onCollapse}
+            title="パネルを閉じる"
+            style={{ flexShrink: 0, width: 24, height: 24, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 5, background: "transparent", border: "none", cursor: "pointer", color: "var(--col-text-3)" }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "var(--col-surface-2)"; (e.currentTarget as HTMLElement).style.color = "var(--col-text-2)"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.color = "var(--col-text-3)"; }}
+          >
+            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+        )}
       </div>
 
       {sectionOrder.map((key) => {
@@ -113,7 +129,6 @@ export default function EditorPanel({
             <SectionCard
               sectionId={meta.id}
               title={meta.title}
-              badge={meta.badge}
               defaultOpen={key === "s2"}
               hidden={hiddenSections.includes(key)}
               onToggleHidden={() => onToggleHidden(key)}
@@ -126,7 +141,7 @@ export default function EditorPanel({
               layoutLabel={LAYOUT_LABELS[currentLayoutIdx]}
             >
               {/* レイアウトピッカー */}
-              <div className="mb-4 pb-4 border-b border-white/5">
+              <div style={{ marginBottom: 16, paddingBottom: 16, borderBottom: "1px solid var(--col-border)" }}>
                 <LayoutPicker
                   sectionKey={key}
                   value={currentLayoutIdx}

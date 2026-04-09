@@ -21,8 +21,8 @@ export default function S5FeaturesForm({ data, onChange }: Props) {
         placeholder="選ばれる理由"
       />
       {data.cards.map((card, i) => (
-        <div key={i} className="flex flex-col gap-2 p-3 rounded-lg bg-white/3 border border-white/8">
-          <p className="text-xs font-semibold text-emerald-300">特徴カード {i + 1}</p>
+        <div key={i} style={{ display: "flex", flexDirection: "column", gap: 8, padding: 12, borderRadius: 6, background: "var(--col-surface-2)", border: "1px solid var(--col-border)" }}>
+          <p style={{ fontSize: 11, fontWeight: 600, color: "var(--col-text-2)", margin: 0 }}>特徴カード {i + 1}</p>
           <FieldInput
             label="ポイントラベル"
             value={card.pointLabel}

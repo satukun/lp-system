@@ -20,10 +20,10 @@ export default function S9FormFaqForm({ data, onChange }: Props) {
         onChange={(v) => onChange({ ...data, formHeading: v })}
         placeholder="まずは資料請求"
       />
-      <p className="text-xs font-semibold text-slate-300 mt-1">FAQ（5問）</p>
+      <p style={{ fontSize: 11, fontWeight: 600, color: "var(--col-text-2)", marginTop: 4, marginBottom: 0 }}>FAQ（5問）</p>
       {data.faqs.map((faq, i) => (
-        <div key={i} className="flex flex-col gap-2 p-3 rounded-lg bg-white/3 border border-white/8">
-          <p className="text-xs font-semibold text-rose-300">Q{i + 1}</p>
+        <div key={i} style={{ display: "flex", flexDirection: "column", gap: 8, padding: 12, borderRadius: 6, background: "var(--col-surface-2)", border: "1px solid var(--col-border)" }}>
+          <p style={{ fontSize: 11, fontWeight: 600, color: "var(--col-text-2)", margin: 0 }}>Q{i + 1}</p>
           <FieldInput
             label="質問"
             value={faq.question}

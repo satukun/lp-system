@@ -15,7 +15,7 @@ export default function S11FooterForm({ data, onChange }: Props) {
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-xs text-slate-500">フッターリンク</p>
+      <p style={{ fontSize: 11, color: "var(--col-text-3)", margin: 0 }}>フッターリンク</p>
       {data.links.map((link, i) => (
         <FieldInput
           key={i}

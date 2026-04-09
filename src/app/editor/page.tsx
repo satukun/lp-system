@@ -39,6 +39,7 @@ export default function EditorPage() {
 
   const [stocks, setStocks] = useState<StockedLP[]>([]);
   const [stockOpen, setStockOpen] = useState(true);
+  const [editorOpen, setEditorOpen] = useState(true);
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const dragStartXRef = useRef(0);
@@ -57,12 +58,10 @@ export default function EditorPage() {
         const parsed = JSON.parse(rawData) as LPData;
         setLpData(parsed);
         setPreviewData(parsed);
-        localStorage.removeItem(WIZARD_DATA_KEY);
       }
       if (rawLayouts) {
         const parsed = JSON.parse(rawLayouts) as SectionLayouts;
         setSectionLayouts(parsed);
-        localStorage.removeItem(WIZARD_LAYOUTS_KEY);
       }
       if (rawConfirmed) {
         const confirmed = JSON.parse(rawConfirmed) as SectionKey[];
@@ -70,7 +69,6 @@ export default function EditorPage() {
         const hidden = DEFAULT_SECTION_ORDER.filter((k) => !confirmed.includes(k));
         setHiddenSections(hidden);
         setPreviewHidden(hidden);
-        localStorage.removeItem(WIZARD_CONFIRMED_KEY);
       }
     } catch { /* ignore */ }
     setInitialized(true);
@@ -189,60 +187,70 @@ export default function EditorPage() {
 
   return (
     <div
-      className="flex flex-col h-screen overflow-hidden mesh-bg"
-      style={{ userSelect: isDragging ? "none" : "auto" }}
+      className="flex flex-col h-screen overflow-hidden"
+      style={{ background: "var(--col-bg)", userSelect: isDragging ? "none" : "auto" }}
     >
       {/* Header */}
-      <header className="glass sticky top-0 z-50 flex items-center justify-between px-6 py-3 border-b border-white/10">
+      <header
+        className="sticky top-0 z-50 flex items-center justify-between px-5 py-0"
+        style={{ height: 48, background: "var(--col-bg)", borderBottom: "1px solid var(--col-border)" }}
+      >
         <div className="flex items-center gap-3">
           <button
             onClick={() => router.push("/")}
-            className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all duration-150 text-xs"
+            className="flex items-center gap-1.5 px-2 py-1.5 rounded-md text-xs transition-all duration-150"
+            style={{ color: "var(--col-text-2)", border: "none", background: "transparent", cursor: "pointer" }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--col-text)"; (e.currentTarget as HTMLElement).style.background = "var(--col-surface-2)"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--col-text-2)"; (e.currentTarget as HTMLElement).style.background = "transparent"; }}
           >
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" />
             </svg>
             戻る
           </button>
-          <div className="w-px h-4 bg-white/10" />
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-400 to-emerald-400 flex items-center justify-center text-sm font-bold text-white">
-            LP
-          </div>
-          <span className="font-semibold text-white text-sm" style={{ fontFamily: "Sora, sans-serif" }}>
+          <div style={{ width: 1, height: 16, background: "var(--col-border-2)" }} />
+          <div style={{
+            width: 28, height: 28, borderRadius: 6,
+            background: "var(--col-surface)", border: "1px solid var(--col-border-2)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: 11, fontWeight: 700, color: "var(--col-text)",
+          }}>LP</div>
+          <span className="text-sm font-semibold" style={{ color: "var(--col-text)", fontFamily: "Inter, sans-serif" }}>
             LP生成エディタ
           </span>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           {isUpdating && (
-            <div className="flex items-center gap-2 text-xs text-blue-300 shimmer">
-              <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <div className="flex items-center gap-2 text-xs shimmer" style={{ color: "var(--col-text-2)" }}>
+              <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <circle className="opacity-25" cx="12" cy="12" r="10" strokeWidth="3" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
               </svg>
-              更新中...
+              更新中
             </div>
           )}
           <button
-            onClick={() => setStockOpen(!stockOpen)}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${
-              stockOpen
-                ? "bg-emerald-500/20 border border-emerald-500/30 text-emerald-300"
-                : "bg-white/5 border border-white/10 text-slate-400 hover:text-white"
-            }`}
+            onClick={() => router.push("/complete")}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-150"
+            style={{ background: "var(--col-success-bg)", border: "1px solid var(--col-success-bd)", color: "var(--col-success)", cursor: "pointer" }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = "0.8"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = "1"; }}
           >
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 20 20">
+              <path d="M9 12l2 2 4-4" /><circle cx="10" cy="10" r="7.5" />
             </svg>
-            ストック {stocks.length > 0 && <span className="bg-emerald-500/30 text-emerald-200 px-1.5 py-0.5 rounded-full text-xs">{stocks.length}</span>}
+            完成画面へ
           </button>
           <button
             onClick={handleDownloadMd}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-400 hover:to-blue-500 text-white text-sm font-semibold transition-all duration-200 shadow-lg shadow-blue-500/20"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-md text-white text-xs font-semibold transition-all duration-150"
+            style={{ background: "var(--col-action)", border: "none", cursor: "pointer" }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "var(--col-action-h)"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "var(--col-action)"; }}
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" viewBox="0 0 20 20">
+              <path d="M10 3v10M6.5 9.5l3.5 4 3.5-4"/><path d="M4 15.5h12"/>
             </svg>
             MDをダウンロード
           </button>
@@ -251,39 +259,63 @@ export default function EditorPage() {
 
       {/* Main */}
       <main ref={mainRef} className="flex flex-1 overflow-hidden">
-        <div className="flex-shrink-0 overflow-y-auto" style={{ width: editorWidth }}>
-          <EditorPanel
-            data={lpData}
-            onChange={handleChange}
-            sectionOrder={sectionOrder}
-            onReorder={handleReorder}
-            hiddenSections={hiddenSections}
-            onToggleHidden={handleToggleHidden}
-            sectionLayouts={sectionLayouts}
-            onChangeLayout={handleChangeLayout}
-            onSectionOpen={(key) => {
-              requestAnimationFrame(() => previewRef.current?.scrollToSection(key));
-            }}
-          />
-        </div>
+        {/* エディタパネル (開) */}
+        {editorOpen && (
+          <>
+            <div className="flex-shrink-0 overflow-y-auto" style={{ width: editorWidth }}>
+              <EditorPanel
+                data={lpData}
+                onChange={handleChange}
+                sectionOrder={sectionOrder}
+                onReorder={handleReorder}
+                hiddenSections={hiddenSections}
+                onToggleHidden={handleToggleHidden}
+                sectionLayouts={sectionLayouts}
+                onChangeLayout={handleChangeLayout}
+                onSectionOpen={(key) => {
+                  requestAnimationFrame(() => previewRef.current?.scrollToSection(key));
+                }}
+                onCollapse={() => setEditorOpen(false)}
+              />
+            </div>
+            <div
+              onMouseDown={handleDividerMouseDown}
+              className="flex-shrink-0 relative flex items-center justify-center"
+              style={{
+                width: 6, cursor: "col-resize",
+                background: isDragging ? "rgba(55,53,47,0.12)" : "var(--col-border)",
+                transition: isDragging ? "none" : "background 0.15s",
+                zIndex: 10,
+              }}
+            >
+              <div style={{ display: "flex", flexDirection: "column", gap: 3, opacity: isDragging ? 1 : 0.4 }}>
+                {[0, 1, 2].map((i) => (
+                  <div key={i} style={{ width: 2, height: 2, borderRadius: "50%", background: isDragging ? "var(--col-text)" : "var(--col-text-3)" }} />
+                ))}
+              </div>
+            </div>
+          </>
+        )}
 
-        <div
-          onMouseDown={handleDividerMouseDown}
-          className="flex-shrink-0 relative flex items-center justify-center"
-          style={{
-            width: 6,
-            cursor: "col-resize",
-            background: isDragging ? "rgba(96,165,250,0.4)" : "rgba(255,255,255,0.07)",
-            transition: isDragging ? "none" : "background 0.15s",
-            zIndex: 10,
-          }}
-        >
-          <div style={{ display: "flex", flexDirection: "column", gap: 3, opacity: isDragging ? 1 : 0.4 }}>
-            {[0, 1, 2].map((i) => (
-              <div key={i} style={{ width: 2, height: 2, borderRadius: "50%", background: isDragging ? "#60a5fa" : "rgba(255,255,255,0.8)" }} />
-            ))}
+        {/* エディタパネル (閉) — 細いタブ */}
+        {!editorOpen && (
+          <div
+            onClick={() => setEditorOpen(true)}
+            title="セクション編集を開く"
+            style={{
+              flexShrink: 0, width: 32, borderRight: "1px solid var(--col-border)",
+              background: "var(--col-bg)", cursor: "pointer",
+              display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 10, gap: 8,
+              transition: "background 0.15s",
+            }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "var(--col-surface-2)"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "var(--col-bg)"; }}
+          >
+            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "var(--col-text-3)" }}>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
           </div>
-        </div>
+        )}
 
         <div className="flex-1 overflow-hidden relative min-w-0">
           <PreviewPanel
@@ -296,15 +328,37 @@ export default function EditorPage() {
           />
         </div>
 
+        {/* ストックパネル (閉) — 細いタブ */}
+        {!stockOpen && (
+          <div
+            onClick={() => setStockOpen(true)}
+            title="ストックを開く"
+            style={{
+              flexShrink: 0, width: 32, borderLeft: "1px solid var(--col-border)",
+              background: "var(--col-bg)", cursor: "pointer",
+              display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 10, gap: 8,
+              transition: "background 0.15s",
+            }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "var(--col-surface-2)"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "var(--col-bg)"; }}
+          >
+            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "var(--col-text-3)" }}>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </div>
+        )}
+
+        {/* ストックパネル (開) */}
         {stockOpen && (
           <>
-            <div className="flex-shrink-0 border-l border-white/10" style={{ width: 1 }} />
+            <div style={{ flexShrink: 0, width: 1, background: "var(--col-border)" }} />
             <div className="flex-shrink-0 overflow-hidden" style={{ width: STOCK_PANEL_WIDTH }}>
               <StockPanel
                 stocks={stocks}
                 onSave={handleSaveStock}
                 onRestore={handleRestoreStock}
                 onDelete={handleDeleteStock}
+                onCollapse={() => setStockOpen(false)}
               />
             </div>
           </>

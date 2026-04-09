@@ -5,7 +5,6 @@ import { useState } from "react";
 interface SectionCardProps {
   sectionId: string;
   title: string;
-  badge?: string;
   children: React.ReactNode;
   defaultOpen?: boolean;
   hidden?: boolean;
@@ -16,11 +15,11 @@ interface SectionCardProps {
   onDragOver?: (e: React.DragEvent) => void;
   onDrop?: (e: React.DragEvent) => void;
   isDragOver?: boolean;
-  layoutLabel?: string; // "A" | "B" | "C"
+  layoutLabel?: string;
 }
 
 export default function SectionCard({
-  sectionId, title, badge, children,
+  sectionId, title, children,
   defaultOpen = false, hidden = false, onToggleHidden, onOpen,
   draggable = false, onDragStart, onDragOver, onDrop,
   isDragOver = false, layoutLabel,
@@ -33,18 +32,20 @@ export default function SectionCard({
       onDragStart={onDragStart}
       onDragOver={onDragOver}
       onDrop={onDrop}
-      className="glass rounded-xl overflow-hidden transition-all duration-150"
       style={{
-        outline: isDragOver ? "2px solid rgba(96,165,250,0.6)" : "none",
-        opacity: isDragOver ? 0.7 : hidden ? 0.45 : 1,
+        background: "var(--col-bg)",
+        border: isDragOver ? "1px solid rgba(55,53,47,0.4)" : "1px solid var(--col-border)",
+        borderRadius: 8,
+        overflow: "hidden",
+        opacity: hidden ? 0.5 : 1,
+        transition: "border-color 150ms, opacity 150ms",
       }}
     >
-      <div className="flex items-center">
+      <div style={{ display: "flex", alignItems: "center" }}>
         {/* ドラッグハンドル */}
         {draggable && (
           <div
-            className="flex-shrink-0 flex flex-col items-center justify-center px-2 self-stretch cursor-grab active:cursor-grabbing"
-            style={{ color: "rgba(255,255,255,0.25)" }}
+            style={{ flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "0 8px", alignSelf: "stretch", cursor: "grab", color: "var(--col-text-3)" }}
             title="ドラッグして並び替え"
           >
             <svg width="10" height="16" viewBox="0 0 10 16" fill="currentColor">
@@ -65,30 +66,37 @@ export default function SectionCard({
             setOpen(next);
             if (next) onOpen?.();
           }}
-          className="flex-1 flex items-center justify-between px-4 py-3.5 hover:bg-white/5 transition-colors duration-150"
+          style={{
+            flex: 1, display: "flex", alignItems: "center", justifyContent: "space-between",
+            padding: "10px 14px", background: "transparent", border: "none", cursor: "pointer",
+            textAlign: "left",
+          }}
           aria-expanded={open}
         >
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-md border border-blue-500/20">
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{
+              fontSize: 11, fontWeight: 700, padding: "2px 7px", borderRadius: 5,
+              background: "var(--col-surface-2)", border: "1px solid var(--col-border)",
+              color: "var(--col-text-2)",
+            }}>
               {sectionId}
             </span>
-            <span className={`text-sm font-semibold ${hidden ? "text-slate-500 line-through" : "text-white"}`}>
+            <span style={{ fontSize: 13, fontWeight: 600, color: hidden ? "var(--col-text-3)" : "var(--col-text)", textDecoration: hidden ? "line-through" : "none" }}>
               {title}
             </span>
-            {badge && (
-              <span className="text-xs text-slate-400 bg-slate-700/50 px-2 py-0.5 rounded-md">{badge}</span>
-            )}
             {hidden && (
-              <span className="text-xs text-slate-500 bg-slate-800/60 px-2 py-0.5 rounded-md">非表示</span>
+              <span style={{ fontSize: 11, color: "var(--col-text-3)", background: "var(--col-surface-2)", padding: "1px 7px", borderRadius: 4 }}>
+                非表示
+              </span>
             )}
             {layoutLabel && !hidden && (
-              <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded-md border border-emerald-500/20">
+              <span style={{ fontSize: 11, fontWeight: 700, color: "var(--col-success)", background: "var(--col-success-bg)", border: "1px solid var(--col-success-bd)", padding: "1px 6px", borderRadius: 4 }}>
                 {layoutLabel}
               </span>
             )}
           </div>
           <svg
-            className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+            style={{ width: 14, height: 14, color: "var(--col-text-3)", transition: "transform 200ms", transform: open ? "rotate(180deg)" : "rotate(0deg)", flexShrink: 0 }}
             fill="none" stroke="currentColor" viewBox="0 0 24 24"
           >
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -99,16 +107,16 @@ export default function SectionCard({
         {onToggleHidden && (
           <button
             onClick={(e) => { e.stopPropagation(); onToggleHidden(); }}
-            className="flex-shrink-0 px-3 self-stretch flex items-center hover:bg-white/5 transition-colors duration-150"
+            style={{ flexShrink: 0, padding: "0 12px", alignSelf: "stretch", display: "flex", alignItems: "center", background: "transparent", border: "none", cursor: "pointer", color: "var(--col-text-3)", borderLeft: "1px solid var(--col-border)" }}
             title={hidden ? "セクションを表示" : "セクションを非表示"}
           >
             {hidden ? (
-              <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg style={{ width: 14, height: 14 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8}
                   d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
               </svg>
             ) : (
-              <svg className="w-4 h-4 text-slate-400 hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg style={{ width: 14, height: 14 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8}
                   d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -118,23 +126,20 @@ export default function SectionCard({
         )}
       </div>
 
-      {/* アコーディオン本体 — grid-template-rows でスムーズな高さアニメーション */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateRows: (open && !hidden) ? "1fr" : "0fr",
-          transition: "grid-template-rows 280ms cubic-bezier(0.4, 0, 0.2, 1)",
-        }}
-      >
+      {/* アコーディオン本体 */}
+      <div style={{
+        display: "grid",
+        gridTemplateRows: (open && !hidden) ? "1fr" : "0fr",
+        transition: "grid-template-rows 280ms cubic-bezier(0.4, 0, 0.2, 1)",
+      }}>
         <div style={{ overflow: "hidden" }}>
-          <div
-            className="px-4 pb-4 pt-2 border-t border-white/5"
-            style={{
-              opacity: (open && !hidden) ? 1 : 0,
-              transform: (open && !hidden) ? "translateY(0)" : "translateY(-6px)",
-              transition: "opacity 220ms ease, transform 220ms ease",
-            }}
-          >
+          <div style={{
+            padding: "12px 16px 16px",
+            borderTop: "1px solid var(--col-border)",
+            opacity: (open && !hidden) ? 1 : 0,
+            transform: (open && !hidden) ? "translateY(0)" : "translateY(-4px)",
+            transition: "opacity 220ms ease, transform 220ms ease",
+          }}>
             {children}
           </div>
         </div>

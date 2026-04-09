@@ -15,7 +15,7 @@ export default function S1HeaderForm({ data, onChange }: Props) {
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-xs text-slate-500">メニュー項目（最大4個）</p>
+      <p style={{ fontSize: 11, color: "var(--col-text-3)", margin: 0 }}>メニュー項目（最大4個）</p>
       {data.menuItems.map((item, i) => (
         <FieldInput
           key={i}
