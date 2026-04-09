@@ -100,6 +100,7 @@ export interface S11Footer {
 }
 
 export type SectionKey = 's1' | 's2' | 's3' | 's4' | 's5' | 's6' | 's7' | 's8' | 's9' | 's10' | 's11';
+export type ColorPalette = "A" | "B" | "C";
 
 export const DEFAULT_SECTION_ORDER: SectionKey[] = ['s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11'];
 
@@ -132,4 +133,5 @@ export interface LPData {
   s9: S9FormFaq;
   s10: S10Closing;
   s11: S11Footer;
+  images: Record<string, string>;
 }

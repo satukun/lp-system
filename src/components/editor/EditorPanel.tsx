@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import type { LPData, SectionKey, SectionLayouts, LayoutIndex } from "@/lib/types";
 import SectionCard from "@/components/ui/SectionCard";
 import LayoutPicker from "@/components/wizard/LayoutPicker";
@@ -25,6 +25,8 @@ interface Props {
   onToggleHidden: (key: SectionKey) => void;
   sectionLayouts: SectionLayouts;
   onChangeLayout: (key: SectionKey, layout: LayoutIndex) => void;
+  confirmedSections: SectionKey[];
+  onToggleConfirmed: (key: SectionKey) => void;
   onSectionOpen?: (key: SectionKey) => void;
   onCollapse?: () => void;
 }
@@ -48,10 +50,20 @@ const LAYOUT_LABELS = ["A", "B", "C"] as const;
 export default function EditorPanel({
   data, onChange, sectionOrder, onReorder,
   hiddenSections, onToggleHidden,
-  sectionLayouts, onChangeLayout, onSectionOpen, onCollapse,
+  sectionLayouts, onChangeLayout,
+  confirmedSections, onToggleConfirmed,
+  onSectionOpen, onCollapse,
 }: Props) {
   const [dragOverKey, setDragOverKey] = useState<SectionKey | null>(null);
+  const [flashKey,    setFlashKey]    = useState<SectionKey | null>(null);
   const draggingKey = useRef<SectionKey | null>(null);
+
+  const handleConfirmClick = useCallback((key: SectionKey) => {
+    onToggleConfirmed(key);
+    if (confirmedSections.includes(key)) return; // 追加時のみフラッシュ
+    setFlashKey(key);
+    setTimeout(() => setFlashKey(null), 900);
+  }, [confirmedSections, onToggleConfirmed]);
 
   const handleDragStart = (key: SectionKey) => (e: React.DragEvent) => {
     draggingKey.current = key;
@@ -151,6 +163,62 @@ export default function EditorPanel({
 
               {/* コンテンツフォーム */}
               {renderForm(key)}
+
+              {/* 確定/追加ボタン */}
+              <div style={{
+                marginTop: 16, paddingTop: 12,
+                borderTop: "1px solid var(--col-border)",
+                display: "flex", alignItems: "center", justifyContent: "space-between",
+              }}>
+                {confirmedSections.includes(key) ? (
+                  <>
+                    <div style={{
+                      display: "flex", alignItems: "center", gap: 5,
+                      fontSize: 12, fontWeight: 600, color: "var(--col-success)",
+                      padding: "4px 10px", borderRadius: 6,
+                      background: flashKey === key ? "var(--col-success-bg)" : "transparent",
+                      border: `1px solid ${flashKey === key ? "var(--col-success-bd)" : "transparent"}`,
+                      transition: "all 0.3s",
+                    }}>
+                      <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M2 6l3 3 5-5" />
+                      </svg>
+                      確定済み
+                    </div>
+                    <button
+                      onClick={() => onToggleConfirmed(key)}
+                      style={{
+                        padding: "4px 10px", borderRadius: 6, background: "transparent",
+                        color: "var(--col-text-3)", fontSize: 11,
+                        border: "1px solid var(--col-border)", cursor: "pointer",
+                        transition: "all 0.15s",
+                      }}
+                      onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--col-text)"; (e.currentTarget as HTMLElement).style.borderColor = "var(--col-border-2)"; }}
+                      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--col-text-3)"; (e.currentTarget as HTMLElement).style.borderColor = "var(--col-border)"; }}
+                    >
+                      × 取り消す
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={() => handleConfirmClick(key)}
+                    style={{
+                      padding: "6px 16px", borderRadius: 6,
+                      background: "var(--col-text)", color: "var(--col-bg)",
+                      fontSize: 12, fontWeight: 600, border: "none", cursor: "pointer",
+                      display: "flex", alignItems: "center", gap: 5,
+                      transition: "opacity 0.15s", marginLeft: "auto",
+                    }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = "0.85"; }}
+                    onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = "1"; }}
+                  >
+                    <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M6 2v8M2 6h8" />
+                    </svg>
+                    追加
+                  </button>
+                )}
+              </div>
             </SectionCard>
           </div>
         );

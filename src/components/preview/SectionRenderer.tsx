@@ -7,29 +7,203 @@ import "@/styles/lp-preview.css";
 const PH = (w: number, h: number, text: string) =>
   `https://placehold.co/${w}x${h}/E0E0E0/666666?text=${encodeURIComponent(text)}`;
 
-// ── S1 Header ──
-// A (layout 0): スタンダード — clean white, standard layout
-// B (layout 1): ゴールドライン — white + border-bottom: 3px solid #FFD700
-// C (layout 2): ロゴアクセント — white + gold left border on logo
-function S1({ d, layout }: { d: LPData["s1"]; layout: LayoutIndex }) {
-  const headerStyle: React.CSSProperties = {
-    background: "#fff",
-    borderBottom: layout === 1 ? "3px solid #FFD700" : "1px solid #E0E0E0",
-    padding: "16px 0",
-    position: "sticky",
-    top: 0,
-    zIndex: 100,
+export type OnImageChange = (key: string, url: string) => void;
+
+// ── UploadableImage ──
+// onImageChange があればクリックでファイル選択オーバーレイを表示
+function UploadableImage({
+  src, alt, imageKey, onImageChange, imgStyle, wrapperStyle,
+}: {
+  src: string;
+  alt: string;
+  imageKey: string;
+  onImageChange?: OnImageChange;
+  imgStyle?: React.CSSProperties;
+  wrapperStyle?: React.CSSProperties;
+}) {
+  const inputRef = React.useRef<HTMLInputElement>(null);
+  const isCustom = src.startsWith("data:");
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => onImageChange?.(imageKey, ev.target?.result as string);
+    reader.readAsDataURL(file);
+    e.target.value = "";
   };
-  const logoStyle: React.CSSProperties =
-    layout === 2
-      ? { borderLeft: "4px solid #FFD700", paddingLeft: 12 }
-      : {};
+
+  // wrapperStyle は onImageChange の有無に関わらず常に適用してレイアウトを保持する
+  return (
+    <div
+      className={onImageChange ? "img-upload-wrap" : undefined}
+      style={{ position: "relative", ...wrapperStyle }}
+      onClick={onImageChange ? () => inputRef.current?.click() : undefined}
+    >
+      <img src={src} alt={alt} style={imgStyle} />
+      {onImageChange && (
+        <>
+          <div className="img-upload-overlay"><span>画像を変更</span></div>
+          <input
+            ref={inputRef} type="file" accept="image/*"
+            style={{ display: "none" }} onChange={handleChange}
+          />
+          {isCustom && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onImageChange(imageKey, ""); }}
+              title="画像をクリア"
+              style={{
+                position: "absolute", top: 4, right: 4, zIndex: 30,
+                width: 20, height: 20, borderRadius: "50%",
+                background: "rgba(0,0,0,0.6)", color: "#fff",
+                border: "none", cursor: "pointer", display: "flex",
+                alignItems: "center", justifyContent: "center",
+                fontSize: 12, lineHeight: 1, backdropFilter: "blur(4px)",
+              }}
+            >×</button>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+// ── 背景画像スタイル生成 ──
+function bgImgStyle(url?: string): React.CSSProperties {
+  if (!url) return {};
+  return {
+    backgroundImage: `url(${url})`,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
+  };
+}
+
+// ── BgUploadButton — 編集時のみ表示される背景画像変更ボタン ──
+function BgUploadButton({ imageKey, onImageChange, currentUrl }: {
+  imageKey: string; onImageChange?: OnImageChange; currentUrl?: string;
+}) {
+  const inputRef = React.useRef<HTMLInputElement>(null);
+  if (!onImageChange) return null;
+  const hasImage = !!currentUrl;
+  return (
+    <div style={{ position: "absolute", top: 8, right: 8, zIndex: 20, display: "flex", gap: 4 }}>
+      {hasImage && (
+        <button
+          onClick={(e) => { e.stopPropagation(); onImageChange(imageKey, ""); }}
+          title="背景画像をクリア"
+          style={{
+            display: "flex", alignItems: "center", gap: 4,
+            padding: "5px 8px", borderRadius: 6, fontSize: 11, fontWeight: 500,
+            background: "rgba(180,0,0,0.55)", color: "#fff",
+            border: "1px solid rgba(255,255,255,0.25)",
+            cursor: "pointer", backdropFilter: "blur(6px)", whiteSpace: "nowrap",
+            transition: "background 0.15s",
+          }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(180,0,0,0.8)"; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(180,0,0,0.55)"; }}
+        >
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
+            <path d="M18 6L6 18M6 6l12 12" />
+          </svg>
+          クリア
+        </button>
+      )}
+      <button
+        onClick={(e) => { e.stopPropagation(); inputRef.current?.click(); }}
+        style={{
+          display: "flex", alignItems: "center", gap: 5,
+          padding: "5px 10px", borderRadius: 6, fontSize: 11, fontWeight: 500,
+          background: "rgba(0,0,0,0.5)", color: "#fff",
+          border: "1px solid rgba(255,255,255,0.25)",
+          cursor: "pointer", backdropFilter: "blur(6px)", whiteSpace: "nowrap",
+          transition: "background 0.15s",
+        }}
+        onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.72)"; }}
+        onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.5)"; }}
+      >
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2" />
+          <circle cx="8.5" cy="8.5" r="1.5" />
+          <path d="M21 15l-5-5L5 21" />
+        </svg>
+        {hasImage ? "変更" : "背景画像"}
+      </button>
+      <input
+        ref={inputRef} type="file" accept="image/*" style={{ display: "none" }}
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = ev => onImageChange(imageKey, ev.target?.result as string);
+          reader.readAsDataURL(file);
+          e.target.value = "";
+        }}
+      />
+    </div>
+  );
+}
+
+// ── S1 Header ──
+// A (layout 0): スタンダード — white bg, logo左・nav中央・CTA右
+// B (layout 1): ダーク — dark navy bg, gold logo, white nav, gold CTA
+// C (layout 2): ゴールドバー — white bg, thick gold bottom bar, compact
+function S1({ d, layout }: { d: LPData["s1"]; layout: LayoutIndex }) {
+  if (layout === 1) {
+    return (
+      <header style={{
+        background: "#1A1A2E", padding: "16px 0",
+        position: "sticky", top: 0, zIndex: 100,
+      }}>
+        <div className="lp-container">
+          <div className="lp-header-inner">
+            <div className="lp-logo" style={{ color: "#FFD700" }}>🏢 SERVICE</div>
+            <nav>
+              <ul className="lp-nav">
+                {d.menuItems.map((item, i) => (
+                  <li key={i}><a href="#" style={{ color: "rgba(255,255,255,0.8)" }}>{item}</a></li>
+                ))}
+              </ul>
+            </nav>
+            <a href="#" className="btn-primary" style={{ padding: "10px 20px", fontSize: 14 }}>{d.ctaText}</a>
+          </div>
+        </div>
+      </header>
+    );
+  }
+
+  if (layout === 2) {
+    return (
+      <header style={{
+        background: "#fff", borderBottom: "4px solid var(--color-primary)",
+        padding: "14px 0", position: "sticky", top: 0, zIndex: 100,
+      }}>
+        <div className="lp-container">
+          <div className="lp-header-inner">
+            <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              <div className="lp-logo" style={{ fontSize: "clamp(14px,1.6cqw,18px)" }}>🏢 SERVICE</div>
+              <span style={{ fontSize: 10, color: "#999", letterSpacing: "0.1em" }}>YOUR TAGLINE HERE</span>
+            </div>
+            <nav>
+              <ul className="lp-nav">
+                {d.menuItems.map((item, i) => <li key={i}><a href="#">{item}</a></li>)}
+              </ul>
+            </nav>
+            <a href="#" className="btn-primary" style={{ padding: "10px 20px", fontSize: 14 }}>{d.ctaText}</a>
+          </div>
+        </div>
+      </header>
+    );
+  }
 
   return (
-    <header style={headerStyle}>
+    <header style={{
+      background: "#fff", borderBottom: "1px solid var(--color-border)",
+      padding: "16px 0", position: "sticky", top: 0, zIndex: 100,
+    }}>
       <div className="lp-container">
         <div className="lp-header-inner">
-          <div className="lp-logo" style={logoStyle}>🏢 SERVICE</div>
+          <div className="lp-logo">🏢 SERVICE</div>
           <nav>
             <ul className="lp-nav">
               {d.menuItems.map((item, i) => <li key={i}><a href="#">{item}</a></li>)}
@@ -43,56 +217,82 @@ function S1({ d, layout }: { d: LPData["s1"]; layout: LayoutIndex }) {
 }
 
 // ── S2 Hero ──
-// ALWAYS: white bg, left-copy 60% / right-image 40%, min-height 600px, ALWAYS has image
-// A (layout 0): スタンダード — trust badges as inline dot-separated text
-// B (layout 1): バッジ強調 — trust badges as bordered pill style
-// C (layout 2): スタット型 — trust badges as 3 horizontal stat boxes with gold top border
-function S2({ d, layout }: { d: LPData["s2"]; layout: LayoutIndex }) {
-  const renderTrustBadges = () => {
-    if (layout === 1) {
-      return (
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 4 }}>
-          {d.trustBadges.map((b, i) => (
-            <span key={i} style={{
-              background: "#F5F5F0",
-              border: "1px solid #E0E0E0",
-              borderRadius: 999,
-              padding: "6px 16px",
-              fontSize: "clamp(12px,1.3cqw,14px)",
-              fontWeight: 600,
-              color: "#1A1A2E",
-            }}>{b}</span>
-          ))}
-        </div>
-      );
-    }
-    if (layout === 2) {
-      return (
-        <div style={{ display: "flex", gap: 0, flexWrap: "wrap" }}>
-          {d.trustBadges.map((b, i) => (
-            <div key={i} style={{
-              borderTop: "2px solid #FFD700",
-              background: "#F5F5F0",
-              padding: "12px 20px",
-              marginRight: 2,
-              fontSize: "clamp(12px,1.3cqw,14px)",
-              fontWeight: 700,
-              color: "#1A1A2E",
-            }}>{b}</div>
-          ))}
-        </div>
-      );
-    }
-    // layout 0: inline dot-separated
+// A (layout 0): スタンダード — 左テキスト60% / 右画像40%
+// B (layout 1): センタード — 中央揃え、フルワイド画像下部
+// C (layout 2): リバース — 左画像40% / 右テキスト60%
+function S2({ d, layout, images, onImageChange }: {
+  d: LPData["s2"]; layout: LayoutIndex;
+  images: LPData["images"]; onImageChange?: OnImageChange;
+}) {
+  if (layout === 1) {
     return (
-      <div className="lp-trust-badges">
-        {d.trustBadges.map((b, i) => <span key={i}>{b}</span>)}
-      </div>
+      <section className="lp-hero" style={{ textAlign: "center", position: "relative", ...bgImgStyle(images["s2_bg"]) }}>
+        <BgUploadButton imageKey="s2_bg" onImageChange={onImageChange} currentUrl={images["s2_bg"]} />
+        <div className="lp-container">
+          <div style={{ maxWidth: 760, margin: "0 auto" }}>
+            <p className="lp-label" style={{ marginBottom: 16 }}>HERO</p>
+            <h1 style={{
+              fontSize: "clamp(32px,4.5cqw,52px)", fontWeight: 700,
+              color: "var(--color-secondary)", lineHeight: 1.3, letterSpacing: "0.02em", margin: "0 0 24px 0",
+            }}>{d.mainCopy}</h1>
+            <p style={{ fontSize: "clamp(15px,1.6cqw,18px)", color: "var(--color-text-light)", margin: "0 0 40px 0", lineHeight: 1.8 }}>{d.subCopy}</p>
+            <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap", marginBottom: 32 }}>
+              <a href="#" className="btn-primary">{d.ctaText}</a>
+              <a href="#" className="btn-secondary">{d.secondaryCtaText}</a>
+            </div>
+            <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", marginBottom: 48 }}>
+              {d.trustBadges.map((b, i) => (
+                <span key={i} style={{
+                  background: "rgba(255,215,0,0.12)", border: "1px solid rgba(255,215,0,0.4)",
+                  borderRadius: 999, padding: "6px 18px",
+                  fontSize: "clamp(12px,1.2cqw,14px)", fontWeight: 600, color: "var(--color-secondary)",
+                }}>{b}</span>
+              ))}
+            </div>
+            <UploadableImage
+              src={images["s2_hero"] || PH(960, 400, "Hero Visual")}
+              alt="ヒーロービジュアル" imageKey="s2_hero" onImageChange={onImageChange}
+              imgStyle={{ width: "100%", borderRadius: 12, display: "block" }}
+              wrapperStyle={{ borderRadius: 12 }}
+            />
+          </div>
+        </div>
+      </section>
     );
-  };
+  }
+
+  if (layout === 2) {
+    return (
+      <section className="lp-hero" style={{ position: "relative", ...bgImgStyle(images["s2_bg"]) }}>
+        <BgUploadButton imageKey="s2_bg" onImageChange={onImageChange} currentUrl={images["s2_bg"]} />
+        <div className="lp-container">
+          <div className="lp-hero-inner" style={{ gridTemplateColumns: "4fr 6fr" }}>
+            <UploadableImage
+              src={images["s2_hero"] || PH(480, 360, "Hero Visual")}
+              alt="ヒーロービジュアル" imageKey="s2_hero" onImageChange={onImageChange}
+              imgStyle={{ width: "100%", borderRadius: 8, display: "block" }}
+              wrapperStyle={{ borderRadius: 8 }}
+            />
+            <div className="lp-hero-copy">
+              <h1>{d.mainCopy}</h1>
+              <p>{d.subCopy}</p>
+              <div className="lp-hero-actions">
+                <a href="#" className="btn-primary">{d.ctaText}</a>
+                <a href="#" className="btn-secondary">{d.secondaryCtaText}</a>
+              </div>
+              <div className="lp-trust-badges">
+                {d.trustBadges.map((b, i) => <span key={i}>{b}</span>)}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
-    <section className="lp-hero">
+    <section className="lp-hero" style={{ position: "relative", ...bgImgStyle(images["s2_bg"]) }}>
+      <BgUploadButton imageKey="s2_bg" onImageChange={onImageChange} currentUrl={images["s2_bg"]} />
       <div className="lp-container">
         <div className="lp-hero-inner">
           <div className="lp-hero-copy">
@@ -102,10 +302,17 @@ function S2({ d, layout }: { d: LPData["s2"]; layout: LayoutIndex }) {
               <a href="#" className="btn-primary">{d.ctaText}</a>
               <a href="#" className="btn-secondary">{d.secondaryCtaText}</a>
             </div>
-            {renderTrustBadges()}
+            <div className="lp-trust-badges">
+              {d.trustBadges.map((b, i) => <span key={i}>{b}</span>)}
+            </div>
           </div>
           <div className="lp-hero-visual">
-            <img src={PH(480, 360, "Hero Visual")} alt="ヒーロービジュアル" />
+            <UploadableImage
+              src={images["s2_hero"] || PH(480, 360, "Hero Visual")}
+              alt="ヒーロービジュアル" imageKey="s2_hero" onImageChange={onImageChange}
+              imgStyle={{ width: "100%", borderRadius: 8, display: "block" }}
+              wrapperStyle={{ borderRadius: 8 }}
+            />
           </div>
         </div>
       </div>
@@ -114,27 +321,89 @@ function S2({ d, layout }: { d: LPData["s2"]; layout: LayoutIndex }) {
 }
 
 // ── S3 Message ──
-// ALWAYS: alt #F5F5F0 bg, centered column, max-width 720px
-// A (layout 0): センター — standard label + h2 + body, centered
-// B (layout 1): ゴールドライン — h2 with gold bottom border
-// C (layout 2): カードスタイル — content wrapped in white card with gold left border
-function S3({ d, layout }: { d: LPData["s3"]; layout: LayoutIndex }) {
-  const innerContent = (
-    <>
-      <p className="lp-label">OVERVIEW</p>
-      <h2 style={layout === 1 ? { display: "inline-block", borderBottom: "2px solid #FFD700", paddingBottom: 8 } : {}}>
-        {d.heading}
-      </h2>
-      <p>{d.body}</p>
-    </>
-  );
+function S3({ d, layout, images, onImageChange }: {
+  d: LPData["s3"]; layout: LayoutIndex;
+  images: LPData["images"]; onImageChange?: OnImageChange;
+}) {
+  if (layout === 1) {
+    return (
+      <section className="lp-message" style={{ background: "var(--color-bg)", position: "relative", ...bgImgStyle(images["s3_bg"]) }}>
+        <BgUploadButton imageKey="s3_bg" onImageChange={onImageChange} currentUrl={images["s3_bg"]} />
+        <div className="lp-message-inner" style={{ textAlign: "left", position: "relative" }}>
+          <div style={{
+            fontSize: "clamp(80px,12cqw,140px)", lineHeight: 1, color: "var(--color-primary)",
+            fontFamily: "Georgia, serif", position: "absolute", top: -20, left: -10, opacity: 0.6,
+          }}>"</div>
+          <div style={{ paddingLeft: "clamp(32px,5cqw,60px)" }}>
+            <p className="lp-label">OVERVIEW</p>
+            <h2 style={{
+              fontSize: "clamp(22px,2.5cqw,28px)", fontWeight: 700, color: "var(--color-secondary)",
+              margin: "0 0 24px 0", lineHeight: 1.5,
+            }}>{d.heading}</h2>
+            <p style={{ fontSize: "clamp(14px,1.5cqw,16px)", color: "var(--color-text)", lineHeight: 1.8 }}>{d.body}</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   if (layout === 2) {
     return (
-      <section className="lp-message">
-        <div className="lp-message-inner">
-          <div className="lp-message-card">
-            {innerContent}
+      <section style={{ background: "var(--color-secondary)", padding: "var(--space-xl) 0", textAlign: "center", position: "relative", ...bgImgStyle(images["s3_bg"]) }}>
+        <BgUploadButton imageKey="s3_bg" onImageChange={onImageChange} currentUrl={images["s3_bg"]} />
+        <div style={{ maxWidth: 720, margin: "0 auto", padding: "0 24px" }}>
+          <p className="lp-label" style={{ color: "rgba(255,215,0,0.7)" }}>OVERVIEW</p>
+          <h2 style={{
+            fontSize: "clamp(22px,2.5cqw,28px)", fontWeight: 700, color: "#fff",
+            margin: "0 0 24px 0", lineHeight: 1.6,
+          }}>{d.heading}</h2>
+          <p style={{ fontSize: "clamp(14px,1.5cqw,16px)", color: "rgba(255,255,255,0.7)", lineHeight: 1.8 }}>{d.body}</p>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="lp-message" style={{ position: "relative", ...bgImgStyle(images["s3_bg"]) }}>
+      <BgUploadButton imageKey="s3_bg" onImageChange={onImageChange} currentUrl={images["s3_bg"]} />
+      <div className="lp-message-inner">
+        <p className="lp-label">OVERVIEW</p>
+        <h2>{d.heading}</h2>
+        <p>{d.body}</p>
+      </div>
+    </section>
+  );
+}
+
+// ── S4 Problems ──
+function S4({ d, layout, images, onImageChange }: {
+  d: LPData["s4"]; layout: LayoutIndex;
+  images: LPData["images"]; onImageChange?: OnImageChange;
+}) {
+  if (layout === 2) {
+    return (
+      <section className="lp-section lp-problems" style={{ position: "relative", ...bgImgStyle(images["s4_bg"]) }}>
+        <BgUploadButton imageKey="s4_bg" onImageChange={onImageChange} currentUrl={images["s4_bg"]} />
+        <div className="lp-container">
+          <p className="lp-label" style={{ textAlign: "center" }}>PROBLEMS</p>
+          <h2 className="lp-heading" style={{ textAlign: "center" }}>{d.sectionHeading}</h2>
+          <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+            {d.cards.map((card, i) => (
+              <div key={i} style={{
+                display: "flex", alignItems: "flex-start", gap: 24, padding: "24px 0",
+                borderBottom: i < d.cards.length - 1 ? "1px solid var(--color-border)" : "none",
+              }}>
+                <div style={{
+                  flexShrink: 0, width: 56, height: 56, background: "var(--color-primary)",
+                  borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 22, fontWeight: 800, color: "var(--color-secondary)",
+                }}>{String(i + 1).padStart(2, "0")}</div>
+                <div>
+                  <h3 style={{ fontSize: "clamp(15px,1.7cqw,17px)", fontWeight: 600, color: "var(--color-secondary)", margin: "0 0 8px 0" }}>{card.heading}</h3>
+                  <p style={{ fontSize: "clamp(13px,1.3cqw,14px)", color: "var(--color-text-light)", margin: 0, lineHeight: 1.7 }}>{card.description}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -142,59 +411,27 @@ function S3({ d, layout }: { d: LPData["s3"]; layout: LayoutIndex }) {
   }
 
   return (
-    <section className="lp-message">
-      <div className="lp-message-inner">
-        {innerContent}
-      </div>
-    </section>
-  );
-}
-
-// ── S4 Problems ──
-// ALWAYS: white bg, 3-col cards
-// A (layout 0): アイコンカード — gray icon box centered + heading + desc, text centered
-// B (layout 1): ナンバーカード — gold number box (48x48) left-aligned + heading + desc
-// C (layout 2): トップボーダー — cards with border-top: 4px solid #FFD700 + icon box centered + heading + desc
-function S4({ d, layout }: { d: LPData["s4"]; layout: LayoutIndex }) {
-  return (
-    <section className="lp-section lp-problems">
+    <section className="lp-section lp-problems" style={{ position: "relative", ...bgImgStyle(images["s4_bg"]) }}>
+      <BgUploadButton imageKey="s4_bg" onImageChange={onImageChange} currentUrl={images["s4_bg"]} />
       <div className="lp-container">
         <p className="lp-label" style={{ textAlign: "center" }}>PROBLEMS</p>
         <h2 className="lp-heading" style={{ textAlign: "center" }}>{d.sectionHeading}</h2>
         <div className="lp-cards-3">
-          {d.cards.map((card, i) => {
-            const cardStyle: React.CSSProperties =
-              layout === 2
-                ? { borderTop: "4px solid #FFD700", textAlign: "center" }
-                : layout === 1
-                  ? { textAlign: "left" }
-                  : { textAlign: "center" };
-            return (
-              <div key={i} className="lp-card" style={cardStyle}>
-                {layout === 1 ? (
-                  <div style={{
-                    width: 48,
-                    height: 48,
-                    borderRadius: 8,
-                    background: "#FFD700",
-                    color: "#1A1A2E",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: 22,
-                    fontWeight: 800,
-                    marginBottom: 16,
-                  }}>
-                    {String(i + 1).padStart(2, "0")}
-                  </div>
-                ) : (
-                  <div className="lp-card-icon" />
-                )}
-                <h3 className="lp-card-title">{card.heading}</h3>
-                <p className="lp-card-desc">{card.description}</p>
-              </div>
-            );
-          })}
+          {d.cards.map((card, i) => (
+            <div key={i} className="lp-card" style={layout === 1 ? { textAlign: "left" } : { textAlign: "center" }}>
+              {layout === 1 ? (
+                <div style={{
+                  width: 48, height: 48, borderRadius: 8, background: "var(--color-primary)",
+                  color: "var(--color-secondary)", display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 22, fontWeight: 800, marginBottom: 16,
+                }}>{String(i + 1).padStart(2, "0")}</div>
+              ) : (
+                <div className="lp-card-icon" />
+              )}
+              <h3 className="lp-card-title">{card.heading}</h3>
+              <p className="lp-card-desc">{card.description}</p>
+            </div>
+          ))}
         </div>
       </div>
     </section>
@@ -202,13 +439,52 @@ function S4({ d, layout }: { d: LPData["s4"]; layout: LayoutIndex }) {
 }
 
 // ── S5 Features ──
-// ALWAYS: alt #F5F5F0 bg, 3-col cards, white card bg
-// A (layout 0): イメージカード — POINT badge + title + desc + image at bottom
-// B (layout 1): イメージトップ — image at TOP of card, then POINT badge + title + desc
-// C (layout 2): ナンバーカード — large number box + title + desc (no image)
-function S5({ d, layout }: { d: LPData["s5"]; layout: LayoutIndex }) {
+function S5({ d, layout, images, onImageChange }: {
+  d: LPData["s5"]; layout: LayoutIndex;
+  images: LPData["images"]; onImageChange?: OnImageChange;
+}) {
+  if (layout === 2) {
+    return (
+      <section className="lp-section-alt" style={{ position: "relative", ...bgImgStyle(images["s5_bg"]) }}>
+        <BgUploadButton imageKey="s5_bg" onImageChange={onImageChange} currentUrl={images["s5_bg"]} />
+        <div className="lp-container">
+          <p className="lp-label" style={{ textAlign: "center" }}>FEATURES</p>
+          <h2 className="lp-heading" style={{ textAlign: "center" }}>{d.sectionHeading}</h2>
+          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+            {d.cards.map((card, i) => (
+              <div key={i} style={{
+                display: "flex", alignItems: "center", gap: 32,
+                background: "var(--color-bg)", border: "1px solid var(--color-border)",
+                borderRadius: 12, padding: "28px 32px", transition: "box-shadow 0.2s",
+              }}>
+                <div style={{
+                  flexShrink: 0, width: 80, height: 80, borderRadius: 12,
+                  background: "var(--color-primary)", color: "var(--color-secondary)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: "clamp(32px,4cqw,44px)", fontWeight: 800,
+                }}>{i + 1}</div>
+                <div style={{ flex: 1 }}>
+                  <span className="lp-card-point">{card.pointLabel}</span>
+                  <h3 className="lp-card-title" style={{ marginTop: 8 }}>{card.title}</h3>
+                  <p className="lp-card-desc">{card.description}</p>
+                </div>
+                <UploadableImage
+                  src={images[`s5_${i}`] || PH(160, 120, `Feature ${i + 1}`)}
+                  alt={card.imageHint} imageKey={`s5_${i}`} onImageChange={onImageChange}
+                  imgStyle={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 8, display: "block" }}
+                  wrapperStyle={{ width: 160, height: 120, flexShrink: 0, borderRadius: 8 }}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
-    <section className="lp-section-alt">
+    <section className="lp-section-alt" style={{ position: "relative", ...bgImgStyle(images["s5_bg"]) }}>
+      <BgUploadButton imageKey="s5_bg" onImageChange={onImageChange} currentUrl={images["s5_bg"]} />
       <div className="lp-container">
         <p className="lp-label" style={{ textAlign: "center" }}>FEATURES</p>
         <h2 className="lp-heading" style={{ textAlign: "center" }}>{d.sectionHeading}</h2>
@@ -216,38 +492,22 @@ function S5({ d, layout }: { d: LPData["s5"]; layout: LayoutIndex }) {
           {d.cards.map((card, i) => (
             <div key={i} className="lp-card">
               {layout === 1 && (
-                <img
-                  src={PH(280, 160, `Feature ${i + 1}`)}
-                  alt={card.imageHint}
-                  style={{ width: "100%", borderRadius: 8, marginBottom: 16 }}
+                <UploadableImage
+                  src={images[`s5_${i}`] || PH(280, 160, `Feature ${i + 1}`)}
+                  alt={card.imageHint} imageKey={`s5_${i}`} onImageChange={onImageChange}
+                  imgStyle={{ width: "100%", borderRadius: 8, display: "block" }}
+                  wrapperStyle={{ borderRadius: 8, marginBottom: 16 }}
                 />
               )}
-              {layout === 2 ? (
-                <div style={{
-                  width: 64,
-                  height: 64,
-                  borderRadius: 8,
-                  background: "#F5F5F0",
-                  color: "#1A1A2E",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: "clamp(28px,3.5cqw,40px)",
-                  fontWeight: 800,
-                  marginBottom: 16,
-                }}>
-                  {i + 1}
-                </div>
-              ) : (
-                <span className="lp-card-point">{card.pointLabel}</span>
-              )}
-              <h3 className="lp-card-title" style={layout === 2 ? { marginTop: 0 } : {}}>{card.title}</h3>
+              <span className="lp-card-point">{card.pointLabel}</span>
+              <h3 className="lp-card-title" style={{ marginTop: 8 }}>{card.title}</h3>
               <p className="lp-card-desc">{card.description}</p>
               {layout === 0 && (
-                <img
-                  src={PH(280, 160, `Feature ${i + 1}`)}
-                  alt={card.imageHint}
-                  style={{ width: "100%", borderRadius: 8, marginTop: 16 }}
+                <UploadableImage
+                  src={images[`s5_${i}`] || PH(280, 160, `Feature ${i + 1}`)}
+                  alt={card.imageHint} imageKey={`s5_${i}`} onImageChange={onImageChange}
+                  imgStyle={{ width: "100%", borderRadius: 8, display: "block" }}
+                  wrapperStyle={{ borderRadius: 8, marginTop: 16 }}
                 />
               )}
             </div>
@@ -259,28 +519,92 @@ function S5({ d, layout }: { d: LPData["s5"]; layout: LayoutIndex }) {
 }
 
 // ── S6 Categories ──
-// ALWAYS: white bg, 3x2 grid, gap 16px
-// A (layout 0): スタンダード — image 120px + card body with name + subtext
-// B (layout 1): ラージイメージ — same but image 160px high
-// C (layout 2): アクセントボーダー — same as A but border-top: 4px solid #FFD700 on each card
-function S6({ d, layout }: { d: LPData["s6"]; layout: LayoutIndex }) {
-  const imgHeight = layout === 1 ? 160 : 120;
+function S6({ d, layout, images, onImageChange }: {
+  d: LPData["s6"]; layout: LayoutIndex;
+  images: LPData["images"]; onImageChange?: OnImageChange;
+}) {
+  if (layout === 1) {
+    return (
+      <section className="lp-section" style={{ position: "relative", ...bgImgStyle(images["s6_bg"]) }}>
+        <BgUploadButton imageKey="s6_bg" onImageChange={onImageChange} currentUrl={images["s6_bg"]} />
+        <div className="lp-container">
+          <p className="lp-label" style={{ textAlign: "center" }}>CATEGORIES</p>
+          <h2 className="lp-heading" style={{ textAlign: "center" }}>{d.sectionHeading}</h2>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 20 }}>
+            {d.cards.map((card, i) => (
+              <div key={i} className="lp-category-card">
+                <UploadableImage
+                  src={images[`s6_${i}`] || PH(480, 200, card.name)}
+                  alt={card.imageHint} imageKey={`s6_${i}`} onImageChange={onImageChange}
+                  imgStyle={{ width: "100%", height: 200, objectFit: "cover", display: "block" }}
+                  wrapperStyle={{}}
+                />
+                <div className="lp-category-card-body" style={{ padding: "20px" }}>
+                  <p className="lp-category-card-name" style={{ fontSize: 18 }}>{card.name}</p>
+                  <p className="lp-category-card-sub">{card.subText}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="lp-cta-area">
+            <a href="#" className="btn-primary">{d.cta1}</a>
+            <a href="#" className="btn-secondary">{d.cta2}</a>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (layout === 2) {
+    return (
+      <section className="lp-section" style={{ position: "relative", ...bgImgStyle(images["s6_bg"]) }}>
+        <BgUploadButton imageKey="s6_bg" onImageChange={onImageChange} currentUrl={images["s6_bg"]} />
+        <div className="lp-container">
+          <p className="lp-label" style={{ textAlign: "center" }}>CATEGORIES</p>
+          <h2 className="lp-heading" style={{ textAlign: "center" }}>{d.sectionHeading}</h2>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {d.cards.map((card, i) => (
+              <div key={i} style={{
+                display: "flex", alignItems: "center", gap: 20,
+                background: "var(--color-bg)", border: "1px solid var(--color-border)",
+                borderRadius: 10, overflow: "hidden", transition: "box-shadow 0.2s",
+              }}>
+                <UploadableImage
+                  src={images[`s6_${i}`] || PH(120, 90, card.name)}
+                  alt={card.imageHint} imageKey={`s6_${i}`} onImageChange={onImageChange}
+                  imgStyle={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                  wrapperStyle={{ width: 120, height: 90, flexShrink: 0 }}
+                />
+                <div>
+                  <p className="lp-category-card-name">{card.name}</p>
+                  <p className="lp-category-card-sub">{card.subText}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="lp-cta-area">
+            <a href="#" className="btn-primary">{d.cta1}</a>
+            <a href="#" className="btn-secondary">{d.cta2}</a>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
-    <section className="lp-section">
+    <section className="lp-section" style={{ position: "relative", ...bgImgStyle(images["s6_bg"]) }}>
+      <BgUploadButton imageKey="s6_bg" onImageChange={onImageChange} currentUrl={images["s6_bg"]} />
       <div className="lp-container">
         <p className="lp-label" style={{ textAlign: "center" }}>CATEGORIES</p>
         <h2 className="lp-heading" style={{ textAlign: "center" }}>{d.sectionHeading}</h2>
         <div className="lp-cards-6">
           {d.cards.map((card, i) => (
-            <div
-              key={i}
-              className="lp-category-card"
-              style={layout === 2 ? { borderTop: "4px solid #FFD700" } : {}}
-            >
-              <img
-                src={PH(320, imgHeight, card.name)}
-                alt={card.imageHint}
-                style={{ width: "100%", height: imgHeight, objectFit: "cover", display: "block" }}
+            <div key={i} className="lp-category-card">
+              <UploadableImage
+                src={images[`s6_${i}`] || PH(320, 120, card.name)}
+                alt={card.imageHint} imageKey={`s6_${i}`} onImageChange={onImageChange}
+                imgStyle={{ width: "100%", height: 120, objectFit: "cover", display: "block" }}
+                wrapperStyle={{}}
               />
               <div className="lp-category-card-body">
                 <p className="lp-category-card-name">{card.name}</p>
@@ -299,34 +623,73 @@ function S6({ d, layout }: { d: LPData["s6"]; layout: LayoutIndex }) {
 }
 
 // ── S7 Case Studies ──
-// ALWAYS: alt #F5F5F0 bg, 3-col cards
-// A (layout 0): スタンダード — image + company name + summary
-// B (layout 1): タグバッジ — same + "導入事例" tag badge above company name
-// C (layout 2): トップボーダー — same as A but border-top: 4px solid #FFD700 on each card
-function S7({ d, layout }: { d: LPData["s7"]; layout: LayoutIndex }) {
+function S7({ d, layout, images, onImageChange }: {
+  d: LPData["s7"]; layout: LayoutIndex;
+  images: LPData["images"]; onImageChange?: OnImageChange;
+}) {
+  if (layout === 2) {
+    return (
+      <section className="lp-section-alt" style={{ position: "relative", ...bgImgStyle(images["s7_bg"]) }}>
+        <BgUploadButton imageKey="s7_bg" onImageChange={onImageChange} currentUrl={images["s7_bg"]} />
+        <div className="lp-container">
+          <p className="lp-label" style={{ textAlign: "center" }}>CASE STUDIES</p>
+          <h2 className="lp-heading" style={{ textAlign: "center" }}>{d.sectionHeading}</h2>
+          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+            {d.cards.map((card, i) => (
+              <div key={i} style={{
+                display: "flex", alignItems: "stretch",
+                background: "var(--color-bg)", border: "1px solid var(--color-border)",
+                borderRadius: 12, overflow: "hidden", transition: "box-shadow 0.2s",
+              }}>
+                <UploadableImage
+                  src={images[`s7_${i}`] || PH(240, 180, card.companyName)}
+                  alt={card.imageHint} imageKey={`s7_${i}`} onImageChange={onImageChange}
+                  imgStyle={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                  wrapperStyle={{ width: 240, minHeight: 160, flexShrink: 0 }}
+                />
+                <div style={{ padding: "24px 28px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+                  <span style={{
+                    background: "var(--color-primary)", color: "var(--color-secondary)",
+                    fontSize: 11, fontWeight: 700, padding: "3px 10px",
+                    borderRadius: 4, display: "inline-block", marginBottom: 12, alignSelf: "flex-start",
+                  }}>導入事例</span>
+                  <h3 className="lp-card-title">{card.companyName}</h3>
+                  <p className="lp-card-desc">{card.summary}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <a href="#" className="lp-link">{d.linkText} →</a>
+          <div className="lp-cta-area">
+            <a href="#" className="btn-primary">{d.cta1}</a>
+            <a href="#" className="btn-secondary">{d.cta2}</a>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
-    <section className="lp-section-alt">
+    <section className="lp-section-alt" style={{ position: "relative", ...bgImgStyle(images["s7_bg"]) }}>
+      <BgUploadButton imageKey="s7_bg" onImageChange={onImageChange} currentUrl={images["s7_bg"]} />
       <div className="lp-container">
         <p className="lp-label" style={{ textAlign: "center" }}>CASE STUDIES</p>
         <h2 className="lp-heading" style={{ textAlign: "center" }}>{d.sectionHeading}</h2>
         <div className="lp-cards-3">
           {d.cards.map((card, i) => (
-            <div key={i} className="lp-card lp-case-card" style={{
-              padding: 0,
-              ...(layout === 2 ? { borderTop: "4px solid #FFD700" } : {}),
-            }}>
-              <img src={PH(360, 180, card.companyName)} alt={card.imageHint} />
+            <div key={i} className="lp-card lp-case-card" style={{ padding: 0 }}>
+              <UploadableImage
+                src={images[`s7_${i}`] || PH(360, 180, card.companyName)}
+                alt={card.imageHint} imageKey={`s7_${i}`} onImageChange={onImageChange}
+                imgStyle={{ width: "100%", height: 160, objectFit: "cover", borderRadius: "8px 8px 0 0", display: "block" }}
+                wrapperStyle={{ borderRadius: "8px 8px 0 0" }}
+              />
               <div className="lp-case-card-body">
                 {layout === 1 && (
                   <span style={{
-                    background: "#FFD700",
-                    color: "#1A1A2E",
-                    fontSize: 11,
-                    fontWeight: 700,
-                    padding: "3px 10px",
-                    borderRadius: 4,
-                    display: "inline-block",
-                    marginBottom: 8,
+                    background: "var(--color-primary)", color: "var(--color-secondary)",
+                    fontSize: 11, fontWeight: 700, padding: "3px 10px",
+                    borderRadius: 4, display: "inline-block", marginBottom: 8,
                   }}>導入事例</span>
                 )}
                 <h3 className="lp-card-title">{card.companyName}</h3>
@@ -346,18 +709,47 @@ function S7({ d, layout }: { d: LPData["s7"]; layout: LayoutIndex }) {
 }
 
 // ── S8 Flow ──
-// ALWAYS: white bg, horizontal steps PC → 2-col tablet → 1-col SP
-// A (layout 0): ゴールドサークル — gold circle numbers + → arrow between steps
-// B (layout 1): ダークスクエア — dark square numbers with gold text, NO arrows (lp-flow-steps--square)
-// C (layout 2): カードステップ — each step in white bordered card, gold circle numbers, NO arrows (lp-flow-steps--card)
-function S8({ d, layout }: { d: LPData["s8"]; layout: LayoutIndex }) {
-  const stepsClass =
-    layout === 1 ? "lp-flow-steps lp-flow-steps--square"
-    : layout === 2 ? "lp-flow-steps lp-flow-steps--card"
-    : "lp-flow-steps";
+function S8({ d, layout, images, onImageChange }: {
+  d: LPData["s8"]; layout: LayoutIndex;
+  images: LPData["images"]; onImageChange?: OnImageChange;
+}) {
+  if (layout === 2) {
+    return (
+      <section className="lp-section" style={{ position: "relative", ...bgImgStyle(images["s8_bg"]) }}>
+        <BgUploadButton imageKey="s8_bg" onImageChange={onImageChange} currentUrl={images["s8_bg"]} />
+        <div className="lp-container">
+          <p className="lp-label" style={{ textAlign: "center" }}>FLOW</p>
+          <h2 className="lp-heading" style={{ textAlign: "center" }}>{d.sectionHeading}</h2>
+          <div style={{ maxWidth: 640, margin: "0 auto", position: "relative" }}>
+            <div style={{ position: "absolute", left: 23, top: 0, bottom: 0, width: 2, background: "var(--color-border)" }} />
+            {d.steps.map((step, i) => (
+              <div key={i} style={{
+                display: "flex", gap: 24, alignItems: "flex-start",
+                paddingBottom: i < d.steps.length - 1 ? 36 : 0, position: "relative",
+              }}>
+                <div style={{
+                  flexShrink: 0, width: 48, height: 48,
+                  background: "var(--color-primary)", color: "var(--color-secondary)", borderRadius: "50%",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 18, fontWeight: 700, zIndex: 1,
+                }}>{i + 1}</div>
+                <div style={{ paddingTop: 8, flex: 1 }}>
+                  <p style={{ fontSize: 10, fontWeight: 600, color: "var(--color-text-light)", letterSpacing: "0.1em", margin: "0 0 4px 0" }}>{step.stepLabel}</p>
+                  <h3 className="lp-flow-step-title" style={{ textAlign: "left", marginBottom: 6 }}>{step.title}</h3>
+                  <p className="lp-flow-step-desc" style={{ textAlign: "left" }}>{step.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
 
+  const stepsClass = layout === 1 ? "lp-flow-steps lp-flow-steps--square" : "lp-flow-steps";
   return (
-    <section className="lp-section">
+    <section className="lp-section" style={{ position: "relative", ...bgImgStyle(images["s8_bg"]) }}>
+      <BgUploadButton imageKey="s8_bg" onImageChange={onImageChange} currentUrl={images["s8_bg"]} />
       <div className="lp-container">
         <p className="lp-label" style={{ textAlign: "center" }}>FLOW</p>
         <h2 className="lp-heading" style={{ textAlign: "center" }}>{d.sectionHeading}</h2>
@@ -376,10 +768,6 @@ function S8({ d, layout }: { d: LPData["s8"]; layout: LayoutIndex }) {
 }
 
 // ── S9 FAQ + Form ──
-// ALWAYS: alt #F5F5F0 bg, FAQ LEFT / Form RIGHT — NEVER SWAP
-// A (layout 0): スタンダード — FAQ with "Q." CSS prefix, standard dividers
-// B (layout 1): ゴールドプレフィックス — Q. styled as gold pill badge
-// C (layout 2): ナンバープレフィックス — numbered ①②③④⑤ styled as dark pill badge with gold text
 const FORM_FIELDS = [
   { label: "お名前", type: "text", placeholder: "山田 太郎" },
   { label: "会社名", type: "text", placeholder: "株式会社サンプル" },
@@ -387,93 +775,58 @@ const FORM_FIELDS = [
   { label: "電話番号", type: "tel", placeholder: "03-1234-5678" },
 ];
 
-function S9({ d, layout }: { d: LPData["s9"]; layout: LayoutIndex }) {
+function S9({ d, layout, images, onImageChange }: {
+  d: LPData["s9"]; layout: LayoutIndex;
+  images: LPData["images"]; onImageChange?: OnImageChange;
+}) {
   const NUMBER_PREFIXES = ["①", "②", "③", "④", "⑤"];
 
   const renderFaqQ = (i: number) => {
-    if (layout === 1) {
-      return (
-        <span style={{
-          background: "#FFD700",
-          color: "#1A1A2E",
-          fontSize: 11,
-          fontWeight: 700,
-          padding: "2px 6px",
-          borderRadius: 4,
-          marginRight: 8,
-        }}>Q</span>
-      );
-    }
-    if (layout === 2) {
-      return (
-        <span style={{
-          background: "#1A1A2E",
-          color: "#FFD700",
-          fontSize: 11,
-          fontWeight: 700,
-          padding: "2px 8px",
-          borderRadius: 4,
-          marginRight: 8,
-        }}>{NUMBER_PREFIXES[i]}</span>
-      );
-    }
-    return null; // layout 0 uses CSS ::before "Q."
+    if (layout === 1) return (
+      <span style={{ background: "var(--color-primary)", color: "var(--color-secondary)", fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 4, marginRight: 8 }}>Q</span>
+    );
+    if (layout === 2) return (
+      <span style={{ background: "var(--color-secondary)", color: "var(--color-primary)", fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 4, marginRight: 8 }}>{NUMBER_PREFIXES[i]}</span>
+    );
+    return null;
   };
 
   return (
-    <section className="lp-section-alt">
+    <section className="lp-section-alt" style={{ position: "relative", ...bgImgStyle(images["s9_bg"]) }}>
+      <BgUploadButton imageKey="s9_bg" onImageChange={onImageChange} currentUrl={images["s9_bg"]} />
       <div className="lp-container">
         <p className="lp-label" style={{ textAlign: "center" }}>CONTACT</p>
         <div className="lp-contact-grid">
-          {/* FAQ — always LEFT */}
           <div>
             <h2 className="lp-heading" style={{ fontSize: 22, marginBottom: 24 }}>よくある質問</h2>
             {d.faqs.map((faq, i) => (
               <div key={i} className="lp-faq-item">
-                <p
-                  className={layout === 0 ? "lp-faq-q" : ""}
-                  style={{
-                    fontSize: 15,
-                    fontWeight: 600,
-                    color: "#1A1A2E",
-                    margin: "0 0 8px 0",
-                    display: "flex",
-                    alignItems: "baseline",
-                    gap: 0,
-                  }}
-                >
-                  {layout === 0
-                    ? faq.question  // CSS ::before handles "Q."
-                    : <><span>{renderFaqQ(i)}</span>{faq.question}</>
-                  }
+                <p className={layout === 0 ? "lp-faq-q" : ""} style={{ fontSize: 15, fontWeight: 600, color: "var(--color-secondary)", margin: "0 0 8px 0", display: "flex", alignItems: "baseline" }}>
+                  {layout === 0 ? faq.question : <><span>{renderFaqQ(i)}</span>{faq.question}</>}
                 </p>
                 <p className="lp-faq-a">{faq.answer}</p>
               </div>
             ))}
           </div>
-
-          {/* Form — always RIGHT */}
           <div className="lp-form">
             <h3>{d.formHeading}</h3>
             {FORM_FIELDS.map((f, i) => (
               <div key={i} className="lp-form-field">
-                <label className="lp-form-label">{f.label} <span style={{ color: "#E6C200" }}>*</span></label>
+                <label className="lp-form-label">{f.label} <span style={{ color: "var(--color-primary-dark)" }}>*</span></label>
                 <input className="lp-form-input" type={f.type} placeholder={f.placeholder} readOnly />
               </div>
             ))}
             <div className="lp-form-field">
-              <label className="lp-form-label">従業員数 <span style={{ color: "#E6C200" }}>*</span></label>
+              <label className="lp-form-label">従業員数 <span style={{ color: "var(--color-primary-dark)" }}>*</span></label>
               <select className="lp-form-input">
                 <option>選択してください</option>
-                <option>1〜10名</option>
-                <option>11〜50名</option>
-                <option>51〜300名</option>
-                <option>301名以上</option>
+                <option>1〜10名</option><option>11〜50名</option>
+                <option>51〜300名</option><option>301名以上</option>
               </select>
             </div>
             <div className="lp-form-field" style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <input type="checkbox" id="privacy" readOnly />
-              <label htmlFor="privacy" style={{ fontSize: 13, color: "#666" }}>プライバシーポリシーに同意する</label>
+              <label htmlFor="privacy" style={{ fontSize: 13, color: "var(--color-text-light)" }}>プライバシーポリシーに同意する</label>
             </div>
             <button className="btn-primary" style={{ width: "100%", marginTop: 8 }}>資料を請求する</button>
           </div>
@@ -484,34 +837,44 @@ function S9({ d, layout }: { d: LPData["s9"]; layout: LayoutIndex }) {
 }
 
 // ── S10 Closing ──
-// ALWAYS: #E6C200 bg, centered
-// A (layout 0): スタンダード — heading + CTA1 + CTA2 horizontal
-// B (layout 1): スタックCTA — heading + CTA1 full-width + CTA2 below (lp-closing-actions--stacked)
-// C (layout 2): デコレーションライン — same horizontal CTAs but heading has thin border-top/bottom
-function S10({ d, layout }: { d: LPData["s10"]; layout: LayoutIndex }) {
-  const headingStyle: React.CSSProperties =
-    layout === 2
-      ? {
-          borderTop: "1px solid rgba(26,26,46,0.25)",
-          borderBottom: "1px solid rgba(26,26,46,0.25)",
-          padding: "24px 0",
-          marginBottom: 32,
-        }
-      : {};
+function S10({ d, layout, images, onImageChange }: {
+  d: LPData["s10"]; layout: LayoutIndex;
+  images: LPData["images"]; onImageChange?: OnImageChange;
+}) {
+  if (layout === 2) {
+    return (
+      <section style={{ background: "var(--color-secondary)", padding: "var(--space-xl) 0", textAlign: "center", position: "relative", ...bgImgStyle(images["s10_bg"]) }}>
+        <BgUploadButton imageKey="s10_bg" onImageChange={onImageChange} currentUrl={images["s10_bg"]} />
+        <div className="lp-container">
+          <h2 style={{ fontSize: "clamp(20px,2.8cqw,28px)", fontWeight: 700, color: "#fff", margin: "0 0 32px 0" }}>{d.microCopy}</h2>
+          <div className="lp-closing-actions">
+            <a href="#" className="btn-primary">{d.cta1}</a>
+            <a href="#" style={{
+              display: "inline-block", background: "transparent", color: "#fff",
+              padding: "14px 30px", border: "2px solid rgba(255,255,255,0.5)",
+              borderRadius: 8, fontWeight: 600, fontSize: "clamp(15px,1.4cqw,16px)",
+              cursor: "pointer", textDecoration: "none", transition: "all 0.2s",
+            }}>{d.cta2}</a>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
-    <section className="lp-closing">
+    <section className="lp-closing" style={{ position: "relative", ...bgImgStyle(images["s10_bg"]) }}>
+      <BgUploadButton imageKey="s10_bg" onImageChange={onImageChange} currentUrl={images["s10_bg"]} />
       <div className="lp-container">
-        <h2 style={headingStyle}>{d.microCopy}</h2>
+        <h2>{d.microCopy}</h2>
         {layout === 1 ? (
           <div className="lp-closing-actions lp-closing-actions--stacked">
             <a href="#" className="btn-primary">{d.cta1}</a>
-            <a href="#" className="btn-secondary" style={{ borderColor: "#1A1A2E", color: "#1A1A2E" }}>{d.cta2}</a>
+            <a href="#" className="btn-secondary" style={{ borderColor: "var(--color-secondary)", color: "var(--color-secondary)" }}>{d.cta2}</a>
           </div>
         ) : (
           <div className="lp-closing-actions">
             <a href="#" className="btn-primary">{d.cta1}</a>
-            <a href="#" className="btn-secondary" style={{ borderColor: "#1A1A2E", color: "#1A1A2E" }}>{d.cta2}</a>
+            <a href="#" className="btn-secondary" style={{ borderColor: "var(--color-secondary)", color: "var(--color-secondary)" }}>{d.cta2}</a>
           </div>
         )}
       </div>
@@ -520,12 +883,24 @@ function S10({ d, layout }: { d: LPData["s10"]; layout: LayoutIndex }) {
 }
 
 // ── S11 Footer ──
-// ALWAYS: #1A1A2E bg, logo left, links right
-// A (layout 0): スタンダード — logo left / links right single row
-// B (layout 1): タグライン — logo left + tagline text below logo / links right
-// C (layout 2): グループリンク — logo left / links right but separated into 2 visual groups
 function S11({ d, layout }: { d: LPData["s11"]; layout: LayoutIndex }) {
-  const half = Math.ceil(d.links.length / 2);
+  if (layout === 2) {
+    return (
+      <footer className="lp-footer" style={{ textAlign: "center" }}>
+        <div className="lp-container">
+          <div style={{ marginBottom: 24 }}>
+            <div className="lp-footer-logo" style={{ marginBottom: 16 }}>🏢 SERVICE</div>
+            <nav>
+              <ul className="lp-footer-links" style={{ justifyContent: "center", flexWrap: "wrap", gap: 24 }}>
+                {d.links.map((link, i) => <li key={i}><a href="#">{link}</a></li>)}
+              </ul>
+            </nav>
+          </div>
+          <p className="lp-footer-copy">{d.copyright}</p>
+        </div>
+      </footer>
+    );
+  }
 
   return (
     <footer className="lp-footer">
@@ -540,20 +915,9 @@ function S11({ d, layout }: { d: LPData["s11"]; layout: LayoutIndex }) {
             )}
           </div>
           <nav>
-            {layout === 2 ? (
-              <div style={{ display: "flex", gap: 40 }}>
-                <ul className="lp-footer-links" style={{ flexDirection: "column", gap: 10 }}>
-                  {d.links.slice(0, half).map((link, i) => <li key={i}><a href="#">{link}</a></li>)}
-                </ul>
-                <ul className="lp-footer-links" style={{ flexDirection: "column", gap: 10 }}>
-                  {d.links.slice(half).map((link, i) => <li key={i}><a href="#">{link}</a></li>)}
-                </ul>
-              </div>
-            ) : (
-              <ul className="lp-footer-links">
-                {d.links.map((link, i) => <li key={i}><a href="#">{link}</a></li>)}
-              </ul>
-            )}
+            <ul className="lp-footer-links">
+              {d.links.map((link, i) => <li key={i}><a href="#">{link}</a></li>)}
+            </ul>
           </nav>
         </div>
         <p className="lp-footer-copy">{d.copyright}</p>
@@ -563,30 +927,30 @@ function S11({ d, layout }: { d: LPData["s11"]; layout: LayoutIndex }) {
 }
 
 // ── Public API ──
-export function renderSection(key: SectionKey, data: LPData, layout: LayoutIndex): React.ReactElement {
+export function renderSection(
+  key: SectionKey,
+  data: LPData,
+  layout: LayoutIndex,
+  onImageChange?: OnImageChange,
+): React.ReactElement {
+  const images = data.images ?? {};
   switch (key) {
     case "s1":  return <S1  key="s1"  d={data.s1}  layout={layout} />;
-    case "s2":  return <S2  key="s2"  d={data.s2}  layout={layout} />;
-    case "s3":  return <S3  key="s3"  d={data.s3}  layout={layout} />;
-    case "s4":  return <S4  key="s4"  d={data.s4}  layout={layout} />;
-    case "s5":  return <S5  key="s5"  d={data.s5}  layout={layout} />;
-    case "s6":  return <S6  key="s6"  d={data.s6}  layout={layout} />;
-    case "s7":  return <S7  key="s7"  d={data.s7}  layout={layout} />;
-    case "s8":  return <S8  key="s8"  d={data.s8}  layout={layout} />;
-    case "s9":  return <S9  key="s9"  d={data.s9}  layout={layout} />;
-    case "s10": return <S10 key="s10" d={data.s10} layout={layout} />;
+    case "s2":  return <S2  key="s2"  d={data.s2}  layout={layout} images={images} onImageChange={onImageChange} />;
+    case "s3":  return <S3  key="s3"  d={data.s3}  layout={layout} images={images} onImageChange={onImageChange} />;
+    case "s4":  return <S4  key="s4"  d={data.s4}  layout={layout} images={images} onImageChange={onImageChange} />;
+    case "s5":  return <S5  key="s5"  d={data.s5}  layout={layout} images={images} onImageChange={onImageChange} />;
+    case "s6":  return <S6  key="s6"  d={data.s6}  layout={layout} images={images} onImageChange={onImageChange} />;
+    case "s7":  return <S7  key="s7"  d={data.s7}  layout={layout} images={images} onImageChange={onImageChange} />;
+    case "s8":  return <S8  key="s8"  d={data.s8}  layout={layout} images={images} onImageChange={onImageChange} />;
+    case "s9":  return <S9  key="s9"  d={data.s9}  layout={layout} images={images} onImageChange={onImageChange} />;
+    case "s10": return <S10 key="s10" d={data.s10} layout={layout} images={images} onImageChange={onImageChange} />;
     case "s11": return <S11 key="s11" d={data.s11} layout={layout} />;
   }
 }
 
-export function SectionPreview({
-  sectionKey,
-  data,
-  layout,
-}: {
-  sectionKey: SectionKey;
-  data: LPData;
-  layout: LayoutIndex;
+export function SectionPreview({ sectionKey, data, layout }: {
+  sectionKey: SectionKey; data: LPData; layout: LayoutIndex;
 }) {
   return (
     <div className="lp-preview-root">

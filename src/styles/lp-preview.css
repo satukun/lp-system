@@ -776,3 +776,62 @@
   width: 100%;
   text-align: center;
 }
+
+/* ── Color Palette B: ブルー ── */
+.lp-preview-root[data-palette="B"] {
+  --color-primary:      #3B82F6;
+  --color-primary-dark: #2563EB;
+  --color-secondary:    #0F172A;
+  --color-text:         #1E293B;
+  --color-text-light:   #64748B;
+  --color-bg:           #FFFFFF;
+  --color-bg-alt:       #EFF6FF;
+  --color-border:       #DBEAFE;
+}
+
+/* ── Color Palette C: グリーン ── */
+.lp-preview-root[data-palette="C"] {
+  --color-primary:      #10B981;
+  --color-primary-dark: #059669;
+  --color-secondary:    #064E3B;
+  --color-text:         #111827;
+  --color-text-light:   #6B7280;
+  --color-bg:           #FFFFFF;
+  --color-bg-alt:       #ECFDF5;
+  --color-border:       #D1FAE5;
+}
+
+/* ── Image Upload Overlay ── */
+.lp-preview-root .img-upload-wrap {
+  position: relative;
+  display: block;
+  cursor: pointer;
+  border-radius: inherit;
+}
+.lp-preview-root .img-upload-overlay {
+  position: absolute;
+  inset: 0;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+  border-radius: inherit;
+}
+.lp-preview-root .img-upload-wrap:hover .img-upload-overlay {
+  background: rgba(0, 0, 0, 0.38);
+}
+.lp-preview-root .img-upload-overlay span {
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(0, 0, 0, 0.55);
+  padding: 4px 12px;
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  white-space: nowrap;
+}
+.lp-preview-root .img-upload-wrap:hover .img-upload-overlay span {
+  opacity: 1;
+}

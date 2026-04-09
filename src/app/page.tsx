@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { defaultContent } from "@/lib/defaultContent";
-import type { LPData, SectionLayouts, LayoutIndex, SectionKey } from "@/lib/types";
+import type { LPData, SectionLayouts, LayoutIndex, SectionKey, ColorPalette } from "@/lib/types";
 import { DEFAULT_SECTION_ORDER, DEFAULT_SECTION_LAYOUTS } from "@/lib/types";
 import S1HeaderForm from "@/components/editor/sections/S1HeaderForm";
 import S2HeroForm from "@/components/editor/sections/S2HeroForm";
@@ -14,13 +14,13 @@ import S11FooterForm from "@/components/editor/sections/S11FooterForm";
 import LayoutPicker from "@/components/wizard/LayoutPicker";
 import { renderSection } from "@/components/preview/SectionRenderer";
 import {
-  IconCheck, IconPlus, IconForm, IconMarkdown, IconAI,
-  SECTION_ICONS,
+  IconCheck, IconPlus, SECTION_ICONS,
 } from "@/components/ui/Icons";
 
 const WIZARD_DATA_KEY      = "lp_wizard_data";
 const WIZARD_LAYOUTS_KEY   = "lp_wizard_layouts";
 const WIZARD_CONFIRMED_KEY = "lp_wizard_confirmed";
+const WIZARD_PALETTE_KEY   = "lp_wizard_palette";
 
 const STEPS = [
   { key: "s1"  as const, id: "S1",  title: "ナビゲーション",  subtitle: "Header",   description: "ヘッダーに表示するメニュー項目と、右上のCTAボタンを設定します。" },
@@ -31,178 +31,7 @@ const STEPS = [
   { key: "s11" as const, id: "S11", title: "フッター",        subtitle: "Footer",   description: "企業情報へのリンクとコピーライトを設定します。" },
 ] as const;
 
-type Phase = "welcome" | "builder" | "generating";
-
-// ─── 生成中スクリーン ─────────────────────────────────────────
-function GeneratingScreen({ confirmedSections }: { confirmedSections: SectionKey[] }) {
-  const [visibleCount, setVisibleCount] = useState(0);
-  const [flowStep,     setFlowStep]     = useState(0);
-
-  useEffect(() => {
-    const t1 = setTimeout(() => setFlowStep(1), 1600);
-    const t2 = setTimeout(() => setFlowStep(2), 3200);
-    return () => { clearTimeout(t1); clearTimeout(t2); };
-  }, []);
-
-  useEffect(() => {
-    if (confirmedSections.length === 0) return;
-    const interval = Math.min(4000 / confirmedSections.length, 400);
-    let count = 0;
-    const timer = setInterval(() => {
-      count++;
-      setVisibleCount(count);
-      if (count >= confirmedSections.length) clearInterval(timer);
-    }, interval);
-    return () => clearInterval(timer);
-  }, [confirmedSections]);
-
-  const orderedSteps = STEPS.filter((s) => confirmedSections.includes(s.key));
-  const progress = orderedSteps.length > 0
-    ? Math.round((visibleCount / orderedSteps.length) * 100) : 0;
-  const isDone = visibleCount >= orderedSteps.length;
-
-  const flowNodes = [
-    { icon: <IconForm size={22} />, label: "フォーム入力", sub: "入力内容を収集" },
-    { icon: <IconMarkdown size={22} />, label: "MDファイル", sub: "Markdownに変換" },
-    { icon: <IconAI size={22} />, label: "AI生成", sub: "LPを自動構築" },
-  ];
-
-  return (
-    <div style={{ background: "var(--col-bg)", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "48px 24px" }}>
-      <div style={{ width: "100%", maxWidth: 480 }} className="fade-in">
-
-        {/* ロゴ */}
-        <div style={{ display: "flex", justifyContent: "center", marginBottom: 32 }}>
-          <div style={{
-            width: 48, height: 48, borderRadius: 10,
-            background: "var(--col-surface)", border: "1px solid var(--col-border-2)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 14, fontWeight: 700, color: "var(--col-text)",
-          }}>LP</div>
-        </div>
-
-        {/* タイトル */}
-        <div style={{ textAlign: "center", marginBottom: 32 }}>
-          <h2 style={{ fontSize: 22, fontWeight: 700, color: "var(--col-text)", marginBottom: 6, fontFamily: "Inter, sans-serif" }}>
-            LPを生成しています
-          </h2>
-          <p style={{ fontSize: 13, color: "var(--col-text-2)" }}>
-            {isDone ? "エディタを準備中です..." : "セクションを構築しています..."}
-          </p>
-        </div>
-
-        {/* フロー図 */}
-        <div style={{
-          background: "var(--col-surface)", border: "1px solid var(--col-border)",
-          borderRadius: 10, padding: "20px 24px", marginBottom: 16,
-        }}>
-          <p style={{ fontSize: 11, fontWeight: 600, color: "var(--col-text-3)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 20, textAlign: "center" }}>
-            生成フロー
-          </p>
-          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "center" }}>
-            {flowNodes.map((node, i) => {
-              const active = flowStep >= i;
-              const isCurrent = flowStep === i;
-              return (
-                <div key={i} style={{ display: "flex", alignItems: "center" }}>
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: 100 }}>
-                    {/* アイコン枠 */}
-                    <div style={{
-                      width: 56, height: 56, borderRadius: 12,
-                      background: active ? "var(--col-surface-3)" : "var(--col-surface-2)",
-                      border: `1px solid ${active ? "var(--col-border-2)" : "var(--col-border)"}`,
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      color: active ? "var(--col-text)" : "var(--col-text-3)",
-                      transform: isCurrent ? "scale(1.06)" : "scale(1)",
-                      transition: "all 0.4s ease",
-                      marginBottom: 10,
-                    }}>
-                      {node.icon}
-                    </div>
-                    <p style={{ fontSize: 11, fontWeight: 600, color: active ? "var(--col-text)" : "var(--col-text-3)", textAlign: "center", transition: "color 0.4s", marginBottom: 2 }}>
-                      {node.label}
-                    </p>
-                    <p style={{ fontSize: 10, color: active ? "var(--col-text-2)" : "var(--col-text-3)", textAlign: "center", transition: "color 0.4s" }}>
-                      {node.sub}
-                    </p>
-                    <div style={{
-                      marginTop: 8, width: 20, height: 20, borderRadius: "50%",
-                      background: active ? "var(--col-surface-3)" : "transparent",
-                      border: `1px solid ${active ? "var(--col-border-2)" : "var(--col-border)"}`,
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      fontSize: 10, fontWeight: 700, color: active ? "var(--col-text)" : "var(--col-text-3)",
-                      transition: "all 0.4s",
-                    }}>{i + 1}</div>
-                  </div>
-                  {i < 2 && (
-                    <div style={{ marginBottom: 44, marginLeft: 4, marginRight: 4 }}>
-                      <svg width="28" height="16" viewBox="0 0 28 16" fill="none">
-                        <line x1="0" y1="8" x2="20" y2="8"
-                          stroke={flowStep > i ? "var(--col-text-2)" : "var(--col-border-2)"}
-                          strokeWidth="1.5" strokeDasharray="4 2.5"
-                          style={{ transition: "stroke 0.4s" }}
-                        />
-                        <path d="M18 4 L27 8 L18 12 Z"
-                          fill={flowStep > i ? "var(--col-text-2)" : "var(--col-border-2)"}
-                          style={{ transition: "fill 0.4s" }}
-                        />
-                      </svg>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* セクション一覧 */}
-        {orderedSteps.length > 0 && (
-          <div style={{
-            background: "var(--col-surface)", border: "1px solid var(--col-border)",
-            borderRadius: 10, padding: "16px 20px", marginBottom: 16,
-          }}>
-            <p style={{ fontSize: 11, fontWeight: 600, color: "var(--col-text-3)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12 }}>
-              生成中のセクション
-            </p>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              {orderedSteps.map((step, i) => {
-                const SIcon = SECTION_ICONS[step.key];
-                const isVis = i < visibleCount;
-                return (
-                  <div key={step.key} style={{ display: "flex", alignItems: "center", gap: 10, opacity: isVis ? 1 : 0.3, transition: "opacity 0.3s" }}>
-                    <div style={{
-                      width: 22, height: 22, borderRadius: "50%",
-                      background: isVis ? "var(--col-success-bg)" : "var(--col-surface-2)",
-                      border: `1px solid ${isVis ? "var(--col-success-bd)" : "var(--col-border)"}`,
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      flexShrink: 0, transition: "all 0.3s",
-                      color: isVis ? "var(--col-success)" : "var(--col-text-3)",
-                    }}>
-                      {isVis ? <IconCheck size={12} /> : <div style={{ width: 4, height: 4, borderRadius: "50%", background: "currentColor" }} />}
-                    </div>
-                    <span style={{ fontSize: 13, color: isVis ? "var(--col-text)" : "var(--col-text-3)", fontWeight: isVis ? 500 : 400, flex: 1 }}>
-                      {step.title}
-                    </span>
-                    <span style={{ fontSize: 11, fontFamily: "monospace", color: isVis ? "var(--col-text-2)" : "var(--col-text-3)" }}>{step.id}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* プログレスバー */}
-        <div style={{ background: "var(--col-surface-2)", borderRadius: 4, overflow: "hidden", height: 4, marginBottom: 8 }}>
-          <div style={{ height: "100%", borderRadius: 4, background: "var(--col-action)", transition: "width 0.3s ease", width: `${progress}%` }} />
-        </div>
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <span style={{ fontSize: 11, color: "var(--col-text-3)" }}>{visibleCount} / {orderedSteps.length} セクション</span>
-          <span style={{ fontSize: 11, fontFamily: "monospace", color: "var(--col-text-2)" }}>{progress}%</span>
-        </div>
-      </div>
-    </div>
-  );
-}
+type Phase = "welcome" | "builder";
 
 // ─── メインページ ─────────────────────────────────────────────
 export default function WizardPage() {
@@ -214,6 +43,11 @@ export default function WizardPage() {
   const [confirmedSections, setConfirmedSections] = useState<SectionKey[]>([]);
   const [newlyConfirmedKey, setNewlyConfirmedKey] = useState<SectionKey | null>(null);
   const [showExitConfirm,   setShowExitConfirm]   = useState(false);
+  const [palette, setPalette] = useState<ColorPalette>("A");
+
+  const handleImageChange = (key: string, url: string) => {
+    setData((prev) => ({ ...prev, images: { ...prev.images, [key]: url } }));
+  };
 
   const formRef = useRef<HTMLDivElement>(null);
   const navRef  = useRef<HTMLDivElement>(null);
@@ -254,13 +88,14 @@ export default function WizardPage() {
   };
 
   const generate = () => {
-    setPhase("generating");
     try {
       localStorage.setItem(WIZARD_DATA_KEY, JSON.stringify(data));
       localStorage.setItem(WIZARD_LAYOUTS_KEY, JSON.stringify(layouts));
       localStorage.setItem(WIZARD_CONFIRMED_KEY, JSON.stringify(confirmedSections));
+      localStorage.setItem(WIZARD_PALETTE_KEY, palette);
     } catch { /* ignore */ }
-    setTimeout(() => router.push("/complete"), 5000);
+    sessionStorage.setItem("lp_just_generated", "1");
+    router.push("/generating");
   };
 
   const renderForm = () => {
@@ -331,11 +166,6 @@ export default function WizardPage() {
         </div>
       </div>
     );
-  }
-
-  // ── 生成中 ────────────────────────────────────────────────
-  if (phase === "generating") {
-    return <GeneratingScreen confirmedSections={confirmedSections} />;
   }
 
   // ── ビルダー画面 ──────────────────────────────────────────
@@ -548,16 +378,38 @@ export default function WizardPage() {
             <span style={{ fontSize: 11, fontWeight: 600, color: "var(--col-text-3)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
               プレビュー
             </span>
-            <span style={{ fontSize: 11, color: "var(--col-text-3)" }}>
-              {activeStep.id} · Layout {["A", "B", "C"][currentLayout]}
-              {orderedConfirmed.length > 0 && <span style={{ marginLeft: 8, color: "var(--col-success)" }}>確定 {orderedConfirmed.length}</span>}
-            </span>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ fontSize: 11, color: "var(--col-text-3)" }}>カラー</span>
+              {([
+                { key: "A" as const, color: "#FFD700" },
+                { key: "B" as const, color: "#3B82F6" },
+                { key: "C" as const, color: "#10B981" },
+              ] as { key: ColorPalette; color: string }[]).map((p) => (
+                <button
+                  key={p.key}
+                  onClick={() => setPalette(p.key)}
+                  title={`パレット${p.key}`}
+                  style={{
+                    width: 18, height: 18, borderRadius: "50%",
+                    background: p.color, cursor: "pointer",
+                    border: palette === p.key ? "2px solid var(--col-text)" : "2px solid transparent",
+                    outline: palette === p.key ? `2px solid ${p.color}` : "none",
+                    outlineOffset: 1,
+                    transition: "all 150ms",
+                  }}
+                />
+              ))}
+              <span style={{ fontSize: 11, color: "var(--col-text-3)", marginLeft: 4 }}>
+                {activeStep.id} · Layout {["A", "B", "C"][currentLayout]}
+                {orderedConfirmed.length > 0 && <span style={{ marginLeft: 6, color: "var(--col-success)" }}>確定 {orderedConfirmed.length}</span>}
+              </span>
+            </div>
           </div>
 
           {/* プレビュー本体: 確定済み + 現在編集中のセクションを常に表示 */}
           <div style={{ flex: 1, overflowY: "auto", background: "#f0f0f0" }}>
             <div style={{ maxWidth: 900, margin: "20px auto", borderRadius: 6, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,0.1)" }}>
-              <div className="lp-preview-root">
+              <div className="lp-preview-root" data-palette={palette}>
                 {DEFAULT_SECTION_ORDER
                   .filter((k) => confirmedSections.includes(k) || k === activeKey)
                   .map((key) => (
@@ -576,7 +428,7 @@ export default function WizardPage() {
                           {activeStep.id} · 編集中
                         </div>
                       )}
-                      {renderSection(key, data, layouts[key] as LayoutIndex)}
+                      {renderSection(key, data, layouts[key] as LayoutIndex, handleImageChange)}
                     </div>
                   ))}
               </div>

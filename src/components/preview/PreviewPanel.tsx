@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useRef, useImperativeHandle, forwardRef } from "react";
-import type { LPData, SectionKey, SectionLayouts } from "@/lib/types";
-import { renderSection } from "./SectionRenderer";
+import type { LPData, SectionKey, SectionLayouts, ColorPalette } from "@/lib/types";
+import { renderSection, type OnImageChange } from "./SectionRenderer";
 
 interface Props {
   data: LPData;
@@ -10,6 +10,9 @@ interface Props {
   sectionOrder: SectionKey[];
   hiddenSections: SectionKey[];
   sectionLayouts: SectionLayouts;
+  palette: ColorPalette;
+  onPaletteChange: (p: ColorPalette) => void;
+  onImageChange: OnImageChange;
 }
 
 export interface PreviewPanelHandle {
@@ -62,8 +65,14 @@ const DEVICES: { key: DeviceType; label: string; width: number | null; icon: Rea
   },
 ];
 
+const PALETTES: { key: ColorPalette; label: string; color: string }[] = [
+  { key: "A", label: "A", color: "#FFD700" },
+  { key: "B", label: "B", color: "#3B82F6" },
+  { key: "C", label: "C", color: "#10B981" },
+];
+
 const PreviewPanel = forwardRef<PreviewPanelHandle, Props>(function PreviewPanel(
-  { data, isUpdating, sectionOrder, hiddenSections, sectionLayouts },
+  { data, isUpdating, sectionOrder, hiddenSections, sectionLayouts, palette, onPaletteChange, onImageChange },
   ref
 ) {
   const [device, setDevice] = useState<DeviceType>("pc");
@@ -110,9 +119,28 @@ const PreviewPanel = forwardRef<PreviewPanelHandle, Props>(function PreviewPanel
             </button>
           ))}
         </div>
-        <span style={{ fontSize: 11, fontFamily: "monospace", color: "var(--col-text-3)" }}>
-          {deviceWidth ? `${deviceWidth}px` : "100%"}
-        </span>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <span style={{ fontSize: 11, color: "var(--col-text-3)" }}>カラー</span>
+          {PALETTES.map((p) => (
+            <button
+              key={p.key}
+              onClick={() => onPaletteChange(p.key)}
+              title={`パレット${p.key}`}
+              style={{
+                width: 24, height: 24, borderRadius: "50%",
+                background: p.color, cursor: "pointer",
+                border: palette === p.key ? "2.5px solid var(--col-text)" : "2.5px solid transparent",
+                outline: palette === p.key ? `2px solid ${p.color}` : "none",
+                outlineOffset: 1,
+                transition: "all 150ms",
+              }}
+            />
+          ))}
+          <span style={{ fontSize: 11, fontFamily: "monospace", color: "var(--col-text-3)", marginLeft: 8 }}>
+            {deviceWidth ? `${deviceWidth}px` : "100%"}
+          </span>
+        </div>
       </div>
 
       {/* プレビューエリア */}
@@ -152,13 +180,16 @@ const PreviewPanel = forwardRef<PreviewPanelHandle, Props>(function PreviewPanel
               : { width: "100%", height: "100%" }
           }
         >
-          <div className={`lp-preview-root transition-opacity duration-300 ${isUpdating ? "opacity-70" : "opacity-100"}`}>
+          <div
+            className={`lp-preview-root transition-opacity duration-300 ${isUpdating ? "opacity-70" : "opacity-100"}`}
+            data-palette={palette}
+          >
             {sectionOrder
               .filter((key) => !hiddenSections.includes(key))
               .map((key) => (
                 <div key={key} id={`preview-section-${key}`} style={{ position: "relative" }}>
                   <div style={{
-                    position: "absolute", top: 8, left: 8, zIndex: 10,
+                    position: "absolute", top: 8, left: 8, zIndex: 110,
                     fontSize: 10, fontWeight: 700, fontFamily: "monospace",
                     padding: "2px 7px", borderRadius: 4,
                     background: "rgba(55,53,47,0.75)", color: "#fff",
@@ -166,7 +197,7 @@ const PreviewPanel = forwardRef<PreviewPanelHandle, Props>(function PreviewPanel
                   }}>
                     {SECTION_LABELS[key]}
                   </div>
-                  {renderSection(key, data, sectionLayouts[key])}
+                  {renderSection(key, data, sectionLayouts[key], onImageChange)}
                 </div>
               ))}
           </div>

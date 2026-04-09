@@ -3,8 +3,9 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { defaultContent } from "@/lib/defaultContent";
-import type { LPData, SectionKey, StockedLP, SectionLayouts, LayoutIndex } from "@/lib/types";
+import type { LPData, SectionKey, StockedLP, SectionLayouts, LayoutIndex, ColorPalette } from "@/lib/types";
 import { DEFAULT_SECTION_ORDER, DEFAULT_SECTION_LAYOUTS } from "@/lib/types";
+import type { OnImageChange } from "@/components/preview/SectionRenderer";
 import EditorPanel from "@/components/editor/EditorPanel";
 import PreviewPanel, { type PreviewPanelHandle } from "@/components/preview/PreviewPanel";
 import StockPanel from "@/components/stock/StockPanel";
@@ -17,6 +18,7 @@ const STOCK_PANEL_WIDTH = 260;
 const WIZARD_DATA_KEY = "lp_wizard_data";
 const WIZARD_LAYOUTS_KEY = "lp_wizard_layouts";
 const WIZARD_CONFIRMED_KEY = "lp_wizard_confirmed";
+const WIZARD_PALETTE_KEY = "lp_wizard_palette";
 
 export default function EditorPage() {
   const router = useRouter();
@@ -36,6 +38,11 @@ export default function EditorPage() {
   const [previewHidden, setPreviewHidden] = useState<SectionKey[]>([]);
 
   const [sectionLayouts, setSectionLayouts] = useState<SectionLayouts>({ ...DEFAULT_SECTION_LAYOUTS });
+
+  const [confirmedSections, setConfirmedSections] = useState<SectionKey[]>([]);
+  const [palette, setPalette] = useState<ColorPalette>("A");
+  const [hasChanges, setHasChanges] = useState(false);
+  const skipFirstChangeRef = useRef(true);
 
   const [stocks, setStocks] = useState<StockedLP[]>([]);
   const [stockOpen, setStockOpen] = useState(true);
@@ -65,10 +72,15 @@ export default function EditorPage() {
       }
       if (rawConfirmed) {
         const confirmed = JSON.parse(rawConfirmed) as SectionKey[];
+        setConfirmedSections(confirmed);
         // ウィザードで確定されなかったセクションを非表示にする
         const hidden = DEFAULT_SECTION_ORDER.filter((k) => !confirmed.includes(k));
         setHiddenSections(hidden);
         setPreviewHidden(hidden);
+      }
+      const savedPalette = localStorage.getItem(WIZARD_PALETTE_KEY) as ColorPalette | null;
+      if (savedPalette && ["A", "B", "C"].includes(savedPalette)) {
+        setPalette(savedPalette);
       }
     } catch { /* ignore */ }
     setInitialized(true);
@@ -115,9 +127,62 @@ export default function EditorPage() {
     });
   }, []);
 
+  const handleToggleConfirmed = useCallback((key: SectionKey) => {
+    setConfirmedSections((prev) =>
+      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
+    );
+  }, []);
+
+  const handleRegenerate = useCallback(() => {
+    try {
+      localStorage.setItem(WIZARD_DATA_KEY, JSON.stringify(lpData));
+      localStorage.setItem(WIZARD_LAYOUTS_KEY, JSON.stringify(sectionLayouts));
+      localStorage.setItem(WIZARD_CONFIRMED_KEY, JSON.stringify(confirmedSections));
+      localStorage.setItem(WIZARD_PALETTE_KEY, palette);
+    } catch { /* ignore */ }
+    sessionStorage.setItem("lp_just_generated", "1");
+    router.push("/generating");
+  }, [lpData, sectionLayouts, confirmedSections, palette, router]);
+
+  const handlePaletteChange = useCallback((p: ColorPalette) => {
+    setPalette(p);
+    localStorage.setItem(WIZARD_PALETTE_KEY, p);
+  }, []);
+
+  const handleImageChange: OnImageChange = useCallback((key: string, url: string) => {
+    setLpData((prev) => {
+      const updated = { ...prev, images: { ...prev.images, [key]: url } };
+      setPreviewData(updated);
+      return updated;
+    });
+  }, []);
+
   useEffect(() => {
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
   }, []);
+
+  // 初期ロード完了後の変更を検知 → hasChanges
+  useEffect(() => {
+    if (!initialized) return;
+    if (skipFirstChangeRef.current) {
+      skipFirstChangeRef.current = false;
+      return;
+    }
+    setHasChanges(true);
+  }, [lpData, sectionLayouts, confirmedSections, palette, initialized]);
+
+  // lpData / sectionLayouts の変更を localStorage に自動保存
+  const saveRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    if (!initialized) return;
+    if (saveRef.current) clearTimeout(saveRef.current);
+    saveRef.current = setTimeout(() => {
+      try {
+        localStorage.setItem(WIZARD_DATA_KEY, JSON.stringify(lpData));
+        localStorage.setItem(WIZARD_LAYOUTS_KEY, JSON.stringify(sectionLayouts));
+      } catch { /* quota exceeded: ignore */ }
+    }, 800);
+  }, [lpData, sectionLayouts, initialized]);
 
   const handleDividerMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
@@ -146,7 +211,7 @@ export default function EditorPage() {
   }, [isDragging, stockOpen]);
 
   const handleDownloadMd = () => {
-    const md = generateMarkdown(lpData);
+    const md = generateMarkdown(lpData, confirmedSections);
     const blob = new Blob([md], { type: "text/markdown;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -231,6 +296,25 @@ export default function EditorPage() {
             </div>
           )}
           <button
+            onClick={handleRegenerate}
+            disabled={!hasChanges}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-150"
+            style={{
+              background: hasChanges ? "var(--col-surface-2)" : "transparent",
+              border: `1px solid ${hasChanges ? "var(--col-border-2)" : "var(--col-border)"}`,
+              color: hasChanges ? "var(--col-text-2)" : "var(--col-text-3)",
+              cursor: hasChanges ? "pointer" : "not-allowed",
+              opacity: hasChanges ? 1 : 0.5,
+            }}
+            onMouseEnter={(e) => { if (hasChanges) { (e.currentTarget as HTMLElement).style.color = "var(--col-text)"; (e.currentTarget as HTMLElement).style.background = "var(--col-surface-3)"; }}}
+            onMouseLeave={(e) => { if (hasChanges) { (e.currentTarget as HTMLElement).style.color = "var(--col-text-2)"; (e.currentTarget as HTMLElement).style.background = "var(--col-surface-2)"; }}}
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 20 20">
+              <path d="M4 4v5h5M16 16v-5h-5" /><path d="M4.5 15.5A8 8 0 1015.5 4.5" />
+            </svg>
+            再生成
+          </button>
+          <button
             onClick={() => router.push("/complete")}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-150"
             style={{ background: "var(--col-success-bg)", border: "1px solid var(--col-success-bd)", color: "var(--col-success)", cursor: "pointer" }}
@@ -272,6 +356,8 @@ export default function EditorPage() {
                 onToggleHidden={handleToggleHidden}
                 sectionLayouts={sectionLayouts}
                 onChangeLayout={handleChangeLayout}
+                confirmedSections={confirmedSections}
+                onToggleConfirmed={handleToggleConfirmed}
                 onSectionOpen={(key) => {
                   requestAnimationFrame(() => previewRef.current?.scrollToSection(key));
                 }}
@@ -325,6 +411,9 @@ export default function EditorPage() {
             sectionOrder={previewOrder}
             hiddenSections={previewHidden}
             sectionLayouts={sectionLayouts}
+            palette={palette}
+            onPaletteChange={handlePaletteChange}
+            onImageChange={handleImageChange}
           />
         </div>
 

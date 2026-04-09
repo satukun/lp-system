@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import type { LPData, SectionLayouts, SectionKey, LayoutIndex } from "@/lib/types";
+import type { LPData, SectionLayouts, SectionKey, LayoutIndex, ColorPalette } from "@/lib/types";
 import { DEFAULT_SECTION_ORDER, DEFAULT_SECTION_LAYOUTS } from "@/lib/types";
 import { defaultContent } from "@/lib/defaultContent";
 import { renderSection } from "@/components/preview/SectionRenderer";
@@ -14,12 +14,14 @@ import {
 const WIZARD_DATA_KEY      = "lp_wizard_data";
 const WIZARD_LAYOUTS_KEY   = "lp_wizard_layouts";
 const WIZARD_CONFIRMED_KEY = "lp_wizard_confirmed";
+const WIZARD_PALETTE_KEY   = "lp_wizard_palette";
 
 export default function CompletePage() {
   const router = useRouter();
   const [lpData,            setLpData]            = useState<LPData>(defaultContent);
   const [sectionLayouts,    setSectionLayouts]    = useState<SectionLayouts>({ ...DEFAULT_SECTION_LAYOUTS });
   const [confirmedSections, setConfirmedSections] = useState<SectionKey[]>([]);
+  const [palette,           setPalette]           = useState<ColorPalette>("A");
   const [initialized,       setInitialized]       = useState(false);
   const [modalOpen,         setModalOpen]         = useState(false);
 
@@ -32,9 +34,14 @@ export default function CompletePage() {
       if (rawData)      setLpData(JSON.parse(rawData));
       if (rawLayouts)   setSectionLayouts(JSON.parse(rawLayouts));
       if (rawConfirmed) setConfirmedSections(JSON.parse(rawConfirmed));
+      const savedPalette = localStorage.getItem(WIZARD_PALETTE_KEY) as ColorPalette | null;
+      if (savedPalette && ["A", "B", "C"].includes(savedPalette)) setPalette(savedPalette);
     } catch { /* ignore */ }
     setInitialized(true);
-    setTimeout(() => setModalOpen(true), 80);
+    if (sessionStorage.getItem("lp_just_generated") === "1") {
+      sessionStorage.removeItem("lp_just_generated");
+      setTimeout(() => setModalOpen(true), 80);
+    }
   }, []);
 
   // モーダルを2.5秒後に自動クローズ
@@ -47,7 +54,7 @@ export default function CompletePage() {
   const orderedSections = DEFAULT_SECTION_ORDER.filter((k) => confirmedSections.includes(k));
 
   const handleDownloadMd = () => {
-    const md   = generateMarkdown(lpData);
+    const md   = generateMarkdown(lpData, confirmedSections);
     const blob = new Blob([md], { type: "text/markdown;charset=utf-8" });
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement("a");
@@ -83,7 +90,7 @@ export default function CompletePage() {
         <div
           onClick={() => setModalOpen(false)}
           style={{
-            position: "fixed", inset: 0, zIndex: 100,
+            position: "fixed", inset: 0, zIndex: 9999,
             background: "rgba(0,0,0,0.3)", backdropFilter: "blur(3px)",
             display: "flex", alignItems: "center", justifyContent: "center",
           }}
@@ -142,7 +149,10 @@ export default function CompletePage() {
           padding: "0 24px", height: 52, background: "var(--col-bg)",
           borderBottom: "1px solid var(--col-border)", position: "sticky", top: 0, zIndex: 50,
         }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div
+            onClick={() => router.push("/")}
+            style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}
+          >
             <div style={{
               width: 28, height: 28, borderRadius: 6, background: "var(--col-surface)",
               border: "1px solid var(--col-border-2)", display: "flex", alignItems: "center", justifyContent: "center",
@@ -233,7 +243,7 @@ export default function CompletePage() {
             </div>
             {/* LP本体 */}
             <div style={{ flex: 1, overflowY: "auto", background: "#f5f5f5" }}>
-              <div className="lp-preview-root">
+              <div className="lp-preview-root" data-palette={palette}>
                 {orderedSections.map((key) => (
                   <div key={key}>
                     {renderSection(key, lpData, (sectionLayouts[key] ?? 0) as LayoutIndex)}

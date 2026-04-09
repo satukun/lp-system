@@ -158,4 +158,5 @@ export const defaultContent: LPData = {
     links: ["アプリについて", "サポート", "プライバシーポリシー", "利用規約", "電子公告"],
     copyright: "© 2025 サービス名, Inc.",
   },
+  images: {},
 };
