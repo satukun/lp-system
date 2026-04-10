@@ -66,20 +66,9 @@ export default function WizardPage() {
 
   const handleConfirm = () => {
     if (!isConfirmed) {
-      const newConfirmed = [...confirmedSections, activeKey];
-      setConfirmedSections(newConfirmed);
+      setConfirmedSections((prev) => [...prev, activeKey]);
       setNewlyConfirmedKey(activeKey);
       setTimeout(() => setNewlyConfirmedKey(null), 700);
-      // 次のセクションへ自動移動
-      const currentIdx = STEPS.findIndex((s) => s.key === activeKey);
-      const nextStep = STEPS[currentIdx + 1];
-      if (nextStep) {
-        setTimeout(() => handleSelectSection(nextStep.key), 300);
-      } else {
-        // 最後のセクションの場合、未確定の最初のセクションへ
-        const firstUnconfirmed = STEPS.find((s) => !newConfirmed.includes(s.key));
-        if (firstUnconfirmed) setTimeout(() => handleSelectSection(firstUnconfirmed.key), 300);
-      }
     }
   };
 

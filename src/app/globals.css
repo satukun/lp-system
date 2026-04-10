@@ -28,6 +28,30 @@
   --col-success-bd:  rgba(47, 158, 110, 0.22);
 }
 
+/* ── Dark mode ──────────────────────────────────────── */
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --col-bg:          #191919;
+  --col-surface:     #252525;
+  --col-surface-2:   #2f2f2f;
+  --col-surface-3:   #383838;
+
+  --col-border:      rgba(255, 255, 255, 0.07);
+  --col-border-2:    rgba(255, 255, 255, 0.13);
+
+  --col-text:        #e6e5e0;
+  --col-text-2:      #9b9a97;
+  --col-text-3:      #555452;
+
+  --col-action:      #e6e5e0;
+  --col-action-h:    #d0ceca;
+
+  --col-success:     #3db88a;
+  --col-success-bg:  rgba(61, 184, 138, 0.12);
+  --col-success-bd:  rgba(61, 184, 138, 0.26);
+}
+
 * { box-sizing: border-box; }
 
 body {
@@ -57,6 +81,8 @@ body {
 ::-webkit-scrollbar-track  { background: transparent; }
 ::-webkit-scrollbar-thumb  { background: rgba(55, 53, 47, 0.18); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(55, 53, 47, 0.30); }
+[data-theme="dark"] ::-webkit-scrollbar-thumb  { background: rgba(255, 255, 255, 0.14); }
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.24); }
 
 /* ── Animations ─────────────────────────────────────── */
 @keyframes fadeIn {
