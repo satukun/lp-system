@@ -25,6 +25,9 @@ export default function CompletePage() {
   const [initialized,       setInitialized]       = useState(false);
   const [modalOpen,         setModalOpen]         = useState(false);
   const [device,            setDevice]            = useState<"pc" | "tablet" | "sp">("pc");
+  const [feedbackOpen,      setFeedbackOpen]      = useState(false);
+  const [feedbackText,      setFeedbackText]      = useState("");
+  const [feedbackSent,      setFeedbackSent]      = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -56,6 +59,17 @@ export default function CompletePage() {
 
   const handleDownloadHtml = () => {
     // TODO: HTML生成・ダウンロード実装
+  };
+
+  const handleFeedbackSubmit = () => {
+    if (!feedbackText.trim()) return;
+    // TODO: フィードバック送信処理
+    setFeedbackSent(true);
+    setTimeout(() => {
+      setFeedbackSent(false);
+      setFeedbackText("");
+      setFeedbackOpen(false);
+    }, 1800);
   };
 
   const handleDownloadMd = () => {
@@ -145,6 +159,99 @@ export default function CompletePage() {
         </div>
       )}
 
+      {/* ── フィードバックモーダル ───────────────────────────── */}
+      {feedbackOpen && (
+        <div
+          onClick={() => { if (!feedbackSent) setFeedbackOpen(false); }}
+          style={{
+            position: "fixed", inset: 0, zIndex: 9998,
+            background: "rgba(0,0,0,0.3)", backdropFilter: "blur(3px)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="modal-in"
+            style={{
+              background: "var(--col-bg)", borderRadius: 14,
+              padding: "28px 28px 24px", width: 440,
+              boxShadow: "0 20px 60px rgba(0,0,0,0.18)",
+              border: "1px solid var(--col-border-2)",
+            }}
+          >
+            {feedbackSent ? (
+              <div style={{ textAlign: "center", padding: "16px 0" }}>
+                <div style={{ fontSize: 32, marginBottom: 12 }}>🙏</div>
+                <p style={{ fontSize: 15, fontWeight: 600, color: "var(--col-text)", marginBottom: 4 }}>
+                  ありがとうございます！
+                </p>
+                <p style={{ fontSize: 13, color: "var(--col-text-2)" }}>
+                  フィードバックを受け付けました
+                </p>
+              </div>
+            ) : (
+              <>
+                <div style={{ marginBottom: 16 }}>
+                  <h3 style={{ fontSize: 16, fontWeight: 700, color: "var(--col-text)", margin: "0 0 6px 0", fontFamily: "Inter, sans-serif" }}>
+                    生成結果はどうでしたか？
+                  </h3>
+                  <p style={{ fontSize: 13, color: "var(--col-text-2)", margin: 0, lineHeight: 1.6 }}>
+                    改善してほしい点やご要望をお聞かせください
+                  </p>
+                </div>
+                <textarea
+                  value={feedbackText}
+                  onChange={(e) => setFeedbackText(e.target.value)}
+                  placeholder="例: S3のメッセージセクションのコピーをもっと簡潔にしたい、カラーの選択肢を増やしてほしい..."
+                  rows={5}
+                  style={{
+                    width: "100%", padding: "10px 12px", borderRadius: 8,
+                    border: "1px solid var(--col-border-2)",
+                    background: "var(--col-surface)", color: "var(--col-text)",
+                    fontSize: 13, lineHeight: 1.7, resize: "vertical",
+                    outline: "none", fontFamily: "inherit", transition: "border-color 0.15s",
+                    boxSizing: "border-box",
+                  }}
+                  onFocus={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "var(--col-text-2)"; }}
+                  onBlur={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "var(--col-border-2)"; }}
+                />
+                <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 12 }}>
+                  <button
+                    onClick={() => setFeedbackOpen(false)}
+                    style={{
+                      padding: "7px 16px", borderRadius: 7,
+                      background: "transparent", color: "var(--col-text-2)",
+                      fontSize: 13, border: "1px solid var(--col-border)", cursor: "pointer",
+                      transition: "all 0.15s",
+                    }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--col-text)"; (e.currentTarget as HTMLElement).style.borderColor = "var(--col-border-2)"; }}
+                    onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--col-text-2)"; (e.currentTarget as HTMLElement).style.borderColor = "var(--col-border)"; }}
+                  >
+                    キャンセル
+                  </button>
+                  <button
+                    onClick={handleFeedbackSubmit}
+                    disabled={!feedbackText.trim()}
+                    style={{
+                      padding: "7px 20px", borderRadius: 7,
+                      background: feedbackText.trim() ? "var(--col-action)" : "var(--col-surface-2)",
+                      color: feedbackText.trim() ? "var(--col-bg)" : "var(--col-text-3)",
+                      fontSize: 13, fontWeight: 600, border: "none",
+                      cursor: feedbackText.trim() ? "pointer" : "not-allowed",
+                      transition: "all 0.15s",
+                    }}
+                    onMouseEnter={(e) => { if (feedbackText.trim()) (e.currentTarget as HTMLElement).style.opacity = "0.85"; }}
+                    onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = "1"; }}
+                  >
+                    送信する
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* ── メインレイアウト ─────────────────────────────────── */}
       <div style={{ background: "var(--col-bg)", height: "100vh", display: "flex", flexDirection: "column" }}>
 
@@ -176,6 +283,22 @@ export default function CompletePage() {
             </div>
           </div>
           <div style={{ display: "flex", gap: 8 }}>
+            <button
+              onClick={() => setFeedbackOpen(true)}
+              style={{
+                display: "flex", alignItems: "center", gap: 6,
+                padding: "5px 12px", borderRadius: 6, background: "transparent",
+                color: "var(--col-text-2)", fontSize: 12, fontWeight: 500,
+                border: "1px solid var(--col-border)", cursor: "pointer", transition: "all 0.15s",
+              }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "var(--col-border-2)"; (e.currentTarget as HTMLElement).style.color = "var(--col-text)"; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "var(--col-border)"; (e.currentTarget as HTMLElement).style.color = "var(--col-text-2)"; }}
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+              </svg>
+              フィードバック
+            </button>
             <button
               onClick={handleDownloadMd}
               style={{
