@@ -24,6 +24,7 @@ export default function CompletePage() {
   const [palette,           setPalette]           = useState<ColorPalette>("A");
   const [initialized,       setInitialized]       = useState(false);
   const [modalOpen,         setModalOpen]         = useState(false);
+  const [device,            setDevice]            = useState<"pc" | "tablet" | "sp">("pc");
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -241,7 +242,7 @@ export default function CompletePage() {
             {/* バー */}
             <div style={{
               flexShrink: 0, display: "flex", alignItems: "center", gap: 10,
-              padding: "8px 14px", background: "var(--col-surface)",
+              padding: "6px 14px", background: "var(--col-surface)",
               borderBottom: "1px solid var(--col-border)",
             }}>
               <div style={{ display: "flex", gap: 5, flexShrink: 0 }}>
@@ -258,15 +259,54 @@ export default function CompletePage() {
                   your-lp.example.com
                 </span>
               </div>
+              {/* デバイス切替 */}
+              <div style={{ display: "flex", gap: 2, flexShrink: 0 }}>
+                {([
+                  { key: "pc",     label: "PC",
+                    icon: <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" strokeWidth={1.8}/><path strokeLinecap="round" strokeWidth={1.8} d="M8 21h8M12 17v4"/></svg> },
+                  { key: "tablet", label: "Tablet",
+                    icon: <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2" strokeWidth={1.8}/><circle cx="12" cy="18" r="1" fill="currentColor" stroke="none"/></svg> },
+                  { key: "sp",     label: "SP",
+                    icon: <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2" strokeWidth={1.8}/><circle cx="12" cy="18.5" r="0.8" fill="currentColor" stroke="none"/></svg> },
+                ] as const).map((d) => (
+                  <button
+                    key={d.key}
+                    onClick={() => setDevice(d.key)}
+                    title={d.label}
+                    style={{
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      width: 28, height: 28, borderRadius: 6, border: "none",
+                      cursor: "pointer", transition: "all 150ms",
+                      ...(device === d.key
+                        ? { background: "var(--col-surface-3)", color: "var(--col-text)" }
+                        : { background: "transparent", color: "var(--col-text-3)" }),
+                    }}
+                  >
+                    {d.icon}
+                  </button>
+                ))}
+              </div>
+              <span style={{ fontSize: 10, fontFamily: "monospace", color: "var(--col-text-3)", flexShrink: 0, minWidth: 36 }}>
+                {device === "tablet" ? "768px" : device === "sp" ? "390px" : "100%"}
+              </span>
             </div>
             {/* LP本体 */}
-            <div style={{ flex: 1, overflowY: "auto", background: "#f5f5f5" }}>
-              <div className="lp-preview-root" data-palette={palette}>
-                {orderedSections.map((key) => (
-                  <div key={key}>
-                    {renderSection(key, lpData, (sectionLayouts[key] ?? 0) as LayoutIndex)}
-                  </div>
-                ))}
+            <div style={{
+              flex: 1, overflowY: "auto",
+              background: device === "pc" ? "var(--col-bg)" : "var(--col-surface-2)",
+            }}>
+              <div style={
+                device !== "pc"
+                  ? { width: device === "tablet" ? 768 : 390, margin: "16px auto", boxShadow: "0 4px 24px rgba(0,0,0,0.18)", borderRadius: 4, overflow: "hidden", minHeight: "calc(100% - 32px)" }
+                  : { width: "100%" }
+              }>
+                <div className="lp-preview-root" data-palette={palette}>
+                  {orderedSections.map((key) => (
+                    <div key={key}>
+                      {renderSection(key, lpData, (sectionLayouts[key] ?? 0) as LayoutIndex)}
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
