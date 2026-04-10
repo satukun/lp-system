@@ -53,6 +53,10 @@ export default function CompletePage() {
 
   const orderedSections = DEFAULT_SECTION_ORDER.filter((k) => confirmedSections.includes(k));
 
+  const handleDownloadHtml = () => {
+    // TODO: HTML生成・ダウンロード実装
+  };
+
   const handleDownloadMd = () => {
     const md   = generateMarkdown(lpData, confirmedSections);
     const blob = new Blob([md], { type: "text/markdown;charset=utf-8" });
@@ -186,6 +190,20 @@ export default function CompletePage() {
               MDをダウンロード
             </button>
             <button
+              onClick={handleDownloadHtml}
+              style={{
+                display: "flex", alignItems: "center", gap: 6,
+                padding: "5px 12px", borderRadius: 6, background: "transparent",
+                color: "var(--col-text-2)", fontSize: 12, fontWeight: 500,
+                border: "1px solid var(--col-border)", cursor: "pointer", transition: "all 0.15s",
+              }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "var(--col-border-2)"; (e.currentTarget as HTMLElement).style.color = "var(--col-text)"; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "var(--col-border)"; (e.currentTarget as HTMLElement).style.color = "var(--col-text-2)"; }}
+            >
+              <IconDownload size={13} />
+              HTMLをダウンロード
+            </button>
+            <button
               onClick={() => router.push("/editor")}
               style={{
                 display: "flex", alignItems: "center", gap: 6,
@@ -287,6 +305,20 @@ export default function CompletePage() {
             >
               <IconDownload size={14} />
               MDをダウンロード
+            </button>
+            <button
+              onClick={handleDownloadHtml}
+              style={{
+                display: "flex", alignItems: "center", gap: 6,
+                padding: "7px 16px", borderRadius: 7, background: "transparent",
+                color: "var(--col-text)", fontSize: 13, fontWeight: 500,
+                border: "1px solid var(--col-border-2)", cursor: "pointer", transition: "all 0.15s",
+              }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "var(--col-surface)"; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
+            >
+              <IconDownload size={14} />
+              HTMLをダウンロード
             </button>
             <button
               onClick={() => router.push("/editor")}
