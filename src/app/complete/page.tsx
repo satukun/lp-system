@@ -7,6 +7,7 @@ import { DEFAULT_SECTION_ORDER, DEFAULT_SECTION_LAYOUTS } from "@/lib/types";
 import { defaultContent } from "@/lib/defaultContent";
 import { renderSection } from "@/components/preview/SectionRenderer";
 import { generateMarkdown } from "@/lib/markdownGenerator";
+import { generateHtml } from "@/lib/htmlGenerator";
 import {
   IconCheck, IconArrowRight, IconArrowLeft, IconDownload,
 } from "@/components/ui/Icons";
@@ -58,7 +59,17 @@ export default function CompletePage() {
   const orderedSections = DEFAULT_SECTION_ORDER.filter((k) => confirmedSections.includes(k));
 
   const handleDownloadHtml = () => {
-    // TODO: HTML生成・ダウンロード実装
+    const html = generateHtml(
+      lpData,
+      orderedSections,
+      sectionLayouts,
+      palette
+    );
+    const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement("a");
+    a.href = url; a.download = "index.html"; a.click();
+    URL.revokeObjectURL(url);
   };
 
   const handleFeedbackSubmit = () => {

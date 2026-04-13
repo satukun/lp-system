@@ -10,6 +10,7 @@ import EditorPanel from "@/components/editor/EditorPanel";
 import PreviewPanel, { type PreviewPanelHandle } from "@/components/preview/PreviewPanel";
 import StockPanel from "@/components/stock/StockPanel";
 import { generateMarkdown } from "@/lib/markdownGenerator";
+import { generateHtml } from "@/lib/htmlGenerator";
 
 const MIN_EDITOR_WIDTH = 280;
 const MAX_EDITOR_WIDTH_RATIO = 0.55;
@@ -221,6 +222,24 @@ export default function EditorPage() {
     URL.revokeObjectURL(url);
   };
 
+  const handleDownloadHtml = () => {
+    const visibleSections = sectionOrder.filter((k) => !hiddenSections.includes(k));
+    const html = generateHtml(
+      lpData,
+      visibleSections,
+      sectionLayouts,
+      palette,
+      hiddenSections
+    );
+    const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "index.html";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const handleSaveStock = useCallback((name: string) => {
     const newStock: StockedLP = {
       id: `${Date.now()}`,
@@ -328,6 +347,18 @@ export default function EditorPage() {
           </button>
           <button
             onClick={handleDownloadMd}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-semibold transition-all duration-150"
+            style={{ background: "var(--col-surface-2)", border: "1px solid var(--col-border-2)", color: "var(--col-text)", cursor: "pointer" }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "var(--col-surface-3)"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "var(--col-surface-2)"; }}
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" viewBox="0 0 20 20">
+              <path d="M10 3v10M6.5 9.5l3.5 4 3.5-4"/><path d="M4 15.5h12"/>
+            </svg>
+            MDをダウンロード
+          </button>
+          <button
+            onClick={handleDownloadHtml}
             className="flex items-center gap-2 px-3 py-1.5 rounded-md text-white text-xs font-semibold transition-all duration-150"
             style={{ background: "var(--col-action)", border: "none", cursor: "pointer" }}
             onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "var(--col-action-h)"; }}
@@ -336,7 +367,7 @@ export default function EditorPage() {
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" viewBox="0 0 20 20">
               <path d="M10 3v10M6.5 9.5l3.5 4 3.5-4"/><path d="M4 15.5h12"/>
             </svg>
-            MDをダウンロード
+            HTMLをダウンロード
           </button>
         </div>
       </header>
