@@ -1,191 +1,365 @@
-# toB LP生成システム 運用ガイド
+# toB LP生成システム
 
-## このシステムについて
-
-このシステムは、**デザイナーがいなくてもマーケターが一定品質のtoB向けLPを量産できる**仕組みです。
-
-LPのデザインを「固定部分」と「可変部分」に分離し、3つのMarkdownファイルでコントロールします。マーケターはコンテンツ原稿だけを書き換えれば、デザインの品質はシステムが自動的に担保します。
+マーケターがデザイナーなしで品質の高いtoB向けLPを量産できるシステムです。
 
 ---
 
-## ファイル構成
+## システム全体像
+
+このプロジェクトは **2つのワークフロー** が共存しています。
 
 ```
-lp-system/
-├── SKILL.md                          ← 指揮者（読み込み順序・ワークフロー・品質チェック）
-├── index.html                        ← 生成されたLP（出力ファイル）
-└── references/
-    ├── design-system.md              ← Layer 1: デザインシステム（固定）
-    ├── lp-structure.md               ← Layer 2: toB LP構造（固定）
-    └── content-source-template.md    ← Layer 3: コンテンツ原稿（可変）
+┌─────────────────────────────────────────────────────────────────┐
+│  ワークフロー A: AIハーネス（開発フロー）                           │
+│                                                                 │
+│  アイデア（1〜4行）                                               │
+│       ↓                                                         │
+│  [Planner] → /docs/spec.md（スプリント計画）                      │
+│       ↓                                                         │
+│  [Designer] → /docs/design.md（Figmaデザイン仕様）               │
+│       ↓                                ↑ フィードバック           │
+│  [Generator] → 実装（1スプリントずつ）  │                         │
+│       ↓                                │                         │
+│  [Evaluator] → /docs/feedback/sprint-N.md ─────────────────────┘
+│       ↓（合格）
+│  Next.js Webアプリが完成
+│
+└─────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│  ワークフロー B: LP生成（エンドユーザーフロー）                      │
+│                                                                 │
+│  ブラウザ操作（ウィザード / エディタ）                               │
+│       ↓                                                         │
+│  コンテンツ入力 + レイアウト選択 + カラーパレット選択                 │
+│       ↓                                                         │
+│  htmlGenerator.ts（SKILL.md準拠）                                │
+│       ↓                                                         │
+│  standalone index.html をダウンロード                             │
+│                                                                 │
+│  ─── または ───                                                   │
+│                                                                 │
+│  references/*.md を編集 → Claude Code に SKILL.md を指示          │
+│       ↓                                                         │
+│  index.html を生成・出力                                          │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 3つのmdファイルの役割
+## AIハーネスの設計
 
-### design-system.md（固定）
+`.claude/agents/` に4つの専門エージェントが定義されており、
+Claude Code のサブエージェント機能を使って **ロール分担した自律開発** を実現します。
 
-ブランドの見た目ルールをすべて定義するファイルです。
+### エージェント構成
 
-カラーパレット8色、フォントサイズ、余白の体系、ボタンスタイル、カードコンポーネント、角丸ルール、禁止事項などが含まれます。**案件が変わっても基本的に変更しません。**
+```
+.claude/agents/
+├── planner.md    ← 企画・仕様書生成
+├── designer.md   ← Figmaデザイン → 仕様書変換
+├── generator.md  ← スプリント実装
+└── evaluator.md  ← テスト・品質評価
+```
 
-ブランドのリニューアルや、デザイントーンの見直し時のみ更新します。
+### 各エージェントの責務
 
-### lp-structure.md（固定）
+| エージェント | モデル | 入力 | 出力 | 責務の境界 |
+|---|---|---|---|---|
+| **Planner** | opus | アイデア（1〜4行） | `/docs/spec.md` | 「何を作るか」のみ。技術選定・DB設計・API設計は行わない |
+| **Designer** | sonnet | FigmaURL + spec.md | `/docs/design.md` | デザイン仕様の抽出のみ。CSSの書き方・実装方法は書かない |
+| **Generator** | sonnet | spec.md + design.md | 実装コード + ユニットテスト | 1回の呼び出しで1スプリントのみ。仕様を変更しない |
+| **Evaluator** | sonnet | spec.md + 実装コード | `/docs/feedback/sprint-N.md` + E2Eテスト | E2Eテストを蓄積し、回帰を防ぐ |
 
-LPの骨組み（セクション構成）を定義するファイルです。
+### ハーネスの反復サイクル
 
-ヘッダーからフッターまで全11セクションの順序、レイアウト型（何カラムか）、レスポンシブの挙動、各セクションの必須要素が記載されています。**toBのLPとして成果が出やすい「勝ちパターン」をテンプレート化したもの**です。
+```
+Generator が実装
+    ↓
+ユニットテストを自己実行（全PASS確認）
+    ↓
+Playwright MCP でブラウザ操作・自己確認
+    ↓
+/docs/progress.md に自己評価を記録
+    ↓
+Evaluator が引き継ぎ
+    ↓
+既存E2Eテスト全PASS確認（回帰チェック）
+    ↓
+今スプリントのE2Eテスト作成・実行
+    ↓
+評価スコアが閾値以上？
+    ├─ 合格 → 次スプリントへ
+    └─ 不合格 → /docs/feedback/sprint-N.md を出力 → Generator へ戻す
+```
 
-こちらも案件をまたいで共通なので、基本的には変更しません。
+### ドメイン知識層（変更禁止）
 
-### content-source-template.md（可変）
+Generator・Evaluator はLP関連機能の実装・評価時に **必ず** 以下を読む。
+これらのファイルはエージェントが変更してはならない「ルールブック」として機能します。
 
-**マーケターが案件ごとに書き換えるファイル**です。
+```
+┌─────────────────────────────────────────────────────────────┐
+│  ドメイン知識層（references/ + SKILL.md）                     │
+│                                                             │
+│  SKILL.md                  LP生成フロー・品質チェックリスト    │
+│  references/               ├─ design-system.md             │
+│  （変更禁止）               │    カラーパレット3種・タイポグラフィ │
+│                             ├─ lp-structure.md             │
+│                             │    S1〜S11×3レイアウト定義     │
+│                             └─ content-source-template.md  │
+│                                  コンテンツフィールド定義     │
+└─────────────────────────────────────────────────────────────┘
+         ↑ 参照のみ（Generator・Evaluator は書き込み禁止）
+```
 
-各セクションに表示する見出し、本文、CTA文言、FAQ、事例情報などの実データが入ります。このファイルだけを差し替えることで、異なるLPを量産できます。
+**CSSの分離ルール**（Generator が厳守）
+- アプリUI用: `--col-*` 変数（`globals.css` で定義）
+- LP出力用: `--color-*` 変数（`htmlGenerator.ts` でインライン定義）
+- 2つを混在させてはならない
+
+---
+
+## スプリント進捗
+
+| Sprint | テーマ | ステータス |
+|---|---|---|
+| Sprint 1 | 基盤構築（型定義・デフォルトコンテンツ・CSS変数体系） | 完了 |
+| Sprint 2 | ウィザード画面（入力フォーム・リアルタイムプレビュー） | 完了 |
+| Sprint 3 | エディタ画面（3パネル・並び替え・ストック） | 完了 |
+| Sprint 4 | 完了画面・カラーパレット・ダークモード | 完了 |
+| Sprint 5 | HTMLダウンロード・フィードバック送信 | HTML完了 / フィードバック送信はTODO |
+| Sprint 6 | Notion連携 | 未実装（将来計画） |
+
+進捗の詳細は `/docs/progress.md`、評価結果は `/docs/feedback/sprint-N.md` を参照。
+
+---
+
+## ディレクトリ構成
+
+```
+lp-systems/
+├── .claude/
+│   └── agents/
+│       ├── planner.md     ← [ハーネス] Plannerエージェント定義
+│       ├── designer.md    ← [ハーネス] Designerエージェント定義
+│       ├── generator.md   ← [ハーネス] Generatorエージェント定義
+│       └── evaluator.md   ← [ハーネス] Evaluatorエージェント定義
+├── docs/
+│   ├── spec.md            ← [ハーネス] Plannerが生成した製品仕様書
+│   ├── progress.md        ← [ハーネス] Generatorの自己評価・進捗記録
+│   └── feedback/
+│       └── sprint-N.md    ← [ハーネス] Evaluatorの評価フィードバック
+├── SKILL.md               ← [ドメイン知識層] CLIワークフロー用AI指揮者
+├── index.html             ← [CLIワークフロー出力] 生成されたLP
+├── references/
+│   ├── design-system.md                  ← [ドメイン知識層] カラー・タイポグラフィ
+│   ├── lp-structure.md                   ← [ドメイン知識層] S1〜S11×3レイアウト定義
+│   └── content-source-template.md        ← [ドメイン知識層] コンテンツ原稿テンプレート
+├── src/
+│   ├── app/
+│   │   ├── page.tsx                      ← [ルート] ウィザード画面
+│   │   ├── editor/page.tsx               ← [/editor] エディタ画面
+│   │   ├── generating/page.tsx           ← [/generating] 生成アニメーション
+│   │   └── complete/page.tsx             ← [/complete] 完成・ダウンロード画面
+│   ├── components/
+│   │   ├── editor/
+│   │   │   ├── EditorPanel.tsx           ← エディタ左パネル全体
+│   │   │   ├── sections/                 ← セクション別フォーム（S1〜S11）
+│   │   │   └── LayoutPicker.tsx          ← レイアウト選択UI（Layout 0/1/2）
+│   │   ├── preview/
+│   │   │   ├── PreviewPanel.tsx          ← リアルタイムプレビューパネル
+│   │   │   └── SectionRenderer.tsx       ← セクション別レンダラー
+│   │   ├── stock/
+│   │   │   └── StockPanel.tsx            ← ストック（保存・比較）パネル
+│   │   ├── wizard/
+│   │   │   └── LayoutPicker.tsx          ← ウィザード用レイアウト選択
+│   │   └── ui/
+│   │       ├── Icons.tsx
+│   │       ├── SectionCard.tsx
+│   │       ├── ThemeToggle.tsx           ← ダークモード切り替え
+│   │       └── FieldInput.tsx
+│   └── lib/
+│       ├── types.ts                      ← 型定義（LPData, SectionKey等）
+│       ├── defaultContent.ts             ← デフォルトコンテンツ
+│       ├── htmlGenerator.ts              ← standalone HTML生成（SKILL.md準拠）
+│       ├── htmlGenerator.test.ts         ← HTMLジェネレーターのユニットテスト
+│       ├── markdownGenerator.ts          ← content-source.md形式でMarkdown出力
+│       └── sectionLayouts.ts             ← レイアウトパターン定義
+├── tests/                                ← Evaluatorが蓄積するE2Eテスト
+├── next.config.ts
+├── playwright.config.ts
+└── vitest.config.ts
+```
+
+---
+
+## データモデル
+
+### LPData（src/lib/types.ts）
+
+```typescript
+interface LPData {
+  s1:  S1Header;       // ナビゲーション（メニュー・CTA）
+  s2:  S2Hero;         // ファーストビュー（コピー・信頼バッジ）
+  s3:  S3Message;      // メッセージ（サービス概要）
+  s4:  S4Problems;     // 課題定義（3枚カード）
+  s5:  S5Features;     // 特徴・強み（3枚カード）
+  s6:  S6Categories;   // 対応業種（6グリッド）
+  s7:  S7CaseStudies;  // 導入事例（3枚カード）
+  s8:  S8Flow;         // 導入フロー（ステップ）
+  s9:  S9FormFaq;      // フォーム＋FAQ
+  s10: S10Closing;     // 最終CTA
+  s11: S11Footer;      // フッター（リンク・コピーライト）
+  images: Record<string, string>;  // 画像URL
+}
+```
+
+### SectionLayouts
+
+各セクションのレイアウトパターン（`0` / `1` / `2`）を保持するマップ。
+3種のレイアウトは `references/lp-structure.md` で定義。
+
+### ColorPalette
+
+`"A"` (ゴールド) / `"B"` (ブルー) / `"C"` (グリーン) の3種。
+カラートークンは `references/design-system.md` で定義。
+
+### StockedLP
+
+エディタで保存したLP状態のスナップショット。
+`LPData + SectionLayouts + sectionOrder + hiddenSections` を持つ。
+
+---
+
+## 画面フロー（Webアプリ）
+
+```
+/ (ウィザード)
+  ├─ ウェルカム画面 → 「はじめる」
+  └─ ビルダー画面
+       S1〜S11 を任意の順で入力・確定
+       └─ 「LPを生成」 → /generating（アニメーション）
+                           └─ /complete
+                                ├─ プレビュー（PC / Tablet / SP 切り替え）
+                                ├─ HTMLダウンロード
+                                ├─ フィードバック送信（TODO: バックエンド未実装）
+                                └─ エディタへ
+
+/editor
+  ├─ 左: エディタパネル（フォーム + 並び替え + 表示/非表示）
+  ├─ 中: リサイズ可能ドラッグバー
+  ├─ 右: リアルタイムプレビュー（カラー・レイアウト切替）
+  └─ ストックパネル（LP状態の保存・読み込み・比較）
+```
 
 ---
 
 ## 11セクション構成
 
-| # | セクション名 | 役割 | レイアウト |
-|---|---|---|---|
-| S1 | Header | ナビゲーション | 左ロゴ / 中央メニュー / 右CTA |
-| S2 | Hero & Trust Badges | ファーストビュー | 左コピー / 右ビジュアル |
-| S3 | Message | サービス概要 | 中央1カラム |
-| S4 | Problem Identification | 課題提示 | 3カラム カード |
-| S5 | Features & Benefits | 特徴・強み | 3カラム カード |
-| S6 | Categories | 対応業種 | 6グリッド カード |
-| S7 | Case Studies | 導入事例 | 3カラム カード |
-| S8 | Implementation Flow | 導入フロー | 水平ステップ |
-| S9 | Lead Form & FAQ | フォーム+FAQ | 2カラム |
-| S10 | Closing Message | 最終CTA | 中央1カラム |
-| S11 | Footer | 企業情報 | 左ロゴ / 右リンク |
+各セクション3レイアウト × 11セクション = **33パターン**を組み合わせて生成。
+
+| # | セクション | 役割 |
+|---|---|---|
+| S1 | Header | ナビゲーション |
+| S2 | Hero & Trust Badges | ファーストビュー |
+| S3 | Message | サービス概要 |
+| S4 | Problem Identification | 課題提示 |
+| S5 | Features & Benefits | 特徴・強み |
+| S6 | Categories | 対応業種 |
+| S7 | Case Studies | 導入事例 |
+| S8 | Implementation Flow | 導入フロー |
+| S9 | Lead Form & FAQ | フォーム+FAQ |
+| S10 | Closing Message | 最終CTA |
+| S11 | Footer | 企業情報 |
 
 ---
 
-## 現在の使い方（MVP）
+## ローカル開発
 
-### Step 1: コンテンツ原稿を準備する
-
-`content-source-template.md` をコピーして、案件名をつけてリネームします。
-
+```bash
+npm install
+npm run dev           # http://localhost:3000
+npm run build
+npm run test          # vitest（ユニットテスト）
+npx playwright test   # E2Eテスト（tests/ 以下）
 ```
-content-source-飲食業界向けLP.md
-```
 
-ファイル内の `[可変]` マークがついたセクションのテキストを、案件に合わせて書き換えます。`[固定]` マークの項目は基本そのままでOKです。
+---
 
-### Step 2: Claude Codeに3ファイルを読み込ませる
+## Webアプリのローカルストレージ
 
-Claude Code（またはClaude.ai）に以下のように指示します。
+ウィザード → エディタ → 完成画面間のデータ受け渡しに使用。
+
+| キー | 内容 |
+|---|---|
+| `lp_wizard_data` | LPDataのJSON |
+| `lp_wizard_layouts` | SectionLayoutsのJSON |
+| `lp_wizard_confirmed` | 確定済みセクションキーの配列 |
+| `lp_wizard_palette` | カラーパレット（"A" / "B" / "C"） |
+
+---
+
+## CLIワークフロー（SKILL.md）
+
+Claude Code を使ってHTMLを直接生成するAIドリブンのワークフロー。
+
+### 使い方
+
+1. `references/content-source-template.md` をコピーして案件名でリネーム
+2. `[可変]` マークの箇所を書き換える
+3. Claude Code に以下を指示する
 
 ```
 以下の3つのmdファイルを読み込んで、toB向けLPのHTMLを生成してください。
 
-1. design-system.md
-2. lp-structure.md  
-3. content-source-飲食業界向けLP.md
+1. references/design-system.md
+2. references/lp-structure.md
+3. references/content-source-（案件名）.md
 
 SKILL.mdのワークフローに従って生成してください。
 ```
 
-### Step 3: 生成されたHTMLを確認・修正する
+4. 生成された `index.html` をブラウザで確認
 
-生成された `index.html` をブラウザで開いて確認します。修正が必要な場合は、修正対象を伝えるだけでAIが該当箇所を修正します。
+### 修正方法
 
-修正例:
-- 「S6とS7の順番を入れ替えて」→ lp-structure.mdレベルの変更
-- 「ヒーローのコピーを変えたい」→ content-source.mdレベルの変更
-- 「ボタンの色を青にしたい」→ design-system.mdレベルの変更
-
-### Step 4: mdへのフィードバック
-
-修正内容のうち、**今後の案件にも適用すべきもの**はmdファイルに反映します。これにより次回以降の生成品質が自動的に向上します。
+| 修正の種類 | 変更対象 |
+|---|---|
+| コピー・文言の変更 | content-source.md |
+| セクション順序・構成の変更 | lp-structure.md |
+| デザイン・カラーの変更 | design-system.md |
+| カラーパレット切り替え | content-source.md のパレット指定 |
 
 ---
 
-## 将来の運用（Notion連携）
+## HTMLジェネレーター仕様（src/lib/htmlGenerator.ts）
 
-MVPで仕組みが固まったら、以下のNotion連携運用に移行します。
+Webアプリ・CLIの両ワークフローで共通して使われる出力ロジック。
+SKILL.md の品質チェックリストに準拠して生成。
 
-### 全体フロー
-
-```
-マーケター → Notionに入力 → Notion API → content-source.md自動生成 → Claude Code → index.html
-```
-
-### Notionデータベース設計
-
-2つのデータベースを用意します。
-
-**メインDB「LP案件」**（1行 = 1つのLP）
-
-管理系プロパティ:
-- 案件名（タイトル）
-- ステータス（セレクト: 下書き / レビュー中 / 生成済み / 公開済み）
-- 対象業種
-- 担当者
-- 最終生成日時
-
-コンテンツ系プロパティ（テキストが固定的なセクション）:
-- S1: メニュー項目、CTA文言
-- S2: メインコピー、サブコピー、信頼指標
-- S3: メッセージ見出し、本文
-- S8: 各ステップのタイトルと説明
-- S10: クロージングコピー
-
-**サブDB群**（カード数が案件ごとに変わるセクション）
-
-- S4: 課題カード（見出し / 説明 / アイコン指示 / 表示順）
-- S5: 特徴カード（タイトル / 説明 / ポイント番号 / 画像指示）
-- S6: 業種カード（カテゴリ名 / 説明 / 画像指示）
-- S7: 事例カード（企業名 / 要約 / 画像指示）
-- S9: FAQ（質問 / 回答 / 表示順）
-
-すべてのサブDBに「LP案件」へのリレーションを持たせます。
-
-### マーケターの作業手順（Notion連携後）
-
-1. メインDB「LP案件」で新しい行を追加
-2. テンプレートに沿って各フィールドを埋める
-3. 必要に応じてサブDB（課題カード、事例など）にカードを追加
-4. ステータスを「レビュー中」に変更
-5. 生成されたHTMLを確認し、修正があればNotionを更新して再生成
-6. 問題なければ「公開済み」に変更
-
-### Notion → md変換スクリプト（将来実装）
-
-Notion APIでデータベースの内容を取得し、content-source-template.mdの形式に変換するスクリプトを用意します。
-
-処理の流れ:
-1. Notion APIでメインDBから案件情報を取得
-2. リレーション経由でサブDBのカードを取得
-3. content-source-template.mdのフォーマットに沿ってmdファイルを生成
-4. Claude Code / SKILL で index.html を生成
+- **出力形式**: standalone HTML（外部CDN不使用、CSS・JSすべてインライン）
+- **CSS**: デザインシステムのカラートークンを `--color-*` 変数で定義
+- **JS**: FAQアコーディオン・ハンバーガーメニューのみ
+- **セクションコメント**: `<!-- S1: Header [Layout N] -->` 形式
+- **インデント**: スペース2つ
+- **レスポンシブ**: PC/SP対応（ブレークポイント: 768px）
 
 ---
 
-## SKILLを育てるサイクル
+## 今後の実装予定（spec.md Sprint 5〜6）
 
-このシステムは**使うほど品質が上がる**設計です。
-
-1. 現在のSKILLでベースラインのLPを生成する
-2. 案件ごとにカスタマイズ・修正する
-3. 修正結果とベースラインの差分を抽出する
-4. 差分のうち汎用性の高いものをmdに反映する
-5. 更新されたSKILLで再生成し、品質を確認する
-6. 新しいベースラインとして次のサイクルへ
-
-これを繰り返すことで、mdファイルが組織の「デザイン資産」として蓄積されていきます。
+- [ ] フィードバック送信のバックエンド連携（Sprint 5）
+- [ ] Notion連携（Sprint 6: コンテンツ入力 → content-source.md 自動生成）
+- [ ] S3〜S4・S6〜S7・S9 のウィザードフォーム追加（現在はエディタのみ対応）
+- [ ] 画像アップロード（現状は placeholder.co または URL直接入力）
 
 ---
 
 ## 注意事項
 
-- design-system.md と lp-structure.md は安易に変更しない（変更すると全案件に影響する）
-- content-source.md のテキストはAIが一言一句そのまま使うので、誤字に注意
-- 画像はMVPではplaceholder.coを使用。本番では実画像のURLに差し替えてください
-- フォームは見た目のみ（バックエンド連携は別途実装が必要）
+- `references/` と `SKILL.md` はドメイン知識層のため**変更禁止**（全案件・全エージェントに影響）
+- CSS変数 `--col-*`（アプリUI用）と `--color-*`（LP出力用）を混在させない
+- `content-source.md` のテキストはAIが一言一句そのまま使うため誤字に注意
+- フォームはUI表示のみ（バックエンド連携は別途実装が必要）
+- 画像はMVPではplaceholder.coを使用。本番では実画像URLに差し替えること
