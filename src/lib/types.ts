@@ -104,7 +104,7 @@ export type ColorPalette = "A" | "B" | "C";
 
 export const DEFAULT_SECTION_ORDER: SectionKey[] = ['s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11'];
 
-export type LayoutIndex = 0 | 1 | 2;
+export type LayoutIndex = 0 | 1 | 2 | 3;
 export type SectionLayouts = Record<SectionKey, LayoutIndex>;
 export const DEFAULT_SECTION_LAYOUTS: SectionLayouts = {
   s1: 0, s2: 0, s3: 0, s4: 0, s5: 0,

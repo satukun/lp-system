@@ -21,7 +21,7 @@ export const FILL_COLORS: Record<Fill, string> = {
   m: "#BBBBBB",
 };
 
-export const SECTION_LAYOUTS: Record<SectionKey, [LayoutPattern, LayoutPattern, LayoutPattern]> = {
+export const SECTION_LAYOUTS: Record<SectionKey, LayoutPattern[]> = {
   s1: [
     {
       // A: スタンダード — white bg, logo左・nav中央・CTA右
@@ -63,6 +63,19 @@ export const SECTION_LAYOUTS: Record<SectionKey, [LayoutPattern, LayoutPattern, 
         [37, 8, 10, 4, "m", 1], [49, 8, 10, 4, "m", 1], [61, 8, 10, 4, "m", 1],
         [78, 4, 20, 12, "a", 2],
         [4, 30, 30, 6, "m", 2], [4, 39, 22, 5, "m", 2], [4, 47, 26, 5, "m", 2],
+      ],
+    },
+    {
+      // D: ミニマル — white bg, ロゴ中央・CTAのみ・ナビなし（コンバージョン特化）
+      label: "ミニマル",
+      description: "ロゴ中央・CTAのみのコンバージョン特化型ヘッダー",
+      blocks: [
+        [0, 0, 100, 65, "l", 3],
+        [0, 0, 100, 20, "w", 0],
+        [0, 19, 100, 1, "g", 0],
+        [35, 5, 30, 10, "d", 2],
+        [76, 4, 20, 12, "a", 2],
+        [4, 28, 30, 6, "m", 2], [4, 37, 22, 5, "m", 2], [4, 45, 26, 5, "m", 2],
       ],
     },
   ],

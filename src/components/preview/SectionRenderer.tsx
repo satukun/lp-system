@@ -148,7 +148,28 @@ function BgUploadButton({ imageKey, onImageChange, currentUrl }: {
 // A (layout 0): スタンダード — white bg, logo左・nav中央・CTA右
 // B (layout 1): ダーク — dark navy bg, gold logo, white nav, gold CTA
 // C (layout 2): ゴールドバー — white bg, thick gold bottom bar, compact
+// D (layout 3): ミニマル — white bg, ロゴ中央・CTAのみ・ナビなし
 function S1({ d, layout }: { d: LPData["s1"]; layout: LayoutIndex }) {
+  if (layout === 3) {
+    return (
+      <header style={{
+        background: "#fff", borderBottom: "1px solid var(--color-border)",
+        padding: "16px 0", position: "sticky", top: 0, zIndex: 100,
+      }}>
+        <div className="lp-container">
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", position: "relative", height: 40 }}>
+            <div className="lp-logo" style={{ position: "absolute", left: "50%", transform: "translateX(-50%)" }}>
+              🏢 SERVICE
+            </div>
+            <a href="#" className="btn-primary" style={{ padding: "10px 20px", fontSize: 14, marginLeft: "auto" }}>
+              {d.ctaText}
+            </a>
+          </div>
+        </div>
+      </header>
+    );
+  }
+
   if (layout === 1) {
     return (
       <header style={{

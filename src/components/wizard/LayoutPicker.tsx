@@ -20,7 +20,7 @@ function Thumbnail({ blocks }: { blocks: ThumbnailBlock[] }) {
   );
 }
 
-const LABELS = ["A", "B", "C"] as const;
+const LABELS = ["A", "B", "C", "D"] as const;
 
 export default function LayoutPicker({ sectionKey, value, onChange }: Props) {
   const patterns = SECTION_LAYOUTS[sectionKey];
@@ -37,7 +37,7 @@ export default function LayoutPicker({ sectionKey, value, onChange }: Props) {
       <p style={{ fontSize: 11, fontWeight: 600, color: "var(--col-text-3)", textTransform: "uppercase", letterSpacing: "0.08em", margin: 0 }}>
         レイアウトパターン
       </p>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
+      <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(patterns.length, 3)}, 1fr)`, gap: 8 }}>
         {patterns.map((pattern, i) => {
           const idx = i as LayoutIndex;
           const isSelected = value === idx;

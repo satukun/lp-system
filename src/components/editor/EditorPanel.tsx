@@ -45,7 +45,7 @@ const SECTION_META: Record<SectionKey, { id: string; title: string }> = {
   s11: { id: "S11", title: "Footer" },
 };
 
-const LAYOUT_LABELS = ["A", "B", "C"] as const;
+const LAYOUT_LABELS = ["A", "B", "C", "D"] as const;
 
 export default function EditorPanel({
   data, onChange, sectionOrder, onReorder,

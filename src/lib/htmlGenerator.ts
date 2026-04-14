@@ -152,6 +152,21 @@ function renderS1(data: LPData, layout: LayoutIndex): string {
 </header>`;
   }
 
+  if (layout === 3) {
+    // Layout 3: ミニマル — 白背景、ロゴ中央・CTAのみ・ナビなし（コンバージョン特化）
+    return `<!-- S1: Header [Layout 3: ミニマル] -->
+<header class="s1 s1-layout3">
+  <div class="container s1-inner s1-inner-minimal">
+    <div class="s1-logo">
+      <span class="logo-text">サービス名</span>
+    </div>
+    <div class="s1-cta">
+      <a href="#contact" class="btn-primary">${esc(s1.ctaText)}</a>
+    </div>
+  </div>
+</header>`;
+  }
+
   // Layout 2: 白背景、border-bottom: 4px solid primary色、ロゴ＋小タグライン
   return `<!-- S1: Header [Layout 2] -->
 <header class="s1 s1-layout2">
@@ -1096,6 +1111,22 @@ section { padding: var(--space-xl) 0; }
 .s1-layout2 {
   background: var(--color-bg);
   border-bottom: 4px solid var(--color-primary);
+}
+.s1-layout3 {
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+}
+.s1-inner-minimal {
+  justify-content: center;
+  position: relative;
+}
+.s1-inner-minimal .s1-logo {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.s1-inner-minimal .s1-cta {
+  margin-left: auto;
 }
 .s1-inner {
   display: flex;
