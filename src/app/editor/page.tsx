@@ -135,15 +135,17 @@ export default function EditorPage() {
   }, []);
 
   const handleRegenerate = useCallback(() => {
+    // hiddenSections の逆集合（現在表示中のセクション）を確定セクションとして保存
+    const visibleSections = DEFAULT_SECTION_ORDER.filter((k) => !hiddenSections.includes(k));
     try {
       localStorage.setItem(WIZARD_DATA_KEY, JSON.stringify(lpData));
       localStorage.setItem(WIZARD_LAYOUTS_KEY, JSON.stringify(sectionLayouts));
-      localStorage.setItem(WIZARD_CONFIRMED_KEY, JSON.stringify(confirmedSections));
+      localStorage.setItem(WIZARD_CONFIRMED_KEY, JSON.stringify(visibleSections));
       localStorage.setItem(WIZARD_PALETTE_KEY, palette);
     } catch { /* ignore */ }
     sessionStorage.setItem("lp_just_generated", "1");
     router.push("/generating");
-  }, [lpData, sectionLayouts, confirmedSections, palette, router]);
+  }, [lpData, sectionLayouts, hiddenSections, palette, router]);
 
   const handlePaletteChange = useCallback((p: ColorPalette) => {
     setPalette(p);

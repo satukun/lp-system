@@ -81,6 +81,20 @@ function placeholderImg(w: number, h: number, hint: string, extraClass = ""): st
   return `<img src="https://placehold.co/${w}x${h}" alt="${esc(hint)}" title="${esc(hint)}" data-hint="${encodedHint}"${classAttr} loading="lazy">`;
 }
 
+function userImg(images: Record<string, string>, key: string, w: number, h: number, hint: string, extraClass = ""): string {
+  const url = images[key];
+  if (url) {
+    const classAttr = extraClass ? ` class="${extraClass}"` : "";
+    return `<img src="${url}" alt="${esc(hint)}"${classAttr} loading="lazy">`;
+  }
+  return placeholderImg(w, h, hint, extraClass);
+}
+
+function bgStyle(url?: string): string {
+  if (!url) return "";
+  return ` style="background-image: url('${url}'); background-size: cover; background-position: center;"`;
+}
+
 // ────────────────────────────────────────────────────────────
 // セクション別HTML生成
 // ────────────────────────────────────────────────────────────
@@ -178,12 +192,13 @@ function renderS2(data: LPData, layout: LayoutIndex): string {
       </div>
       <div class="trust-badges">${badges}</div>
     </div>`;
-  const imgBlock = `<div class="hero-image">${placeholderImg(560, 420, "ヒーロービジュアル", "img-radius")}</div>`;
+  const imgBlock = `<div class="hero-image">${userImg(data.images, "s2_hero", 560, 420, "ヒーロービジュアル", "img-radius")}</div>`;
+  const s2Bg = bgStyle(data.images["s2_bg"]);
 
   if (layout === 0) {
     // Layout 0: grid 6:4、左テキスト・右画像
     return `<!-- S2: Hero [Layout 0] -->
-<section class="s2 s2-layout0">
+<section class="s2 s2-layout0"${s2Bg}>
   <div class="container hero-grid hero-grid-60-40">
     ${textBlock}
     ${imgBlock}
@@ -194,7 +209,7 @@ function renderS2(data: LPData, layout: LayoutIndex): string {
   if (layout === 1) {
     // Layout 1: 中央揃え、max-width 760px、メインコピー52px、下部フルワイド画像
     return `<!-- S2: Hero [Layout 1] -->
-<section class="s2 s2-layout1">
+<section class="s2 s2-layout1"${s2Bg}>
   <div class="container">
     <div class="hero-center">
       <p class="section-label">HERO</p>
@@ -207,13 +222,13 @@ function renderS2(data: LPData, layout: LayoutIndex): string {
       <div class="trust-badges trust-badges-center">${badges}</div>
     </div>
   </div>
-  <div class="hero-fullwidth-img">${placeholderImg(1200, 400, "ヒーロービジュアル（フルワイド）", "img-fullwidth")}</div>
+  <div class="hero-fullwidth-img">${userImg(data.images, "s2_hero", 1200, 400, "ヒーロービジュアル（フルワイド）", "img-fullwidth")}</div>
 </section>`;
   }
 
   // Layout 2: grid 4:6、左画像・右テキスト
   return `<!-- S2: Hero [Layout 2] -->
-<section class="s2 s2-layout2">
+<section class="s2 s2-layout2"${s2Bg}>
   <div class="container hero-grid hero-grid-40-60">
     ${imgBlock}
     ${textBlock}
@@ -224,11 +239,12 @@ function renderS2(data: LPData, layout: LayoutIndex): string {
 // S3: Message
 function renderS3(data: LPData, layout: LayoutIndex): string {
   const { s3 } = data;
+  const s3Bg = bgStyle(data.images["s3_bg"]);
 
   if (layout === 0) {
     // Layout 0: bg-alt背景、中央揃え、max-width 720px
     return `<!-- S3: Message [Layout 0] -->
-<section class="s3 s3-layout0">
+<section class="s3 s3-layout0"${s3Bg}>
   <div class="container">
     <div class="message-center">
       <p class="section-label">OVERVIEW</p>
@@ -242,7 +258,7 @@ function renderS3(data: LPData, layout: LayoutIndex): string {
   if (layout === 1) {
     // Layout 1: 白背景、大きな引用符（primary色、120〜140px）、左揃えテキスト
     return `<!-- S3: Message [Layout 1] -->
-<section class="s3 s3-layout1">
+<section class="s3 s3-layout1"${s3Bg}>
   <div class="container">
     <div class="message-quote">
       <span class="quote-mark">&ldquo;</span>
@@ -258,7 +274,7 @@ function renderS3(data: LPData, layout: LayoutIndex): string {
 
   // Layout 2: secondary色背景、白テキスト、ラベルはprimary色（opacity: 0.7）
   return `<!-- S3: Message [Layout 2] -->
-<section class="s3 s3-layout2">
+<section class="s3 s3-layout2"${s3Bg}>
   <div class="container">
     <div class="message-center">
       <p class="section-label label-primary-op">OVERVIEW</p>
@@ -272,6 +288,7 @@ function renderS3(data: LPData, layout: LayoutIndex): string {
 // S4: Problems
 function renderS4(data: LPData, layout: LayoutIndex): string {
   const { s4 } = data;
+  const s4Bg = bgStyle(data.images["s4_bg"]);
 
   if (layout === 0) {
     // Layout 0: 3カラムカード、グレーアイコンボックス（48×48）、中央揃え
@@ -282,7 +299,7 @@ function renderS4(data: LPData, layout: LayoutIndex): string {
         <p class="card-desc">${esc(card.description)}</p>
       </div>`).join("");
     return `<!-- S4: Problems [Layout 0] -->
-<section class="s4 s4-layout0">
+<section class="s4 s4-layout0"${s4Bg}>
   <div class="container">
     <p class="section-label">PROBLEMS</p>
     <h2 class="section-heading">${esc(s4.sectionHeading)}</h2>
@@ -301,7 +318,7 @@ function renderS4(data: LPData, layout: LayoutIndex): string {
         <p class="card-desc">${esc(card.description)}</p>
       </div>`).join("");
     return `<!-- S4: Problems [Layout 1] -->
-<section class="s4 s4-layout1">
+<section class="s4 s4-layout1"${s4Bg}>
   <div class="container">
     <p class="section-label">PROBLEMS</p>
     <h2 class="section-heading">${esc(s4.sectionHeading)}</h2>
@@ -321,7 +338,7 @@ function renderS4(data: LPData, layout: LayoutIndex): string {
         </div>
       </div>`).join("");
   return `<!-- S4: Problems [Layout 2] -->
-<section class="s4 s4-layout2">
+<section class="s4 s4-layout2"${s4Bg}>
   <div class="container">
     <p class="section-label">PROBLEMS</p>
     <h2 class="section-heading">${esc(s4.sectionHeading)}</h2>
@@ -334,18 +351,19 @@ function renderS4(data: LPData, layout: LayoutIndex): string {
 // S5: Features
 function renderS5(data: LPData, layout: LayoutIndex): string {
   const { s5 } = data;
+  const s5Bg = bgStyle(data.images["s5_bg"]);
 
   if (layout === 0) {
     // Layout 0: 3カラムカード、POINTバッジ→タイトル→説明→下部画像
-    const cards = s5.cards.map((card) => `
+    const cards = s5.cards.map((card, i) => `
       <div class="card">
         <span class="point-badge">${esc(card.pointLabel)}</span>
         <h3 class="card-title">${esc(card.title)}</h3>
         <p class="card-desc">${esc(card.description)}</p>
-        <div class="card-image">${placeholderImg(280, 160, card.imageHint, "img-radius")}</div>
+        <div class="card-image">${userImg(data.images, `s5_${i}`, 280, 160, card.imageHint, "img-radius")}</div>
       </div>`).join("");
     return `<!-- S5: Features [Layout 0] -->
-<section class="s5 s5-layout0">
+<section class="s5 s5-layout0"${s5Bg}>
   <div class="container">
     <p class="section-label">FEATURES</p>
     <h2 class="section-heading">${esc(s5.sectionHeading)}</h2>
@@ -357,15 +375,15 @@ function renderS5(data: LPData, layout: LayoutIndex): string {
 
   if (layout === 1) {
     // Layout 1: 3カラムカード、上部画像→POINTバッジ→タイトル→説明
-    const cards = s5.cards.map((card) => `
+    const cards = s5.cards.map((card, i) => `
       <div class="card">
-        <div class="card-image-top">${placeholderImg(280, 160, card.imageHint, "img-radius")}</div>
+        <div class="card-image-top">${userImg(data.images, `s5_${i}`, 280, 160, card.imageHint, "img-radius")}</div>
         <span class="point-badge">${esc(card.pointLabel)}</span>
         <h3 class="card-title">${esc(card.title)}</h3>
         <p class="card-desc">${esc(card.description)}</p>
       </div>`).join("");
     return `<!-- S5: Features [Layout 1] -->
-<section class="s5 s5-layout1">
+<section class="s5 s5-layout1"${s5Bg}>
   <div class="container">
     <p class="section-label">FEATURES</p>
     <h2 class="section-heading">${esc(s5.sectionHeading)}</h2>
@@ -384,10 +402,10 @@ function renderS5(data: LPData, layout: LayoutIndex): string {
           <h3 class="card-title">${esc(card.title)}</h3>
           <p class="card-desc">${esc(card.description)}</p>
         </div>
-        <div class="feature-wide-img">${placeholderImg(200, 140, card.imageHint, "img-radius")}</div>
+        <div class="feature-wide-img">${userImg(data.images, `s5_${i}`, 200, 140, card.imageHint, "img-radius")}</div>
       </div>`).join("");
   return `<!-- S5: Features [Layout 2] -->
-<section class="s5 s5-layout2">
+<section class="s5 s5-layout2"${s5Bg}>
   <div class="container">
     <p class="section-label">FEATURES</p>
     <h2 class="section-heading">${esc(s5.sectionHeading)}</h2>
@@ -400,17 +418,18 @@ function renderS5(data: LPData, layout: LayoutIndex): string {
 // S6: Categories
 function renderS6(data: LPData, layout: LayoutIndex): string {
   const { s6 } = data;
+  const s6Bg = bgStyle(data.images["s6_bg"]);
 
   if (layout === 0) {
     // Layout 0: 3×2グリッド、画像120px
-    const cards = s6.cards.map((card) => `
+    const cards = s6.cards.map((card, i) => `
       <div class="card card-center">
-        <div class="cat-img">${placeholderImg(120, 120, card.imageHint, "img-radius")}</div>
+        <div class="cat-img">${userImg(data.images, `s6_${i}`, 120, 120, card.imageHint, "img-radius")}</div>
         <h3 class="card-title">${esc(card.name)}</h3>
         <p class="card-desc">${esc(card.subText)}</p>
       </div>`).join("");
     return `<!-- S6: Categories [Layout 0] -->
-<section class="s6 s6-layout0">
+<section class="s6 s6-layout0"${s6Bg}>
   <div class="container">
     <p class="section-label">CATEGORIES</p>
     <h2 class="section-heading">${esc(s6.sectionHeading)}</h2>
@@ -426,14 +445,14 @@ function renderS6(data: LPData, layout: LayoutIndex): string {
 
   if (layout === 1) {
     // Layout 1: 2×3グリッド、画像200px
-    const cards = s6.cards.map((card) => `
+    const cards = s6.cards.map((card, i) => `
       <div class="card card-center">
-        <div class="cat-img">${placeholderImg(200, 200, card.imageHint, "img-radius")}</div>
+        <div class="cat-img">${userImg(data.images, `s6_${i}`, 200, 200, card.imageHint, "img-radius")}</div>
         <h3 class="card-title">${esc(card.name)}</h3>
         <p class="card-desc">${esc(card.subText)}</p>
       </div>`).join("");
     return `<!-- S6: Categories [Layout 1] -->
-<section class="s6 s6-layout1">
+<section class="s6 s6-layout1"${s6Bg}>
   <div class="container">
     <p class="section-label">CATEGORIES</p>
     <h2 class="section-heading">${esc(s6.sectionHeading)}</h2>
@@ -448,16 +467,16 @@ function renderS6(data: LPData, layout: LayoutIndex): string {
   }
 
   // Layout 2: 縦リスト（flex-direction: column）、画像120×90、border-radius付き
-  const items = s6.cards.map((card) => `
+  const items = s6.cards.map((card, i) => `
       <div class="cat-list-item">
-        <div class="cat-list-img">${placeholderImg(120, 90, card.imageHint, "img-radius")}</div>
+        <div class="cat-list-img">${userImg(data.images, `s6_${i}`, 120, 90, card.imageHint, "img-radius")}</div>
         <div class="cat-list-text">
           <h3 class="card-title">${esc(card.name)}</h3>
           <p class="card-desc">${esc(card.subText)}</p>
         </div>
       </div>`).join("");
   return `<!-- S6: Categories [Layout 2] -->
-<section class="s6 s6-layout2">
+<section class="s6 s6-layout2"${s6Bg}>
   <div class="container">
     <p class="section-label">CATEGORIES</p>
     <h2 class="section-heading">${esc(s6.sectionHeading)}</h2>
@@ -474,17 +493,18 @@ function renderS6(data: LPData, layout: LayoutIndex): string {
 // S7: Case Studies
 function renderS7(data: LPData, layout: LayoutIndex): string {
   const { s7 } = data;
+  const s7Bg = bgStyle(data.images["s7_bg"]);
 
   if (layout === 0) {
     // Layout 0: 3カラムカード、画像上160px・テキスト下
-    const cards = s7.cards.map((card) => `
+    const cards = s7.cards.map((card, i) => `
       <div class="card">
-        <div class="case-img">${placeholderImg(320, 160, card.imageHint, "img-radius")}</div>
+        <div class="case-img">${userImg(data.images, `s7_${i}`, 320, 160, card.imageHint, "img-radius")}</div>
         <h3 class="card-title">${esc(card.companyName)}</h3>
         <p class="card-desc">${esc(card.summary)}</p>
       </div>`).join("");
     return `<!-- S7: Case Studies [Layout 0] -->
-<section class="s7 s7-layout0">
+<section class="s7 s7-layout0"${s7Bg}>
   <div class="container">
     <p class="section-label">CASE STUDIES</p>
     <h2 class="section-heading">${esc(s7.sectionHeading)}</h2>
@@ -503,15 +523,15 @@ function renderS7(data: LPData, layout: LayoutIndex): string {
 
   if (layout === 1) {
     // Layout 1: 3カラムカード＋ゴールドバッジ「導入事例」
-    const cards = s7.cards.map((card) => `
+    const cards = s7.cards.map((card, i) => `
       <div class="card">
         <span class="case-badge">導入事例</span>
-        <div class="case-img">${placeholderImg(320, 160, card.imageHint, "img-radius")}</div>
+        <div class="case-img">${userImg(data.images, `s7_${i}`, 320, 160, card.imageHint, "img-radius")}</div>
         <h3 class="card-title">${esc(card.companyName)}</h3>
         <p class="card-desc">${esc(card.summary)}</p>
       </div>`).join("");
     return `<!-- S7: Case Studies [Layout 1] -->
-<section class="s7 s7-layout1">
+<section class="s7 s7-layout1"${s7Bg}>
   <div class="container">
     <p class="section-label">CASE STUDIES</p>
     <h2 class="section-heading">${esc(s7.sectionHeading)}</h2>
@@ -529,9 +549,9 @@ function renderS7(data: LPData, layout: LayoutIndex): string {
   }
 
   // Layout 2: 1カラム横長（画像左240px・テキスト右）、ゴールドバッジ付き
-  const cards = s7.cards.map((card) => `
+  const cards = s7.cards.map((card, i) => `
       <div class="case-wide-card">
-        <div class="case-wide-img">${placeholderImg(240, 160, card.imageHint, "img-radius")}</div>
+        <div class="case-wide-img">${userImg(data.images, `s7_${i}`, 240, 160, card.imageHint, "img-radius")}</div>
         <div class="case-wide-text">
           <span class="case-badge">導入事例</span>
           <h3 class="card-title">${esc(card.companyName)}</h3>
@@ -539,7 +559,7 @@ function renderS7(data: LPData, layout: LayoutIndex): string {
         </div>
       </div>`).join("");
   return `<!-- S7: Case Studies [Layout 2] -->
-<section class="s7 s7-layout2">
+<section class="s7 s7-layout2"${s7Bg}>
   <div class="container">
     <p class="section-label">CASE STUDIES</p>
     <h2 class="section-heading">${esc(s7.sectionHeading)}</h2>
@@ -559,6 +579,7 @@ function renderS7(data: LPData, layout: LayoutIndex): string {
 // S8: Flow
 function renderS8(data: LPData, layout: LayoutIndex): string {
   const { s8 } = data;
+  const s8Bg = bgStyle(data.images["s8_bg"]);
 
   if (layout === 0) {
     // Layout 0: 横並びgrid（4列）、ゴールド円番号（48px）、→矢印
@@ -571,7 +592,7 @@ function renderS8(data: LPData, layout: LayoutIndex): string {
         ${i < s8.steps.length - 1 ? '<div class="flow-arrow">&rarr;</div>' : ""}
       </div>`).join("");
     return `<!-- S8: Flow [Layout 0] -->
-<section class="s8 s8-layout0">
+<section class="s8 s8-layout0"${s8Bg}>
   <div class="container">
     <p class="section-label">FLOW</p>
     <h2 class="section-heading">${esc(s8.sectionHeading)}</h2>
@@ -591,7 +612,7 @@ function renderS8(data: LPData, layout: LayoutIndex): string {
         <p class="card-desc">${esc(step.description)}</p>
       </div>`).join("");
     return `<!-- S8: Flow [Layout 1] -->
-<section class="s8 s8-layout1">
+<section class="s8 s8-layout1"${s8Bg}>
   <div class="container">
     <p class="section-label">FLOW</p>
     <h2 class="section-heading">${esc(s8.sectionHeading)}</h2>
@@ -614,7 +635,7 @@ function renderS8(data: LPData, layout: LayoutIndex): string {
         </div>
       </div>`).join("");
   return `<!-- S8: Flow [Layout 2] -->
-<section class="s8 s8-layout2">
+<section class="s8 s8-layout2"${s8Bg}>
   <div class="container">
     <p class="section-label">FLOW</p>
     <h2 class="section-heading">${esc(s8.sectionHeading)}</h2>
@@ -627,6 +648,7 @@ function renderS8(data: LPData, layout: LayoutIndex): string {
 // S9: Form & FAQ
 function renderS9(data: LPData, layout: LayoutIndex): string {
   const { s9 } = data;
+  const s9Bg = bgStyle(data.images["s9_bg"]);
 
   const makeFaqItem = (faq: typeof s9.faqs[0], index: number, style: "plain" | "gold" | "num") => {
     let qPrefix = "";
@@ -692,7 +714,7 @@ function renderS9(data: LPData, layout: LayoutIndex): string {
     // Layout 0: 2カラムgrid（1fr 1fr）、FAQ左・フォーム右、「Q.」CSSプレフィックス
     const faqs = s9.faqs.map((faq, i) => makeFaqItem(faq, i, "plain")).join("");
     return `<!-- S9: Form & FAQ [Layout 0] -->
-<section class="s9 s9-layout0">
+<section class="s9 s9-layout0"${s9Bg}>
   <div class="container">
     <div class="s9-grid">
       <div class="faq-col">
@@ -711,7 +733,7 @@ function renderS9(data: LPData, layout: LayoutIndex): string {
     // Layout 1: 2カラムgrid、ゴールドQバッジ
     const faqs = s9.faqs.map((faq, i) => makeFaqItem(faq, i, "gold")).join("");
     return `<!-- S9: Form & FAQ [Layout 1] -->
-<section class="s9 s9-layout1">
+<section class="s9 s9-layout1"${s9Bg}>
   <div class="container">
     <div class="s9-grid">
       <div class="faq-col">
@@ -729,7 +751,7 @@ function renderS9(data: LPData, layout: LayoutIndex): string {
   // Layout 2: 2カラムgrid、番号バッジ（①②③…、background: secondary色、color: primary色）
   const faqs = s9.faqs.map((faq, i) => makeFaqItem(faq, i, "num")).join("");
   return `<!-- S9: Form & FAQ [Layout 2] -->
-<section class="s9 s9-layout2">
+<section class="s9 s9-layout2"${s9Bg}>
   <div class="container">
     <div class="s9-grid">
       <div class="faq-col">
@@ -747,11 +769,12 @@ function renderS9(data: LPData, layout: LayoutIndex): string {
 // S10: Closing
 function renderS10(data: LPData, layout: LayoutIndex): string {
   const { s10 } = data;
+  const s10Bg = bgStyle(data.images["s10_bg"]);
 
   if (layout === 0) {
     // Layout 0: primary-dark色背景、中央揃え、横並びCTA
     return `<!-- S10: Closing [Layout 0] -->
-<section class="s10 s10-layout0">
+<section class="s10 s10-layout0"${s10Bg}>
   <div class="container">
     <div class="closing-inner">
       <p class="closing-copy">${esc(s10.microCopy)}</p>
@@ -767,7 +790,7 @@ function renderS10(data: LPData, layout: LayoutIndex): string {
   if (layout === 1) {
     // Layout 1: primary-dark色背景、縦積みCTA
     return `<!-- S10: Closing [Layout 1] -->
-<section class="s10 s10-layout1">
+<section class="s10 s10-layout1"${s10Bg}>
   <div class="container">
     <div class="closing-inner">
       <p class="closing-copy">${esc(s10.microCopy)}</p>
@@ -782,7 +805,7 @@ function renderS10(data: LPData, layout: LayoutIndex): string {
 
   // Layout 2: secondary色背景、白テキスト、ゴールドCTA、セカンダリはwhite/transparent
   return `<!-- S10: Closing [Layout 2] -->
-<section class="s10 s10-layout2">
+<section class="s10 s10-layout2"${s10Bg}>
   <div class="container">
     <div class="closing-inner">
       <p class="closing-copy">${esc(s10.microCopy)}</p>

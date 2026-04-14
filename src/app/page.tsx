@@ -7,8 +7,13 @@ import type { LPData, SectionLayouts, LayoutIndex, SectionKey, ColorPalette } fr
 import { DEFAULT_SECTION_ORDER, DEFAULT_SECTION_LAYOUTS } from "@/lib/types";
 import S1HeaderForm from "@/components/editor/sections/S1HeaderForm";
 import S2HeroForm from "@/components/editor/sections/S2HeroForm";
+import S3MessageForm from "@/components/editor/sections/S3MessageForm";
+import S4ProblemsForm from "@/components/editor/sections/S4ProblemsForm";
 import S5FeaturesForm from "@/components/editor/sections/S5FeaturesForm";
+import S6CategoriesForm from "@/components/editor/sections/S6CategoriesForm";
+import S7CaseStudiesForm from "@/components/editor/sections/S7CaseStudiesForm";
 import S8FlowForm from "@/components/editor/sections/S8FlowForm";
+import S9FormFaqForm from "@/components/editor/sections/S9FormFaqForm";
 import S10ClosingForm from "@/components/editor/sections/S10ClosingForm";
 import S11FooterForm from "@/components/editor/sections/S11FooterForm";
 import LayoutPicker from "@/components/wizard/LayoutPicker";
@@ -23,12 +28,17 @@ const WIZARD_CONFIRMED_KEY = "lp_wizard_confirmed";
 const WIZARD_PALETTE_KEY   = "lp_wizard_palette";
 
 const STEPS = [
-  { key: "s1"  as const, id: "S1",  title: "ナビゲーション",  subtitle: "Header",   description: "ヘッダーに表示するメニュー項目と、右上のCTAボタンを設定します。" },
-  { key: "s2"  as const, id: "S2",  title: "ファーストビュー", subtitle: "Hero",     description: "訪問者が最初に目にするキャッチコピーとCTAです。" },
-  { key: "s5"  as const, id: "S5",  title: "特徴・強み",      subtitle: "Features", description: "課題を解決できる根拠として、サービスの3つの強みを伝えます。" },
-  { key: "s8"  as const, id: "S8",  title: "導入フロー",      subtitle: "Flow",     description: "申込みから利用開始までのステップを示します。" },
-  { key: "s10" as const, id: "S10", title: "最終CTA",         subtitle: "Closing",  description: "ページ末尾の最後の行動喚起です。" },
-  { key: "s11" as const, id: "S11", title: "フッター",        subtitle: "Footer",   description: "企業情報へのリンクとコピーライトを設定します。" },
+  { key: "s1"  as const, id: "S1",  title: "ナビゲーション",  subtitle: "Header",      description: "ヘッダーに表示するメニュー項目と、右上のCTAボタンを設定します。" },
+  { key: "s2"  as const, id: "S2",  title: "ファーストビュー", subtitle: "Hero",        description: "訪問者が最初に目にするキャッチコピーとCTAです。" },
+  { key: "s3"  as const, id: "S3",  title: "メッセージ",      subtitle: "Message",     description: "サービスの概要を端的に伝えるブリッジセクションです。" },
+  { key: "s4"  as const, id: "S4",  title: "課題定義",        subtitle: "Problems",    description: "ターゲットが抱える課題を3つ提示し、共感を得ます。" },
+  { key: "s5"  as const, id: "S5",  title: "特徴・強み",      subtitle: "Features",    description: "課題を解決できる根拠として、サービスの3つの強みを伝えます。" },
+  { key: "s6"  as const, id: "S6",  title: "カテゴリ",        subtitle: "Categories",  description: "対応できる業種・カテゴリを6つのカードで網羅的に見せます。" },
+  { key: "s7"  as const, id: "S7",  title: "導入事例",        subtitle: "Cases",       description: "実際の導入企業と成果を3つの事例で紹介します。" },
+  { key: "s8"  as const, id: "S8",  title: "導入フロー",      subtitle: "Flow",        description: "申込みから利用開始までのステップを示します。" },
+  { key: "s9"  as const, id: "S9",  title: "フォーム・FAQ",   subtitle: "Form & FAQ",  description: "よくある質問と資料請求フォームを設定します。" },
+  { key: "s10" as const, id: "S10", title: "最終CTA",         subtitle: "Closing",     description: "ページ末尾の最後の行動喚起です。" },
+  { key: "s11" as const, id: "S11", title: "フッター",        subtitle: "Footer",      description: "企業情報へのリンクとコピーライトを設定します。" },
 ] as const;
 
 type Phase = "welcome" | "builder";
@@ -89,12 +99,17 @@ export default function WizardPage() {
 
   const renderForm = () => {
     switch (activeKey) {
-      case "s1":  return <S1HeaderForm   data={data.s1}  onChange={(s1)  => setData({ ...data, s1  })} />;
-      case "s2":  return <S2HeroForm     data={data.s2}  onChange={(s2)  => setData({ ...data, s2  })} />;
-      case "s5":  return <S5FeaturesForm data={data.s5}  onChange={(s5)  => setData({ ...data, s5  })} />;
-      case "s8":  return <S8FlowForm     data={data.s8}  onChange={(s8)  => setData({ ...data, s8  })} />;
-      case "s10": return <S10ClosingForm data={data.s10} onChange={(s10) => setData({ ...data, s10 })} />;
-      case "s11": return <S11FooterForm  data={data.s11} onChange={(s11) => setData({ ...data, s11 })} />;
+      case "s1":  return <S1HeaderForm     data={data.s1}  onChange={(s1)  => setData({ ...data, s1  })} />;
+      case "s2":  return <S2HeroForm       data={data.s2}  onChange={(s2)  => setData({ ...data, s2  })} />;
+      case "s3":  return <S3MessageForm    data={data.s3}  onChange={(s3)  => setData({ ...data, s3  })} />;
+      case "s4":  return <S4ProblemsForm   data={data.s4}  onChange={(s4)  => setData({ ...data, s4  })} />;
+      case "s5":  return <S5FeaturesForm   data={data.s5}  onChange={(s5)  => setData({ ...data, s5  })} />;
+      case "s6":  return <S6CategoriesForm data={data.s6}  onChange={(s6)  => setData({ ...data, s6  })} />;
+      case "s7":  return <S7CaseStudiesForm data={data.s7} onChange={(s7)  => setData({ ...data, s7  })} />;
+      case "s8":  return <S8FlowForm       data={data.s8}  onChange={(s8)  => setData({ ...data, s8  })} />;
+      case "s9":  return <S9FormFaqForm    data={data.s9}  onChange={(s9)  => setData({ ...data, s9  })} />;
+      case "s10": return <S10ClosingForm   data={data.s10} onChange={(s10) => setData({ ...data, s10 })} />;
+      case "s11": return <S11FooterForm    data={data.s11} onChange={(s11) => setData({ ...data, s11 })} />;
       default:    return null;
     }
   };
@@ -236,7 +251,7 @@ export default function WizardPage() {
         {/* 右: 確定数 + ボタン */}
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
           <span style={{ fontSize: 11, fontFamily: "monospace", color: "var(--col-text-3)", whiteSpace: "nowrap" }}>
-            {confirmedSections.length} / 6
+            {confirmedSections.length} / 11
           </span>
           <button
             onClick={() => router.push("/editor")}
