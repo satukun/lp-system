@@ -1,4 +1,4 @@
-/* LP Preview CSS — design-system.mdをスコープ付きで実装 */
+/* LP Preview CSS — Notion design system inspired */
 /* すべてのスタイルは .lp-preview-root の配下に限定 */
 /* サイズ管理: container query (cqw) ベース — vw非依存でレイアウト安全 */
 
@@ -6,26 +6,27 @@
   container-type: inline-size;
   container-name: lp-root;
 
-  --color-primary: #FFD700;
-  --color-primary-dark: #E6C200;
-  --color-secondary: #1A1A2E;
-  --color-text: #333333;
-  --color-text-light: #666666;
-  --color-bg: #FFFFFF;
-  --color-bg-alt: #F5F5F0;
-  --color-border: #E0E0E0;
+  /* Notion-inspired color palette */
+  --color-primary: #0075de;
+  --color-primary-dark: #005bab;
+  --color-secondary: #31302e;
+  --color-text: rgba(0, 0, 0, 0.95);
+  --color-text-light: #615d59;
+  --color-bg: #ffffff;
+  --color-bg-alt: #f6f5f4;
+  --color-border: rgba(0, 0, 0, 0.1);
+
   --space-xs: 8px;
   --space-sm: 16px;
   --space-md: 24px;
   --space-lg: 48px;
   --space-xl: 80px;
 
-  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+  font-family: Inter, -apple-system, system-ui, "Segoe UI", Helvetica, "Hiragino Kaku Gothic ProN", "Noto Sans JP", Arial, sans-serif;
   color: var(--color-text);
   background: var(--color-bg);
   font-size: 16px;
   line-height: 1.8;
-  letter-spacing: 0.04em;
 }
 
 .lp-preview-root * {
@@ -34,7 +35,7 @@
 
 /* Container */
 .lp-preview-root .lp-container {
-  max-width: 1080px;
+  max-width: 1160px;
   margin: 0 auto;
   padding: 0 24px;
 }
@@ -48,23 +49,27 @@
   background: var(--color-bg-alt);
 }
 
-/* Section label */
+/* Section label — Notion micro-badge style */
 .lp-preview-root .lp-label {
+  display: inline-block;
   font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.12em;
-  color: var(--color-text-light);
+  letter-spacing: 0.125px;
+  color: #097fe8;
+  background: #f2f9ff;
+  border-radius: 9999px;
+  padding: 3px 10px;
+  margin-bottom: 16px;
   text-transform: uppercase;
-  margin-bottom: 8px;
 }
 
-/* Section heading — cqwでスケール */
+/* Section heading — Notion compression style */
 .lp-preview-root .lp-heading {
-  font-size: clamp(22px, 2.8cqw, 28px);
+  font-size: clamp(24px, 3cqw, 32px);
   font-weight: 700;
-  color: var(--color-secondary);
-  line-height: 1.4;
-  letter-spacing: 0.02em;
+  color: var(--color-text);
+  line-height: 1.2;
+  letter-spacing: -0.75px;
   margin: 0 0 var(--space-lg) 0;
 }
 
@@ -86,32 +91,35 @@
 .lp-preview-root .lp-logo {
   font-size: clamp(15px, 1.8cqw, 20px);
   font-weight: 700;
-  color: var(--color-secondary);
+  color: var(--color-text);
   white-space: nowrap;
 }
 .lp-preview-root .lp-nav {
   display: flex;
-  gap: 32px;
+  gap: 24px;
   list-style: none;
   margin: 0;
   padding: 0;
 }
 .lp-preview-root .lp-nav a {
-  font-size: 14px;
+  font-size: 15px;
   color: var(--color-text);
   text-decoration: none;
   font-weight: 500;
+}
+.lp-preview-root .lp-nav a:hover {
+  color: var(--color-primary);
 }
 
 /* ── Buttons ── */
 .lp-preview-root .btn-primary {
   display: inline-block;
   background: var(--color-primary);
-  color: var(--color-secondary);
-  padding: 16px 32px;
-  border-radius: 8px;
+  color: #ffffff;
+  padding: 8px 16px;
+  border-radius: 4px;
   font-weight: 600;
-  font-size: clamp(15px, 1.4cqw, 16px);
+  font-size: clamp(14px, 1.3cqw, 15px);
   border: none;
   cursor: pointer;
   text-decoration: none;
@@ -123,21 +131,20 @@
 }
 .lp-preview-root .btn-secondary {
   display: inline-block;
-  background: transparent;
-  color: var(--color-secondary);
-  padding: 14px 30px;
-  border: 2px solid var(--color-secondary);
-  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.05);
+  color: rgba(0, 0, 0, 0.95);
+  padding: 8px 16px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
   font-weight: 600;
-  font-size: clamp(15px, 1.4cqw, 16px);
+  font-size: clamp(14px, 1.3cqw, 15px);
   cursor: pointer;
   text-decoration: none;
   transition: all 0.2s;
   white-space: nowrap;
 }
 .lp-preview-root .btn-secondary:hover {
-  background: var(--color-secondary);
-  color: #fff;
+  background: rgba(0, 0, 0, 0.1);
 }
 
 /* ── S2: Hero ── */
@@ -155,21 +162,23 @@
   align-items: center;
 }
 .lp-preview-root .lp-hero-copy h1 {
-  font-size: clamp(28px, 3.8cqw, 40px);
+  font-size: clamp(30px, 4cqw, 48px);
   font-weight: 700;
-  color: var(--color-secondary);
-  line-height: 1.4;
-  letter-spacing: 0.02em;
+  color: var(--color-text);
+  line-height: 1.1;
+  letter-spacing: -1.5px;
   margin: 0 0 16px 0;
 }
 .lp-preview-root .lp-hero-copy p {
-  font-size: clamp(15px, 1.5cqw, 16px);
+  font-size: clamp(16px, 1.6cqw, 20px);
+  font-weight: 600;
   color: var(--color-text-light);
+  line-height: 1.5;
   margin: 0 0 32px 0;
 }
 .lp-preview-root .lp-hero-actions {
   display: flex;
-  gap: 16px;
+  gap: 12px;
   align-items: center;
   flex-wrap: wrap;
   margin-bottom: 24px;
@@ -187,6 +196,7 @@
 .lp-preview-root .lp-hero-visual img {
   width: 100%;
   border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
   display: block;
 }
 
@@ -202,15 +212,17 @@
   padding: 0 24px;
 }
 .lp-preview-root .lp-message h2 {
-  font-size: clamp(22px, 2.5cqw, 28px);
+  font-size: clamp(22px, 2.6cqw, 32px);
   font-weight: 700;
-  color: var(--color-secondary);
+  color: var(--color-text);
   margin: 0 0 24px 0;
-  line-height: 1.6;
+  line-height: 1.2;
+  letter-spacing: -0.75px;
 }
 .lp-preview-root .lp-message p {
-  font-size: clamp(13px, 1.5cqw, 16px);
-  color: var(--color-text);
+  font-size: clamp(14px, 1.5cqw, 16px);
+  color: var(--color-text-light);
+  line-height: 1.8;
 }
 
 /* ── Cards grid ── */
@@ -226,13 +238,22 @@
 }
 .lp-preview-root .lp-card {
   background: var(--color-bg);
-  border: 1px solid var(--color-border);
+  border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 12px;
   padding: 24px;
+  box-shadow:
+    rgba(0, 0, 0, 0.04) 0px 4px 18px,
+    rgba(0, 0, 0, 0.027) 0px 2px 7.8px,
+    rgba(0, 0, 0, 0.02) 0px 0.8px 2.9px,
+    rgba(0, 0, 0, 0.01) 0px 0.175px 1px;
   transition: box-shadow 0.2s;
 }
 .lp-preview-root .lp-card:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  box-shadow:
+    rgba(0, 0, 0, 0.08) 0px 8px 24px,
+    rgba(0, 0, 0, 0.05) 0px 4px 10px,
+    rgba(0, 0, 0, 0.03) 0px 1.5px 4px,
+    rgba(0, 0, 0, 0.02) 0px 0.35px 1.5px;
 }
 .lp-preview-root .lp-card-icon {
   width: 48px;
@@ -242,11 +263,12 @@
   margin: 0 auto 16px;
 }
 .lp-preview-root .lp-card-title {
-  font-size: clamp(16px, 1.7cqw, 18px);
-  font-weight: 600;
-  color: var(--color-secondary);
+  font-size: clamp(16px, 1.7cqw, 20px);
+  font-weight: 700;
+  color: var(--color-text);
   margin: 0 0 8px 0;
-  line-height: 1.4;
+  line-height: 1.3;
+  letter-spacing: -0.25px;
 }
 .lp-preview-root .lp-card-desc {
   font-size: clamp(13px, 1.3cqw, 14px);
@@ -255,13 +277,14 @@
   line-height: 1.8;
 }
 .lp-preview-root .lp-card-point {
+  display: inline-block;
+  background: #f2f9ff;
+  color: #097fe8;
   font-size: 12px;
   font-weight: 600;
-  color: var(--color-primary-dark);
-  background: rgba(255, 215, 0, 0.12);
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 4px;
+  letter-spacing: 0.125px;
+  padding: 3px 10px;
+  border-radius: 9999px;
   margin-bottom: 12px;
 }
 
@@ -273,13 +296,21 @@
 /* ── S6: Categories ── */
 .lp-preview-root .lp-category-card {
   background: var(--color-bg);
-  border: 1px solid var(--color-border);
+  border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 12px;
   overflow: hidden;
+  box-shadow:
+    rgba(0, 0, 0, 0.04) 0px 4px 18px,
+    rgba(0, 0, 0, 0.027) 0px 2px 7.8px,
+    rgba(0, 0, 0, 0.02) 0px 0.8px 2.9px,
+    rgba(0, 0, 0, 0.01) 0px 0.175px 1px;
   transition: box-shadow 0.2s;
 }
 .lp-preview-root .lp-category-card:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  box-shadow:
+    rgba(0, 0, 0, 0.08) 0px 8px 24px,
+    rgba(0, 0, 0, 0.05) 0px 4px 10px,
+    rgba(0, 0, 0, 0.03) 0px 1.5px 4px;
 }
 .lp-preview-root .lp-category-card img {
   width: 100%;
@@ -292,8 +323,8 @@
 }
 .lp-preview-root .lp-category-card-name {
   font-size: 16px;
-  font-weight: 600;
-  color: var(--color-secondary);
+  font-weight: 700;
+  color: var(--color-text);
   margin: 0 0 4px 0;
 }
 .lp-preview-root .lp-category-card-sub {
@@ -342,7 +373,7 @@
   width: 48px;
   height: 48px;
   background: var(--color-primary);
-  color: var(--color-secondary);
+  color: #ffffff;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -353,9 +384,10 @@
 }
 .lp-preview-root .lp-flow-step-title {
   font-size: clamp(13px, 1.5cqw, 15px);
-  font-weight: 600;
-  color: var(--color-secondary);
+  font-weight: 700;
+  color: var(--color-text);
   margin: 0 0 8px 0;
+  letter-spacing: -0.25px;
 }
 .lp-preview-root .lp-flow-step-desc {
   font-size: clamp(12px, 1.2cqw, 13px);
@@ -371,18 +403,18 @@
   gap: 48px;
 }
 .lp-preview-root .lp-faq-item {
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   padding: 16px 0;
 }
 .lp-preview-root .lp-faq-q {
   font-size: 15px;
   font-weight: 600;
-  color: var(--color-secondary);
+  color: var(--color-text);
   margin: 0 0 8px 0;
 }
 .lp-preview-root .lp-faq-q::before {
   content: "Q.";
-  color: var(--color-primary-dark);
+  color: var(--color-primary);
   margin-right: 8px;
 }
 .lp-preview-root .lp-faq-a {
@@ -395,15 +427,21 @@
 /* Form */
 .lp-preview-root .lp-form {
   background: var(--color-bg);
-  border: 1px solid var(--color-border);
+  border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 12px;
   padding: 32px;
+  box-shadow:
+    rgba(0, 0, 0, 0.04) 0px 4px 18px,
+    rgba(0, 0, 0, 0.027) 0px 2px 7.8px,
+    rgba(0, 0, 0, 0.02) 0px 0.8px 2.9px,
+    rgba(0, 0, 0, 0.01) 0px 0.175px 1px;
 }
 .lp-preview-root .lp-form h3 {
   font-size: clamp(16px, 2cqw, 20px);
   font-weight: 700;
-  color: var(--color-secondary);
+  color: var(--color-text);
   margin: 0 0 24px 0;
+  letter-spacing: -0.25px;
 }
 .lp-preview-root .lp-form-field {
   margin-bottom: 16px;
@@ -417,34 +455,39 @@
 }
 .lp-preview-root .lp-form-input {
   width: 100%;
-  padding: 12px 16px;
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
+  padding: 6px 10px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
   font-size: 14px;
   background: var(--color-bg);
   color: var(--color-text);
   transition: border-color 0.2s;
 }
+.lp-preview-root .lp-form-input::placeholder {
+  color: #a39e98;
+}
 .lp-preview-root .lp-form-input:focus {
   outline: none;
   border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(0, 117, 222, 0.15);
 }
 
 /* ── S10: Closing ── */
 .lp-preview-root .lp-closing {
-  background: var(--color-primary-dark);
+  background: var(--color-secondary);
   padding: var(--space-xl) 0;
   text-align: center;
 }
 .lp-preview-root .lp-closing h2 {
-  font-size: clamp(20px, 2.8cqw, 28px);
+  font-size: clamp(20px, 2.8cqw, 32px);
   font-weight: 700;
-  color: var(--color-secondary);
+  color: #ffffff;
+  letter-spacing: -0.75px;
   margin: 0 0 32px 0;
 }
 .lp-preview-root .lp-closing-actions {
   display: flex;
-  gap: 16px;
+  gap: 12px;
   justify-content: center;
   flex-wrap: wrap;
 }
@@ -453,7 +496,7 @@
 .lp-preview-root .lp-footer {
   background: var(--color-secondary);
   padding: 40px 0 24px;
-  color: #fff;
+  color: rgba(255, 255, 255, 0.7);
 }
 .lp-preview-root .lp-footer-inner {
   display: flex;
@@ -464,7 +507,7 @@
 .lp-preview-root .lp-footer-logo {
   font-size: clamp(15px, 1.7cqw, 18px);
   font-weight: 700;
-  color: #fff;
+  color: #ffffff;
 }
 .lp-preview-root .lp-footer-links {
   display: flex;
@@ -476,7 +519,7 @@
 }
 .lp-preview-root .lp-footer-links a {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.6);
   text-decoration: none;
   transition: color 0.2s;
 }
@@ -485,7 +528,7 @@
 }
 .lp-preview-root .lp-footer-copy {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.4);
   text-align: center;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   padding-top: 20px;
@@ -495,14 +538,14 @@
 /* CTA section buttons */
 .lp-preview-root .lp-cta-area {
   display: flex;
-  gap: 16px;
+  gap: 12px;
   justify-content: center;
   flex-wrap: wrap;
   margin-top: 40px;
 }
 .lp-preview-root .lp-link {
   font-size: 14px;
-  color: var(--color-primary-dark);
+  color: var(--color-primary);
   text-decoration: underline;
   font-weight: 500;
   display: block;
@@ -513,15 +556,6 @@
 /* ════════════════════════════════════════════════
    Container Query Breakpoints
    — @container lp-root で .lp-preview-root の幅に応じてレイアウト切替
-   — vw非依存でプレビューパネル幅に正確に反応
-   ════════════════════════════════════════════════ */
-
-/* ════════════════════════════════════════════════
-   Container Query Breakpoints
-   NOTE: .lp-preview-root prefix is required in all selectors to match
-   the specificity (0-2-0) of the base styles (.lp-preview-root .lp-xxx).
-   Without it, base styles (specificity 0-2-0) would override these
-   container query rules (specificity 0-1-0) and layouts would never change.
    ════════════════════════════════════════════════ */
 
 /* ── Tablet (≤ 768px) ── */
@@ -600,7 +634,6 @@
     padding: 56px 0;
   }
 
-  /* Hero: min-height auto on SP + show image below copy */
   .lp-preview-root .lp-hero {
     min-height: 0;
     align-items: flex-start;
@@ -613,7 +646,6 @@
     gap: 24px;
   }
 
-  /* Show image on SP per spec "コピー → 画像" */
   .lp-preview-root .lp-hero-visual {
     display: block;
   }
@@ -638,19 +670,16 @@
     margin-bottom: 24px;
   }
 
-  /* S4/S5/S7 — 1 column */
   .lp-preview-root .lp-cards-3 {
     grid-template-columns: 1fr;
     gap: 12px;
   }
 
-  /* S6 Categories — spec: 2列グリッド */
   .lp-preview-root .lp-cards-6 {
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
   }
 
-  /* S8 Flow — 1 column vertical */
   .lp-preview-root .lp-flow-steps {
     grid-template-columns: 1fr;
     gap: 16px;
@@ -682,7 +711,6 @@
     padding: 20px 16px;
   }
 
-  /* Footer: spec "縦積み中央揃え" */
   .lp-preview-root .lp-footer-inner {
     align-items: center;
     text-align: center;
@@ -725,7 +753,7 @@
 }
 .lp-preview-root .lp-flow-steps--square .lp-flow-step-num {
   background: var(--color-secondary);
-  color: var(--color-primary);
+  color: #ffffff;
   border-radius: 6px;
 }
 
@@ -734,16 +762,21 @@
 }
 .lp-preview-root .lp-flow-steps--card .lp-flow-step {
   background: var(--color-bg);
-  border: 1px solid var(--color-border);
+  border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 12px;
   padding: 24px 16px;
+  box-shadow:
+    rgba(0, 0, 0, 0.04) 0px 4px 18px,
+    rgba(0, 0, 0, 0.027) 0px 2px 7.8px;
 }
 .lp-preview-root .lp-flow-steps--card .lp-flow-step:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  box-shadow:
+    rgba(0, 0, 0, 0.08) 0px 8px 24px,
+    rgba(0, 0, 0, 0.05) 0px 4px 10px;
 }
 .lp-preview-root .lp-flow-steps--card .lp-flow-step-num {
   background: var(--color-primary);
-  color: var(--color-secondary);
+  color: #ffffff;
 }
 
 @container lp-root (max-width: 768px) {
@@ -777,28 +810,28 @@
   text-align: center;
 }
 
-/* ── Color Palette B: ブルー ── */
+/* ── Color Palette B: ディープネイビー ── */
 .lp-preview-root[data-palette="B"] {
-  --color-primary:      #3B82F6;
-  --color-primary-dark: #2563EB;
-  --color-secondary:    #0F172A;
-  --color-text:         #1E293B;
-  --color-text-light:   #64748B;
-  --color-bg:           #FFFFFF;
-  --color-bg-alt:       #EFF6FF;
-  --color-border:       #DBEAFE;
+  --color-primary:      #213183;
+  --color-primary-dark: #192671;
+  --color-secondary:    #31302e;
+  --color-text:         rgba(0, 0, 0, 0.95);
+  --color-text-light:   #615d59;
+  --color-bg:           #ffffff;
+  --color-bg-alt:       #f0f4ff;
+  --color-border:       rgba(0, 0, 0, 0.1);
 }
 
-/* ── Color Palette C: グリーン ── */
+/* ── Color Palette C: ティール ── */
 .lp-preview-root[data-palette="C"] {
-  --color-primary:      #10B981;
-  --color-primary-dark: #059669;
-  --color-secondary:    #064E3B;
-  --color-text:         #111827;
-  --color-text-light:   #6B7280;
-  --color-bg:           #FFFFFF;
-  --color-bg-alt:       #ECFDF5;
-  --color-border:       #D1FAE5;
+  --color-primary:      #2a9d99;
+  --color-primary-dark: #21807d;
+  --color-secondary:    #31302e;
+  --color-text:         rgba(0, 0, 0, 0.95);
+  --color-text-light:   #615d59;
+  --color-bg:           #ffffff;
+  --color-bg-alt:       #f0fdf9;
+  --color-border:       rgba(0, 0, 0, 0.1);
 }
 
 /* ── Image Upload Overlay ── */

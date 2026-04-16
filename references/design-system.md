@@ -1,8 +1,9 @@
 # デザインシステム（design-system.md）
 
 > このファイルはLP生成時のビジュアルルールを定義します。
+> Notionデザインシステムにインスパイアされたウォームミニマリズムを採用しています。
 > AIはこのルールに厳密に従い、HTMLとCSSを生成してください。
-> ここに定義されていないスタイルは使用しないでください。
+> `references/design.md` に詳細なNotionデザイン仕様があります。
 
 ---
 
@@ -18,6 +19,7 @@
 
 - **役割**: ブランドの視覚表現を統一し、品質を担保するルールブック
 - **使命**: デザイナー不在でも一定品質のLPが生成できる状態をつくる
+- **デザイン哲学**: Notionにインスパイアされたウォームミニマリズム。グレーに黄褐色のアンダートーンを持つ温かみのあるパレット。
 
 ---
 
@@ -25,17 +27,21 @@
 
 | トークン名 | カラーコード | 用途 |
 |---|---|---|
-| --color-primary | #FFD700 | メインCTA背景、アクセントカラー |
-| --color-primary-dark | #E6C200 | CTAホバー時 |
-| --color-secondary | #1A1A2E | ヘッダー・フッター背景、テキスト見出し |
-| --color-text | #333333 | 本文テキスト |
-| --color-text-light | #666666 | 補足テキスト、サブコピー |
-| --color-bg | #FFFFFF | 背景色（基本） |
-| --color-bg-alt | #F5F5F0 | 背景色（交互セクション） |
-| --color-border | #E0E0E0 | カード罫線、区切り線 |
+| --color-primary | #0075de | メインCTA背景、アクセントカラー（Notion Blue） |
+| --color-primary-dark | #005bab | CTAホバー時（Active Blue） |
+| --color-secondary | #31302e | ヘッダー・フッター背景、テキスト見出し（Warm Dark） |
+| --color-text | rgba(0,0,0,0.95) | 本文テキスト（Near-Black） |
+| --color-text-light | #615d59 | 補足テキスト、サブコピー（Warm Gray 500） |
+| --color-bg | #ffffff | 背景色（基本） |
+| --color-bg-alt | #f6f5f4 | 背景色（交互セクション、Warm White） |
+| --color-border | rgba(0,0,0,0.1) | カード罫線、区切り線（Whisper Border） |
 
 - **指定ルール**: 上記の8色のみ使用すること
-- **背景交互ルール**: S1(白) → S2(白) → S3(alt) → S4(白) → S5(alt) → S6(白) → S7(alt) → S8(白) → S9(alt) → S10(primary-dark背景) → S11(secondary背景)
+- **背景交互ルール**: S1(白) → S2(白) → S3(alt) → S4(白) → S5(alt) → S6(白) → S7(alt) → S8(白) → S9(alt) → S10(secondary背景) → S11(secondary背景)
+
+### セマンティックカラー（バッジ専用）
+- **Badge Blue Bg**: `#f2f9ff` — ピルバッジ背景
+- **Badge Blue Text**: `#097fe8` — ピルバッジテキスト
 
 ---
 
@@ -43,24 +49,26 @@
 
 ### フォントファミリー
 ```css
-font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+font-family: Inter, -apple-system, system-ui, "Segoe UI", Helvetica, "Hiragino Kaku Gothic ProN", "Noto Sans JP", Arial, sans-serif;
 ```
 
 ### フォントサイズ規定
 
-| 要素 | PC | SP | font-weight |
-|---|---|---|---|
-| ヒーロー メインコピー | 40px | 28px | 700 |
-| セクション見出し | 28px | 22px | 700 |
-| セクションラベル（英文） | 12px | 12px | 600 |
-| カードタイトル | 18px | 16px | 600 |
-| 本文 | 16px | 15px | 400 |
-| 補足テキスト | 14px | 13px | 400 |
-| ボタンテキスト | 16px | 15px | 600 |
+| 要素 | PC | SP | font-weight | letter-spacing |
+|---|---|---|---|---|
+| ヒーロー メインコピー | 48px | 32px | 700 | -1.5px |
+| セクション見出し | 32px | 24px | 700 | -0.75px |
+| セクションラベル（英文） | 12px | 12px | 600 | 0.125px |
+| カードタイトル | 20px | 17px | 700 | -0.25px |
+| 本文 | 16px | 15px | 400 | normal |
+| 補足テキスト | 14px | 13px | 400 | normal |
+| ボタンテキスト | 15px | 14px | 600 | normal |
 
 ### 行間・字間
-- 見出し: line-height: 1.4 / letter-spacing: 0.02em
-- 本文: line-height: 1.8 / letter-spacing: 0.04em
+- 見出し（ヒーロー）: line-height: 1.1 / letter-spacing: -1.5px〜-2px
+- 見出し（セクション）: line-height: 1.2 / letter-spacing: -0.75px
+- 本文: line-height: 1.8 / letter-spacing: normal（日本語）
+- **Notionの圧縮原則**: フォントサイズが大きくなるほど letter-spacing を負方向に強める
 
 ---
 
@@ -79,37 +87,37 @@ font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
 
 ## 5. ボタン
 
-### メインCTA
+### メインCTA（Notion Blue Primary）
 ```css
-background: var(--color-primary);
-color: var(--color-secondary);
-padding: 16px 32px;
-border-radius: 8px;
+background: var(--color-primary);  /* #0075de */
+color: #ffffff;
+padding: 8px 16px;
+border-radius: 4px;
 font-weight: 600;
-font-size: 16px;
+font-size: 15px;
 border: none;
 cursor: pointer;
 transition: background 0.2s;
 ```
 - ホバー: `background: var(--color-primary-dark);`
 
-### セカンダリボタン（ゴースト型）
+### セカンダリボタン（トランスルーセント）
 ```css
-background: transparent;
-color: var(--color-secondary);
-padding: 16px 32px;
-border: 2px solid var(--color-secondary);
-border-radius: 8px;
+background: rgba(0,0,0,0.05);
+color: rgba(0,0,0,0.95);
+padding: 8px 16px;
+border: 1px solid rgba(0,0,0,0.1);
+border-radius: 4px;
 font-weight: 600;
-font-size: 16px;
+font-size: 15px;
 cursor: pointer;
 transition: all 0.2s;
 ```
-- ホバー: `background: var(--color-secondary); color: #FFFFFF;`
+- ホバー: `background: rgba(0,0,0,0.1);`
 
 ### テキストリンク
 ```css
-color: var(--color-primary-dark);
+color: var(--color-primary);
 text-decoration: underline;
 font-weight: 500;
 ```
@@ -120,18 +128,30 @@ font-weight: 500;
 
 ```css
 background: var(--color-bg);
-border: 1px solid var(--color-border);
+border: 1px solid rgba(0,0,0,0.1);  /* Whisper Border */
 border-radius: 12px;
 padding: 24px;
+/* Notion 4層シャドウ（最大opacity 0.04） */
+box-shadow:
+  rgba(0,0,0,0.04) 0px 4px 18px,
+  rgba(0,0,0,0.027) 0px 2px 7.8px,
+  rgba(0,0,0,0.02) 0px 0.8px 2.9px,
+  rgba(0,0,0,0.01) 0px 0.175px 1px;
 transition: box-shadow 0.2s;
 ```
-- ホバー: `box-shadow: 0 4px 16px rgba(0,0,0,0.08);`
+- ホバー: シャドウを強める（各層のopacityを1.5〜2倍）
 
-### カードのバリエーション
-- **課題カード（S4）**: アイコン上・見出し中・説明下、中央揃え
-- **特徴カード（S5）**: ポイントバッジ左上・タイトル・説明・画像指示
-- **業種カード（S6）**: 画像上・カテゴリ名・補足テキスト
-- **事例カード（S7）**: 画像上・企業名太字・課題と成果の要約
+### バッジ（Pill Badge）
+```css
+/* Notionのピルバッジスタイル */
+background: #f2f9ff;
+color: #097fe8;
+border-radius: 9999px;
+padding: 3px 10px;
+font-size: 12px;
+font-weight: 600;
+letter-spacing: 0.125px;
+```
 
 ---
 
@@ -139,7 +159,7 @@ transition: box-shadow 0.2s;
 
 | 要素 | 値 |
 |---|---|
-| コンテンツ最大幅 | 1080px |
+| コンテンツ最大幅 | 1200px |
 | コンテンツ左右パディング | 24px（PC）/ 16px（SP） |
 | カードグリッド gap | 24px |
 
@@ -150,9 +170,9 @@ transition: box-shadow 0.2s;
 - **背景色**: var(--color-bg)（白）
 - **min-height**: 600px（PC）/ auto（SP）
 - **レイアウト**: 左テキスト60% / 右画像40%（PC）、縦積み（SP）
-- **メインCTA**: var(--color-primary) 背景
-- **テキスト色**: var(--color-secondary)
-- **信頼バッジ**: CTA下部にインライン表示、区切り文字「・」
+- **メインCTA**: var(--color-primary)（Notion Blue）、白テキスト
+- **テキスト色**: rgba(0,0,0,0.95)
+- **信頼バッジ**: CTA下部にインライン表示、区切り文字「・」またはピルバッジ形式
 
 ---
 
@@ -162,6 +182,7 @@ transition: box-shadow 0.2s;
 - **基本形式**: placeholder.co によるプレースホルダー画像
 - **altテキスト**: ビジュアル指示をそのまま記載
 - **サイズ**: アスペクト比を維持、max-width: 100%
+- **ボーダー**: 画像に `1px solid rgba(0,0,0,0.1)` を付与（Notionのウィスパーボーダー）
 
 ### アイコン
 - SVGインラインまたはテキスト絵文字は使用しない
@@ -184,24 +205,26 @@ transition: box-shadow 0.2s;
 - **背景色**: var(--color-bg)（白）
 - **PC**: ロゴ・メニュー・CTA横並び
 - **SP**: ロゴ + ハンバーガーメニュー、ドロワーは左スライド
+- **ナビリンク**: Inter 15px weight 500、near-black テキスト
 
 ### フッター（S11）
-- **背景色**: var(--color-secondary)
-- **文字色**: #FFFFFF
-- **リンクホバー色**: var(--color-primary)
+- **背景色**: var(--color-secondary)（Warm Dark #31302e）
+- **文字色**: rgba(255,255,255,0.7)
+- **リンクホバー色**: var(--color-primary)（Notion Blue）
 - **コピーライト**: 中央揃え、font-size: 13px
 
 ---
 
-## 12. 角丸の統一ルール
+## 12. 角丸の統一ルール（Notion Border Radius Scale）
 
 | 要素 | border-radius |
 |---|---|
-| ボタン | 8px |
-| カード | 12px |
-| 入力フィールド | 6px |
-| 画像 | 8px |
-| バッジ | 4px |
+| ボタン | 4px（Micro） |
+| カード | 12px（Comfortable） |
+| 入力フィールド | 4px（Micro） |
+| 画像 | 8px（Standard） |
+| バッジ（ピル） | 9999px（Full Pill） |
+| アバター・丸アイコン | 50%（Circle） |
 
 ---
 
@@ -209,23 +232,35 @@ transition: box-shadow 0.2s;
 
 ```css
 width: 100%;
-padding: 12px 16px;
-border: 1px solid var(--color-border);
-border-radius: 6px;
+padding: 6px 10px;
+border: 1px solid rgba(0,0,0,0.1);
+border-radius: 4px;
 font-size: 16px;
 background: var(--color-bg);
 transition: border-color 0.2s;
 ```
-- フォーカス時: `border-color: var(--color-primary);`
+- フォーカス時: `border-color: var(--color-primary); outline: 2px solid rgba(0,117,222,0.2);`
 - ラベル: font-weight: 600、margin-bottom: 8px
+- プレースホルダー: color: `#a39e98`（Warm Gray 300）
 
 ---
 
-## 14. 禁止事項
+## 14. 深度・エレベーション（Notionシャドウシステム）
 
-- **影の禁止**: box-shadow はカードホバー時のみ許可。それ以外の影は禁止
+| レベル | トリートメント | 用途 |
+|---|---|---|
+| Flat（0） | シャドウなし、ボーダーなし | ページ背景、テキストブロック |
+| Whisper（1） | `1px solid rgba(0,0,0,0.1)` | 標準ボーダー、カード輪郭、区切り線 |
+| Soft Card（2） | 4層シャドウスタック（最大opacity 0.04） | コンテンツカード、フィーチャーブロック |
+| Deep Card（3） | 5層シャドウスタック（最大opacity 0.05、52pxブラー） | モーダル、フィーチャーパネル |
+
+---
+
+## 15. 禁止事項
+
+- **独自カラーの禁止**: パレット定義外の色は使用しない（`#0A0A1A` など独自カラー厳禁）
 - **グラデーションの禁止**: 背景グラデーションは使用しない
-- **文字色の制限**: パレット定義外の色は使用しない
 - **視認性の確保**: テキストと背景のコントラスト比 4.5:1 以上を維持
-- **過剰な装飾**: ボーダー装飾、パターン背景、過剰なアイコン使用は禁止
+- **過剰な装飾**: パターン背景、過剰なアイコン使用は禁止
 - **未定義コンポーネント**: このファイルに定義されていないUIコンポーネントは使用しない
+- **ゴールド（#FFD700）の使用禁止**: 旧パレットカラーは完全廃止

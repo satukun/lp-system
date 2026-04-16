@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "sync-from-figma": "npx tsx scripts/sync-from-figma.ts"
   },
   "dependencies": {
     "next": "^16.2.2",

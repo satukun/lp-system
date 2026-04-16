@@ -173,12 +173,12 @@ function S1({ d, layout }: { d: LPData["s1"]; layout: LayoutIndex }) {
   if (layout === 1) {
     return (
       <header style={{
-        background: "#1A1A2E", padding: "16px 0",
+        background: "var(--color-secondary)", padding: "16px 0",
         position: "sticky", top: 0, zIndex: 100,
       }}>
         <div className="lp-container">
           <div className="lp-header-inner">
-            <div className="lp-logo" style={{ color: "#FFD700" }}>🏢 SERVICE</div>
+            <div className="lp-logo" style={{ color: "#ffffff" }}>🏢 SERVICE</div>
             <nav>
               <ul className="lp-nav">
                 {d.menuItems.map((item, i) => (
@@ -264,9 +264,10 @@ function S2({ d, layout, images, onImageChange }: {
             <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", marginBottom: 48 }}>
               {d.trustBadges.map((b, i) => (
                 <span key={i} style={{
-                  background: "rgba(255,215,0,0.12)", border: "1px solid rgba(255,215,0,0.4)",
-                  borderRadius: 999, padding: "6px 18px",
-                  fontSize: "clamp(12px,1.2cqw,14px)", fontWeight: 600, color: "var(--color-secondary)",
+                  background: "#f2f9ff", border: "1px solid rgba(0,117,222,0.2)",
+                  borderRadius: 9999, padding: "3px 12px",
+                  fontSize: 12, fontWeight: 600, color: "#097fe8",
+                  letterSpacing: "0.125px",
                 }}>{b}</span>
               ))}
             </div>
@@ -276,6 +277,41 @@ function S2({ d, layout, images, onImageChange }: {
               imgStyle={{ width: "100%", borderRadius: 12, display: "block" }}
               wrapperStyle={{ borderRadius: 12 }}
             />
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (layout === 3) {
+    // D: ダーク — secondary色背景、中央揃え、画像なし（コンバージョン特化）
+    return (
+      <section style={{ background: "var(--color-secondary)", padding: "var(--space-xl) 0", textAlign: "center", position: "relative", ...bgImgStyle(images["s2_bg"]) }}>
+        <BgUploadButton imageKey="s2_bg" onImageChange={onImageChange} currentUrl={images["s2_bg"]} />
+        <div className="lp-container">
+          <div style={{ maxWidth: 720, margin: "0 auto" }}>
+            <p className="lp-label" style={{ color: "rgba(255,255,255,0.8)", background: "rgba(255,255,255,0.1)" }}>HERO</p>
+            <h1 style={{
+              fontSize: "clamp(30px,4cqw,48px)", fontWeight: 700, color: "#ffffff",
+              lineHeight: 1.1, letterSpacing: "-1.5px", margin: "0 0 24px 0",
+            }}>{d.mainCopy}</h1>
+            <p style={{ fontSize: "clamp(15px,1.6cqw,18px)", color: "rgba(255,255,255,0.75)", margin: "0 0 40px 0", lineHeight: 1.8 }}>{d.subCopy}</p>
+            <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap", marginBottom: 32 }}>
+              <a href="#" className="btn-primary">{d.ctaText}</a>
+              <a href="#" style={{
+                background: "transparent", color: "#ffffff", padding: "8px 16px",
+                border: "1px solid rgba(255,255,255,0.4)", borderRadius: 4,
+                fontWeight: 600, fontSize: 15, cursor: "pointer", textDecoration: "none",
+              }}>{d.secondaryCtaText}</a>
+            </div>
+            <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
+              {d.trustBadges.map((b, i) => (
+                <span key={i} style={{
+                  background: "rgba(255,255,255,0.15)", borderRadius: 9999, padding: "3px 12px",
+                  fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.85)", letterSpacing: "0.125px",
+                }}>{b}</span>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -373,12 +409,33 @@ function S3({ d, layout, images, onImageChange }: {
       <section style={{ background: "var(--color-secondary)", padding: "var(--space-xl) 0", textAlign: "center", position: "relative", ...bgImgStyle(images["s3_bg"]) }}>
         <BgUploadButton imageKey="s3_bg" onImageChange={onImageChange} currentUrl={images["s3_bg"]} />
         <div style={{ maxWidth: 720, margin: "0 auto", padding: "0 24px" }}>
-          <p className="lp-label" style={{ color: "rgba(255,215,0,0.7)" }}>OVERVIEW</p>
+          <p className="lp-label" style={{ color: "rgba(255,255,255,0.8)", background: "rgba(255,255,255,0.1)" }}>OVERVIEW</p>
           <h2 style={{
             fontSize: "clamp(22px,2.5cqw,28px)", fontWeight: 700, color: "#fff",
             margin: "0 0 24px 0", lineHeight: 1.6,
           }}>{d.heading}</h2>
           <p style={{ fontSize: "clamp(14px,1.5cqw,16px)", color: "rgba(255,255,255,0.7)", lineHeight: 1.8 }}>{d.body}</p>
+        </div>
+      </section>
+    );
+  }
+
+  if (layout === 3) {
+    // D: ツーカラム — 左見出し+ラベル / 右本文の2カラム
+    return (
+      <section className="lp-message" style={{ background: "var(--color-bg)", position: "relative", ...bgImgStyle(images["s3_bg"]) }}>
+        <BgUploadButton imageKey="s3_bg" onImageChange={onImageChange} currentUrl={images["s3_bg"]} />
+        <div className="lp-container">
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "clamp(32px,5cqw,64px)", alignItems: "start" }}>
+            <div>
+              <p className="lp-label">OVERVIEW</p>
+              <h2 style={{
+                fontSize: "clamp(22px,2.5cqw,30px)", fontWeight: 700, color: "var(--color-secondary)",
+                margin: "0 0 20px 0", lineHeight: 1.3, letterSpacing: "-0.75px",
+              }}>{d.heading}</h2>
+            </div>
+            <p style={{ fontSize: "clamp(14px,1.5cqw,16px)", color: "var(--color-text)", lineHeight: 1.8, paddingTop: "clamp(0px,3cqw,40px)" }}>{d.body}</p>
+          </div>
         </div>
       </section>
     );
@@ -401,6 +458,41 @@ function S4({ d, layout, images, onImageChange }: {
   d: LPData["s4"]; layout: LayoutIndex;
   images: LPData["images"]; onImageChange?: OnImageChange;
 }) {
+  if (layout === 3) {
+    // D: ワイドカード — 横長カード2枚（番号+テキスト+画像）
+    return (
+      <section className="lp-section lp-problems" style={{ position: "relative", ...bgImgStyle(images["s4_bg"]) }}>
+        <BgUploadButton imageKey="s4_bg" onImageChange={onImageChange} currentUrl={images["s4_bg"]} />
+        <div className="lp-container">
+          <p className="lp-label" style={{ textAlign: "center" }}>PROBLEMS</p>
+          <h2 className="lp-heading" style={{ textAlign: "center" }}>{d.sectionHeading}</h2>
+          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+            {d.cards.map((card, i) => (
+              <div key={i} style={{
+                display: "grid", gridTemplateColumns: "auto 1fr auto", gap: 24,
+                alignItems: "center", background: "var(--color-bg-alt)",
+                border: "1px solid var(--color-border)", borderRadius: 12, padding: "24px 32px",
+              }}>
+                <div style={{
+                  width: 56, height: 56, flexShrink: 0, borderRadius: 8, background: "var(--color-primary)",
+                  color: "#ffffff", display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 22, fontWeight: 800,
+                }}>{String(i + 1).padStart(2, "0")}</div>
+                <div>
+                  <h3 style={{ fontSize: "clamp(15px,1.7cqw,17px)", fontWeight: 700, color: "var(--color-secondary)", margin: "0 0 8px 0" }}>{card.heading}</h3>
+                  <p style={{ fontSize: "clamp(13px,1.3cqw,14px)", color: "var(--color-text-light)", margin: 0, lineHeight: 1.7 }}>{card.description}</p>
+                </div>
+                <div style={{ width: 120, height: 80, flexShrink: 0, borderRadius: 8, overflow: "hidden" }}>
+                  <img src={PH(120, 80, card.iconHint)} alt={card.iconHint} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   if (layout === 2) {
     return (
       <section className="lp-section lp-problems" style={{ position: "relative", ...bgImgStyle(images["s4_bg"]) }}>
@@ -495,6 +587,36 @@ function S5({ d, layout, images, onImageChange }: {
                   imgStyle={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 8, display: "block" }}
                   wrapperStyle={{ width: 160, height: 120, flexShrink: 0, borderRadius: 8 }}
                 />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (layout === 3) {
+    // D: グリッド2 — 2カラムの大きめカード
+    return (
+      <section className="lp-section-alt" style={{ position: "relative", ...bgImgStyle(images["s5_bg"]) }}>
+        <BgUploadButton imageKey="s5_bg" onImageChange={onImageChange} currentUrl={images["s5_bg"]} />
+        <div className="lp-container">
+          <p className="lp-label" style={{ textAlign: "center" }}>FEATURES</p>
+          <h2 className="lp-heading" style={{ textAlign: "center" }}>{d.sectionHeading}</h2>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 24 }}>
+            {d.cards.map((card, i) => (
+              <div key={i} className="lp-card" style={{ padding: 0, overflow: "hidden" }}>
+                <UploadableImage
+                  src={images[`s5_${i}`] || PH(560, 200, `Feature ${i + 1}`)}
+                  alt={card.imageHint} imageKey={`s5_${i}`} onImageChange={onImageChange}
+                  imgStyle={{ width: "100%", height: 200, objectFit: "cover", display: "block" }}
+                  wrapperStyle={{}}
+                />
+                <div style={{ padding: "20px 24px 24px" }}>
+                  <span className="lp-card-point">{card.pointLabel}</span>
+                  <h3 className="lp-card-title" style={{ marginTop: 8 }}>{card.title}</h3>
+                  <p className="lp-card-desc">{card.description}</p>
+                </div>
               </div>
             ))}
           </div>
@@ -612,6 +734,39 @@ function S6({ d, layout, images, onImageChange }: {
     );
   }
 
+  if (layout === 3) {
+    // D: 4カラム — 4列グリッドで最大8件表示
+    return (
+      <section className="lp-section" style={{ position: "relative", ...bgImgStyle(images["s6_bg"]) }}>
+        <BgUploadButton imageKey="s6_bg" onImageChange={onImageChange} currentUrl={images["s6_bg"]} />
+        <div className="lp-container">
+          <p className="lp-label" style={{ textAlign: "center" }}>CATEGORIES</p>
+          <h2 className="lp-heading" style={{ textAlign: "center" }}>{d.sectionHeading}</h2>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
+            {d.cards.map((card, i) => (
+              <div key={i} className="lp-card" style={{ padding: 0, overflow: "hidden", textAlign: "center" }}>
+                <UploadableImage
+                  src={images[`s6_${i}`] || PH(240, 140, card.name)}
+                  alt={card.imageHint} imageKey={`s6_${i}`} onImageChange={onImageChange}
+                  imgStyle={{ width: "100%", height: 140, objectFit: "cover", display: "block" }}
+                  wrapperStyle={{}}
+                />
+                <div style={{ padding: "12px 16px 16px" }}>
+                  <p style={{ fontSize: 14, fontWeight: 700, color: "var(--color-secondary)", margin: "0 0 4px 0" }}>{card.name}</p>
+                  <p style={{ fontSize: 12, color: "var(--color-text-light)", margin: 0, lineHeight: 1.5 }}>{card.subText}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="lp-cta-area">
+            <a href="#" className="btn-primary">{d.cta1}</a>
+            <a href="#" className="btn-secondary">{d.cta2}</a>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="lp-section" style={{ position: "relative", ...bgImgStyle(images["s6_bg"]) }}>
       <BgUploadButton imageKey="s6_bg" onImageChange={onImageChange} currentUrl={images["s6_bg"]} />
@@ -673,6 +828,44 @@ function S7({ d, layout, images, onImageChange }: {
                     background: "var(--color-primary)", color: "var(--color-secondary)",
                     fontSize: 11, fontWeight: 700, padding: "3px 10px",
                     borderRadius: 4, display: "inline-block", marginBottom: 12, alignSelf: "flex-start",
+                  }}>導入事例</span>
+                  <h3 className="lp-card-title">{card.companyName}</h3>
+                  <p className="lp-card-desc">{card.summary}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <a href="#" className="lp-link">{d.linkText} →</a>
+          <div className="lp-cta-area">
+            <a href="#" className="btn-primary">{d.cta1}</a>
+            <a href="#" className="btn-secondary">{d.cta2}</a>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (layout === 3) {
+    // D: 2カラム — 画像付き大型カード2列
+    return (
+      <section className="lp-section-alt" style={{ position: "relative", ...bgImgStyle(images["s7_bg"]) }}>
+        <BgUploadButton imageKey="s7_bg" onImageChange={onImageChange} currentUrl={images["s7_bg"]} />
+        <div className="lp-container">
+          <p className="lp-label" style={{ textAlign: "center" }}>CASE STUDIES</p>
+          <h2 className="lp-heading" style={{ textAlign: "center" }}>{d.sectionHeading}</h2>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 24 }}>
+            {d.cards.map((card, i) => (
+              <div key={i} className="lp-card" style={{ padding: 0, overflow: "hidden" }}>
+                <UploadableImage
+                  src={images[`s7_${i}`] || PH(560, 220, card.companyName)}
+                  alt={card.imageHint} imageKey={`s7_${i}`} onImageChange={onImageChange}
+                  imgStyle={{ width: "100%", height: 220, objectFit: "cover", display: "block" }}
+                  wrapperStyle={{}}
+                />
+                <div style={{ padding: "20px 24px 24px" }}>
+                  <span style={{
+                    background: "#f2f9ff", color: "#097fe8", borderRadius: 9999,
+                    padding: "3px 10px", fontSize: 11, fontWeight: 600, display: "inline-block", marginBottom: 10,
                   }}>導入事例</span>
                   <h3 className="lp-card-title">{card.companyName}</h3>
                   <p className="lp-card-desc">{card.summary}</p>
@@ -767,6 +960,68 @@ function S8({ d, layout, images, onImageChange }: {
     );
   }
 
+  if (layout === 3) {
+    // D: ジグザグ — 画像と説明が左右交互に並ぶステップ
+    return (
+      <section className="lp-section" style={{ position: "relative", ...bgImgStyle(images["s8_bg"]) }}>
+        <BgUploadButton imageKey="s8_bg" onImageChange={onImageChange} currentUrl={images["s8_bg"]} />
+        <div className="lp-container">
+          <p className="lp-label" style={{ textAlign: "center" }}>FLOW</p>
+          <h2 className="lp-heading" style={{ textAlign: "center" }}>{d.sectionHeading}</h2>
+          <div style={{ display: "flex", flexDirection: "column", gap: 48 }}>
+            {d.steps.map((step, i) => (
+              <div key={i} style={{
+                display: "grid",
+                gridTemplateColumns: i % 2 === 0 ? "1fr 1fr" : "1fr 1fr",
+                gap: "clamp(24px,4cqw,48px)", alignItems: "center",
+              }}>
+                {i % 2 === 0 ? (
+                  <>
+                    <UploadableImage
+                      src={images[`s8_${i}`] || PH(480, 280, step.iconHint)}
+                      alt={step.iconHint} imageKey={`s8_${i}`} onImageChange={onImageChange}
+                      imgStyle={{ width: "100%", borderRadius: 12, display: "block" }}
+                      wrapperStyle={{ borderRadius: 12 }}
+                    />
+                    <div>
+                      <div style={{
+                        width: 40, height: 40, borderRadius: "50%", background: "var(--color-primary)",
+                        color: "#ffffff", display: "flex", alignItems: "center", justifyContent: "center",
+                        fontWeight: 700, fontSize: 16, marginBottom: 16,
+                      }}>{i + 1}</div>
+                      <p style={{ fontSize: 11, fontWeight: 600, color: "var(--color-text-light)", letterSpacing: "0.1em", margin: "0 0 6px 0" }}>{step.stepLabel}</p>
+                      <h3 className="lp-card-title">{step.title}</h3>
+                      <p className="lp-card-desc">{step.description}</p>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div>
+                      <div style={{
+                        width: 40, height: 40, borderRadius: "50%", background: "var(--color-primary)",
+                        color: "#ffffff", display: "flex", alignItems: "center", justifyContent: "center",
+                        fontWeight: 700, fontSize: 16, marginBottom: 16,
+                      }}>{i + 1}</div>
+                      <p style={{ fontSize: 11, fontWeight: 600, color: "var(--color-text-light)", letterSpacing: "0.1em", margin: "0 0 6px 0" }}>{step.stepLabel}</p>
+                      <h3 className="lp-card-title">{step.title}</h3>
+                      <p className="lp-card-desc">{step.description}</p>
+                    </div>
+                    <UploadableImage
+                      src={images[`s8_${i}`] || PH(480, 280, step.iconHint)}
+                      alt={step.iconHint} imageKey={`s8_${i}`} onImageChange={onImageChange}
+                      imgStyle={{ width: "100%", borderRadius: 12, display: "block" }}
+                      wrapperStyle={{ borderRadius: 12 }}
+                    />
+                  </>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   const stepsClass = layout === 1 ? "lp-flow-steps lp-flow-steps--square" : "lp-flow-steps";
   return (
     <section className="lp-section" style={{ position: "relative", ...bgImgStyle(images["s8_bg"]) }}>
@@ -811,6 +1066,36 @@ function S9({ d, layout, images, onImageChange }: {
     );
     return null;
   };
+
+  if (layout === 3) {
+    // D: シンプルFAQ — FAQのみ全幅表示（フォームなし）
+    return (
+      <section className="lp-section-alt" style={{ position: "relative", ...bgImgStyle(images["s9_bg"]) }}>
+        <BgUploadButton imageKey="s9_bg" onImageChange={onImageChange} currentUrl={images["s9_bg"]} />
+        <div className="lp-container">
+          <p className="lp-label" style={{ textAlign: "center" }}>FAQ</p>
+          <h2 className="lp-heading" style={{ textAlign: "center" }}>よくある質問</h2>
+          <div style={{ maxWidth: 760, margin: "0 auto", display: "flex", flexDirection: "column", gap: 8 }}>
+            {d.faqs.map((faq, i) => (
+              <div key={i} style={{
+                background: "var(--color-bg)", border: "1px solid var(--color-border)",
+                borderRadius: 8, padding: "16px 20px",
+              }}>
+                <p style={{ fontSize: 15, fontWeight: 600, color: "var(--color-secondary)", margin: "0 0 8px 0", display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{
+                    background: "#f2f9ff", color: "#097fe8", borderRadius: 9999,
+                    padding: "2px 8px", fontSize: 12, fontWeight: 700, flexShrink: 0,
+                  }}>Q</span>
+                  {faq.question}
+                </p>
+                <p style={{ fontSize: 14, color: "var(--color-text-light)", margin: 0, lineHeight: 1.7 }}>{faq.answer}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="lp-section-alt" style={{ position: "relative", ...bgImgStyle(images["s9_bg"]) }}>
@@ -882,6 +1167,37 @@ function S10({ d, layout, images, onImageChange }: {
     );
   }
 
+  if (layout === 3) {
+    // D: スプリット — 左ライトBG+見出し / 右ダークBG+CTA の左右分割
+    return (
+      <section style={{ display: "grid", gridTemplateColumns: "1fr 1fr", minHeight: 320 }}>
+        <div style={{
+          background: "var(--color-bg-alt)", padding: "var(--space-xl) clamp(24px,4cqw,64px)",
+          display: "flex", flexDirection: "column", justifyContent: "center",
+        }}>
+          <h2 style={{
+            fontSize: "clamp(22px,2.8cqw,30px)", fontWeight: 700, color: "var(--color-secondary)",
+            margin: "0 0 20px 0", lineHeight: 1.3, letterSpacing: "-0.75px",
+          }}>{d.microCopy}</h2>
+          <a href="#" className="btn-primary" style={{ alignSelf: "flex-start" }}>{d.cta1}</a>
+        </div>
+        <div style={{
+          background: "var(--color-secondary)", padding: "var(--space-xl) clamp(24px,4cqw,64px)",
+          display: "flex", flexDirection: "column", justifyContent: "center",
+        }}>
+          <p style={{ fontSize: "clamp(14px,1.5cqw,16px)", color: "rgba(255,255,255,0.75)", lineHeight: 1.8, margin: "0 0 24px 0" }}>
+            まずはお気軽にお問い合わせください。専任担当者が丁寧にご対応いたします。
+          </p>
+          <a href="#" style={{
+            alignSelf: "flex-start", background: "transparent", color: "#ffffff",
+            padding: "8px 20px", border: "1px solid rgba(255,255,255,0.4)",
+            borderRadius: 4, fontWeight: 600, fontSize: 15, textDecoration: "none",
+          }}>{d.cta2}</a>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="lp-closing" style={{ position: "relative", ...bgImgStyle(images["s10_bg"]) }}>
       <BgUploadButton imageKey="s10_bg" onImageChange={onImageChange} currentUrl={images["s10_bg"]} />
@@ -890,12 +1206,12 @@ function S10({ d, layout, images, onImageChange }: {
         {layout === 1 ? (
           <div className="lp-closing-actions lp-closing-actions--stacked">
             <a href="#" className="btn-primary">{d.cta1}</a>
-            <a href="#" className="btn-secondary" style={{ borderColor: "var(--color-secondary)", color: "var(--color-secondary)" }}>{d.cta2}</a>
+            <a href="#" className="btn-secondary" style={{ borderColor: "rgba(255,255,255,0.4)", color: "#ffffff", background: "transparent" }}>{d.cta2}</a>
           </div>
         ) : (
           <div className="lp-closing-actions">
             <a href="#" className="btn-primary">{d.cta1}</a>
-            <a href="#" className="btn-secondary" style={{ borderColor: "var(--color-secondary)", color: "var(--color-secondary)" }}>{d.cta2}</a>
+            <a href="#" className="btn-secondary" style={{ borderColor: "rgba(255,255,255,0.4)", color: "#ffffff", background: "transparent" }}>{d.cta2}</a>
           </div>
         )}
       </div>
@@ -916,6 +1232,42 @@ function S11({ d, layout }: { d: LPData["s11"]; layout: LayoutIndex }) {
                 {d.links.map((link, i) => <li key={i}><a href="#">{link}</a></li>)}
               </ul>
             </nav>
+          </div>
+          <p className="lp-footer-copy">{d.copyright}</p>
+        </div>
+      </footer>
+    );
+  }
+
+  if (layout === 3) {
+    // D: 4カラム — ロゴ+タグライン列 + 3列リンクカラム
+    const cols = [
+      d.links.slice(0, Math.ceil(d.links.length / 3)),
+      d.links.slice(Math.ceil(d.links.length / 3), Math.ceil(d.links.length * 2 / 3)),
+      d.links.slice(Math.ceil(d.links.length * 2 / 3)),
+    ];
+    return (
+      <footer className="lp-footer">
+        <div className="lp-container">
+          <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: 40, paddingBottom: 32, borderBottom: "1px solid rgba(255,255,255,0.12)" }}>
+            <div>
+              <div className="lp-footer-logo">🏢 SERVICE</div>
+              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.45)", marginTop: 10, lineHeight: 1.6 }}>
+                一言でサービスの価値を伝えるタグライン
+              </p>
+            </div>
+            {cols.map((col, ci) => (
+              <div key={ci}>
+                <p style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.5)", letterSpacing: "0.1em", margin: "0 0 12px 0", textTransform: "uppercase" }}>
+                  {["サービス", "会社情報", "サポート"][ci]}
+                </p>
+                <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 8 }}>
+                  {col.map((link, li) => (
+                    <li key={li}><a href="#" style={{ fontSize: 13, color: "rgba(255,255,255,0.65)", textDecoration: "none" }}>{link}</a></li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </div>
           <p className="lp-footer-copy">{d.copyright}</p>
         </div>

@@ -23,7 +23,7 @@
 1. `references/design-system.md` を読んで色・スペーシングルールを確認する
 2. `references/lp-structure.md` を読んで対象セクションの構造を確認する
 3. Figmaに新パターンのフレームを作成する
-   - fileKey: `lCUKFEEyg0To5woP2GgM69`（YO.Tec チーム）
+   - fileKey: `jpGxPuHcGbWRXxCAPFotBf`（YO.Tec チーム）
    - ページ: 対象セクションのページ（例: S2 Hero）
    - フレーム名: `{sectionKey}/{patternLabel}` 形式（例: `s2/D`）
 4. 後述の「コード変更ルール」に従って4ファイルを変更する
@@ -215,7 +215,7 @@ lp-system/
 ```
 
 **Figmaファイル情報：**
-- fileKey: `lCUKFEEyg0To5woP2GgM69`
+- fileKey: `jpGxPuHcGbWRXxCAPFotBf`
 - チーム: YO.Tec
 - ページ構成: `_Design System` / `S1 Header` 〜 `S11 Footer`
 

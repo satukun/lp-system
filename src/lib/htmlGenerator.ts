@@ -8,36 +8,36 @@ import type { LPData, SectionKey, SectionLayouts, ColorPalette, LayoutIndex } fr
 function getPaletteVars(palette: ColorPalette): string {
   if (palette === "A") {
     return `
-  --color-primary: #FFD700;
-  --color-primary-dark: #E6C200;
-  --color-secondary: #1A1A2E;
-  --color-text: #333333;
-  --color-text-light: #666666;
-  --color-bg: #FFFFFF;
-  --color-bg-alt: #F5F5F0;
-  --color-border: #E0E0E0;`;
+  --color-primary: #0075de;
+  --color-primary-dark: #005bab;
+  --color-secondary: #31302e;
+  --color-text: rgba(0,0,0,0.95);
+  --color-text-light: #615d59;
+  --color-bg: #ffffff;
+  --color-bg-alt: #f6f5f4;
+  --color-border: rgba(0,0,0,0.1);`;
   }
   if (palette === "B") {
     return `
-  --color-primary: #2563EB;
-  --color-primary-dark: #1D4ED8;
-  --color-secondary: #0F172A;
-  --color-text: #333333;
-  --color-text-light: #666666;
-  --color-bg: #FFFFFF;
-  --color-bg-alt: #F0F4FF;
-  --color-border: #E0E0E0;`;
+  --color-primary: #213183;
+  --color-primary-dark: #192671;
+  --color-secondary: #31302e;
+  --color-text: rgba(0,0,0,0.95);
+  --color-text-light: #615d59;
+  --color-bg: #ffffff;
+  --color-bg-alt: #f0f4ff;
+  --color-border: rgba(0,0,0,0.1);`;
   }
-  // C: グリーン
+  // C: ティール
   return `
-  --color-primary: #16A34A;
-  --color-primary-dark: #15803D;
-  --color-secondary: #14271A;
-  --color-text: #333333;
-  --color-text-light: #666666;
-  --color-bg: #FFFFFF;
-  --color-bg-alt: #F0FDF4;
-  --color-border: #E0E0E0;`;
+  --color-primary: #2a9d99;
+  --color-primary-dark: #21807d;
+  --color-secondary: #31302e;
+  --color-text: rgba(0,0,0,0.95);
+  --color-text-light: #615d59;
+  --color-bg: #ffffff;
+  --color-bg-alt: #f0fdf9;
+  --color-border: rgba(0,0,0,0.1);`;
 }
 
 // ────────────────────────────────────────────────────────────
@@ -241,6 +241,28 @@ function renderS2(data: LPData, layout: LayoutIndex): string {
 </section>`;
   }
 
+  if (layout === 3) {
+    // Layout 3: ダーク — secondary色背景、中央揃え、画像なし（コンバージョン特化）
+    const darkBadges = s2.trustBadges
+      .map((b) => `<span class="trust-badge trust-badge-dark">${esc(b)}</span>`)
+      .join("");
+    return `<!-- S2: Hero [Layout 3: ダーク] -->
+<section class="s2 s2-layout3"${s2Bg}>
+  <div class="container">
+    <div class="hero-dark-inner">
+      <p class="section-label label-white-op">HERO</p>
+      <h1 class="hero-main-copy hero-main-copy-white">${esc(s2.mainCopy)}</h1>
+      <p class="hero-sub-copy hero-sub-copy-white">${esc(s2.subCopy)}</p>
+      <div class="hero-cta-row hero-cta-center">
+        <a href="#contact" class="btn-primary">${esc(s2.ctaText)}</a>
+        <a href="#contact" class="btn-secondary-dark">${esc(s2.secondaryCtaText)}</a>
+      </div>
+      <div class="trust-badges trust-badges-center">${darkBadges}</div>
+    </div>
+  </div>
+</section>`;
+  }
+
   // Layout 2: grid 4:6、左画像・右テキスト
   return `<!-- S2: Hero [Layout 2] -->
 <section class="s2 s2-layout2"${s2Bg}>
@@ -281,6 +303,24 @@ function renderS3(data: LPData, layout: LayoutIndex): string {
         <p class="section-label">OVERVIEW</p>
         <h2 class="section-heading text-left">${esc(s3.heading)}</h2>
         <p class="body-text text-left">${esc(s3.body)}</p>
+      </div>
+    </div>
+  </div>
+</section>`;
+  }
+
+  if (layout === 3) {
+    // Layout 3: ツーカラム — 白背景、左見出し+ラベル / 右本文
+    return `<!-- S3: Message [Layout 3: ツーカラム] -->
+<section class="s3 s3-layout3"${s3Bg}>
+  <div class="container">
+    <div class="message-2col">
+      <div class="message-2col-left">
+        <p class="section-label">OVERVIEW</p>
+        <h2 class="section-heading">${esc(s3.heading)}</h2>
+      </div>
+      <div class="message-2col-right">
+        <p class="body-text">${esc(s3.body)}</p>
       </div>
     </div>
   </div>
@@ -338,6 +378,28 @@ function renderS4(data: LPData, layout: LayoutIndex): string {
     <p class="section-label">PROBLEMS</p>
     <h2 class="section-heading">${esc(s4.sectionHeading)}</h2>
     <div class="cards-3col">${cards}
+    </div>
+  </div>
+</section>`;
+  }
+
+  if (layout === 3) {
+    // Layout 3: ワイドカード — 横長カード2枚（番号+テキスト+画像）
+    const cards = s4.cards.map((card, i) => `
+      <div class="wide-card">
+        <div class="wide-card-num">${String(i + 1).padStart(2, "0")}</div>
+        <div class="wide-card-text">
+          <h3 class="card-title">${esc(card.heading)}</h3>
+          <p class="card-desc">${esc(card.description)}</p>
+        </div>
+        <div class="wide-card-img">${placeholderImg(120, 80, card.iconHint, "img-radius")}</div>
+      </div>`).join("");
+    return `<!-- S4: Problems [Layout 3: ワイドカード] -->
+<section class="s4 s4-layout3"${s4Bg}>
+  <div class="container">
+    <p class="section-label">PROBLEMS</p>
+    <h2 class="section-heading">${esc(s4.sectionHeading)}</h2>
+    <div class="wide-cards">${cards}
     </div>
   </div>
 </section>`;
@@ -408,6 +470,28 @@ function renderS5(data: LPData, layout: LayoutIndex): string {
 </section>`;
   }
 
+  if (layout === 3) {
+    // Layout 3: グリッド2 — 2カラムカードグリッド（画像上+バッジ+タイトル+説明）
+    const cards = s5.cards.map((card, i) => `
+      <div class="card card-img-top">
+        <div class="card-image-top">${userImg(data.images, `s5_${i}`, 560, 200, card.imageHint, "img-top")}</div>
+        <div class="card-body">
+          <span class="point-badge">${esc(card.pointLabel)}</span>
+          <h3 class="card-title">${esc(card.title)}</h3>
+          <p class="card-desc">${esc(card.description)}</p>
+        </div>
+      </div>`).join("");
+    return `<!-- S5: Features [Layout 3: グリッド2] -->
+<section class="s5 s5-layout3"${s5Bg}>
+  <div class="container">
+    <p class="section-label">FEATURES</p>
+    <h2 class="section-heading">${esc(s5.sectionHeading)}</h2>
+    <div class="cards-2col">${cards}
+    </div>
+  </div>
+</section>`;
+  }
+
   // Layout 2: 1カラム横長カード（padding 28px 32px）、ゴールド大番号（80×80）左＋テキスト中＋画像右
   const cards = s5.cards.map((card, i) => `
       <div class="feature-wide-card">
@@ -472,6 +556,31 @@ function renderS6(data: LPData, layout: LayoutIndex): string {
     <p class="section-label">CATEGORIES</p>
     <h2 class="section-heading">${esc(s6.sectionHeading)}</h2>
     <div class="cards-2col">${cards}
+    </div>
+    <div class="section-cta-row">
+      <a href="#contact" class="btn-primary">${esc(s6.cta1)}</a>
+      <a href="#contact" class="btn-secondary">${esc(s6.cta2)}</a>
+    </div>
+  </div>
+</section>`;
+  }
+
+  if (layout === 3) {
+    // Layout 3: 4カラム — 4列グリッドで最大8件を一覧表示
+    const cards = s6.cards.map((card, i) => `
+      <div class="card card-4col">
+        <div class="cat-img-sm">${userImg(data.images, `s6_${i}`, 240, 140, card.imageHint, "img-top")}</div>
+        <div class="card-body-sm">
+          <h3 class="card-title-sm">${esc(card.name)}</h3>
+          <p class="card-sub-sm">${esc(card.subText)}</p>
+        </div>
+      </div>`).join("");
+    return `<!-- S6: Categories [Layout 3: 4カラム] -->
+<section class="s6 s6-layout3"${s6Bg}>
+  <div class="container">
+    <p class="section-label">CATEGORIES</p>
+    <h2 class="section-heading">${esc(s6.sectionHeading)}</h2>
+    <div class="cards-4col">${cards}
     </div>
     <div class="section-cta-row">
       <a href="#contact" class="btn-primary">${esc(s6.cta1)}</a>
@@ -563,6 +672,35 @@ function renderS7(data: LPData, layout: LayoutIndex): string {
 </section>`;
   }
 
+  if (layout === 3) {
+    // Layout 3: 2カラム — 画像付き大型カード2列
+    const cards = s7.cards.map((card, i) => `
+      <div class="card card-img-top">
+        <div class="card-image-top">${userImg(data.images, `s7_${i}`, 560, 220, card.imageHint, "img-top")}</div>
+        <div class="card-body">
+          <span class="case-badge">導入事例</span>
+          <h3 class="card-title">${esc(card.companyName)}</h3>
+          <p class="card-desc">${esc(card.summary)}</p>
+        </div>
+      </div>`).join("");
+    return `<!-- S7: Case Studies [Layout 3: 2カラム] -->
+<section class="s7 s7-layout3"${s7Bg}>
+  <div class="container">
+    <p class="section-label">CASE STUDIES</p>
+    <h2 class="section-heading">${esc(s7.sectionHeading)}</h2>
+    <div class="cards-2col">${cards}
+    </div>
+    <div class="section-link-row">
+      <a href="#" class="text-link">${esc(s7.linkText)}</a>
+    </div>
+    <div class="section-cta-row">
+      <a href="#contact" class="btn-primary">${esc(s7.cta1)}</a>
+      <a href="#contact" class="btn-secondary">${esc(s7.cta2)}</a>
+    </div>
+  </div>
+</section>`;
+  }
+
   // Layout 2: 1カラム横長（画像左240px・テキスト右）、ゴールドバッジ付き
   const cards = s7.cards.map((card, i) => `
       <div class="case-wide-card">
@@ -632,6 +770,33 @@ function renderS8(data: LPData, layout: LayoutIndex): string {
     <p class="section-label">FLOW</p>
     <h2 class="section-heading">${esc(s8.sectionHeading)}</h2>
     <div class="flow-grid">${steps}
+    </div>
+  </div>
+</section>`;
+  }
+
+  if (layout === 3) {
+    // Layout 3: ジグザグ — 画像と説明が左右交互に並ぶステップ
+    const steps = s8.steps.map((step, i) => {
+      const imgBlock = `<div class="zigzag-img">${userImg(data.images, `s8_${i}`, 480, 280, step.iconHint, "img-radius")}</div>`;
+      const textBlock = `
+        <div class="zigzag-text">
+          <div class="flow-num-circle">${i + 1}</div>
+          <p class="step-label">${esc(step.stepLabel)}</p>
+          <h3 class="card-title">${esc(step.title)}</h3>
+          <p class="card-desc">${esc(step.description)}</p>
+        </div>`;
+      return `
+      <div class="zigzag-row${i % 2 === 1 ? " zigzag-row-rev" : ""}">
+        ${i % 2 === 0 ? imgBlock + textBlock : textBlock + imgBlock}
+      </div>`;
+    }).join("");
+    return `<!-- S8: Flow [Layout 3: ジグザグ] -->
+<section class="s8 s8-layout3"${s8Bg}>
+  <div class="container">
+    <p class="section-label">FLOW</p>
+    <h2 class="section-heading">${esc(s8.sectionHeading)}</h2>
+    <div class="zigzag-steps">${steps}
     </div>
   </div>
 </section>`;
@@ -763,6 +928,24 @@ function renderS9(data: LPData, layout: LayoutIndex): string {
 </section>`;
   }
 
+  if (layout === 3) {
+    // Layout 3: シンプルFAQ — FAQのみ全幅表示（フォームなし）
+    const faqs = s9.faqs.map((faq, i) => `
+          <div class="faq-simple-item">
+            <p class="faq-simple-q"><span class="faq-q-badge">Q</span>${esc(faq.question)}</p>
+            <p class="faq-simple-a">${esc(faq.answer)}</p>
+          </div>`).join("");
+    return `<!-- S9: FAQ [Layout 3: シンプルFAQ] -->
+<section class="s9 s9-layout3"${s9Bg}>
+  <div class="container">
+    <p class="section-label">FAQ</p>
+    <h2 class="section-heading">よくある質問</h2>
+    <div class="faq-simple-list">${faqs}
+    </div>
+  </div>
+</section>`;
+  }
+
   // Layout 2: 2カラムgrid、番号バッジ（①②③…、background: secondary色、color: primary色）
   const faqs = s9.faqs.map((faq, i) => makeFaqItem(faq, i, "num")).join("");
   return `<!-- S9: Form & FAQ [Layout 2] -->
@@ -813,6 +996,23 @@ function renderS10(data: LPData, layout: LayoutIndex): string {
         <a href="#contact" class="btn-primary">${esc(s10.cta1)}</a>
         <a href="#contact" class="btn-secondary btn-secondary-white">${esc(s10.cta2)}</a>
       </div>
+    </div>
+  </div>
+</section>`;
+  }
+
+  if (layout === 3) {
+    // Layout 3: スプリット — 左ライトBG+見出し / 右ダークBG+CTA の左右分割
+    return `<!-- S10: Closing [Layout 3: スプリット] -->
+<section class="s10 s10-layout3">
+  <div class="closing-split">
+    <div class="closing-split-left">
+      <h2 class="closing-split-heading">${esc(s10.microCopy)}</h2>
+      <a href="#contact" class="btn-primary">${esc(s10.cta1)}</a>
+    </div>
+    <div class="closing-split-right">
+      <p class="closing-split-body">まずはお気軽にお問い合わせください。専任担当者が丁寧にご対応いたします。</p>
+      <a href="#contact" class="btn-secondary-dark">${esc(s10.cta2)}</a>
     </div>
   </div>
 </section>`;
@@ -869,6 +1069,36 @@ function renderS11(data: LPData, layout: LayoutIndex): string {
 </footer>`;
   }
 
+  if (layout === 3) {
+    // Layout 3: 4カラム — ロゴ+タグライン列 + 3列リンクカラム
+    const third = Math.ceil(s11.links.length / 3);
+    const col1 = s11.links.slice(0, third).map(l => `<a href="#" class="footer-link">${esc(l)}</a>`).join("");
+    const col2 = s11.links.slice(third, third * 2).map(l => `<a href="#" class="footer-link">${esc(l)}</a>`).join("");
+    const col3 = s11.links.slice(third * 2).map(l => `<a href="#" class="footer-link">${esc(l)}</a>`).join("");
+    return `<!-- S11: Footer [Layout 3: 4カラム] -->
+<footer class="s11 s11-layout3">
+  <div class="container footer-4col">
+    <div class="footer-4col-brand">
+      <div class="footer-logo"><span class="logo-text logo-white">サービス名</span></div>
+      <p class="footer-tagline-text">一言でサービスの価値を伝えるタグライン</p>
+    </div>
+    <div class="footer-4col-links">
+      <p class="footer-col-head">サービス</p>
+      <div class="footer-link-col">${col1}</div>
+    </div>
+    <div class="footer-4col-links">
+      <p class="footer-col-head">会社情報</p>
+      <div class="footer-link-col">${col2}</div>
+    </div>
+    <div class="footer-4col-links">
+      <p class="footer-col-head">サポート</p>
+      <div class="footer-link-col">${col3}</div>
+    </div>
+  </div>
+  <div class="footer-copy">${esc(s11.copyright)}</div>
+</footer>`;
+  }
+
   // Layout 2: secondary色背景、全要素中央揃え
   return `<!-- S11: Footer [Layout 2] -->
 <footer class="s11 s11-layout2">
@@ -916,10 +1146,9 @@ function buildCss(palette: ColorPalette): string {
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 body {
-  font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+  font-family: Inter, -apple-system, system-ui, "Segoe UI", Helvetica, "Hiragino Kaku Gothic ProN", "Noto Sans JP", Arial, sans-serif;
   font-size: 16px;
   line-height: 1.8;
-  letter-spacing: 0.04em;
   color: var(--color-text);
   background: var(--color-bg);
 }
@@ -946,19 +1175,23 @@ section { padding: var(--space-xl) 0; }
 
 /* ===== Typography ===== */
 .section-label {
+  display: inline-block;
   font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.08em;
-  color: var(--color-text-light);
+  letter-spacing: 0.125px;
+  color: #097fe8;
+  background: #f2f9ff;
+  border-radius: 9999px;
+  padding: 3px 10px;
   text-transform: uppercase;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 .section-heading {
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 700;
-  line-height: 1.4;
-  letter-spacing: 0.02em;
-  color: var(--color-secondary);
+  line-height: 1.2;
+  letter-spacing: -0.75px;
+  color: var(--color-text);
   margin-bottom: var(--space-lg);
 }
 .body-text {
@@ -969,11 +1202,11 @@ section { padding: var(--space-xl) 0; }
   color: var(--color-text);
 }
 .card-title {
-  font-size: 18px;
-  font-weight: 600;
-  line-height: 1.4;
-  letter-spacing: 0.02em;
-  color: var(--color-secondary);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.25px;
+  color: var(--color-text);
   margin-bottom: var(--space-xs);
 }
 .card-desc {
@@ -991,11 +1224,11 @@ section { padding: var(--space-xl) 0; }
 .btn-primary {
   display: inline-block;
   background: var(--color-primary);
-  color: var(--color-secondary);
-  padding: 16px 32px;
-  border-radius: 8px;
+  color: #ffffff;
+  padding: 8px 16px;
+  border-radius: 4px;
   font-weight: 600;
-  font-size: 16px;
+  font-size: 15px;
   border: none;
   cursor: pointer;
   transition: background 0.2s;
@@ -1004,23 +1237,24 @@ section { padding: var(--space-xl) 0; }
 .btn-primary:hover { background: var(--color-primary-dark); }
 .btn-secondary {
   display: inline-block;
-  background: transparent;
-  color: var(--color-secondary);
-  padding: 16px 32px;
-  border: 2px solid var(--color-secondary);
-  border-radius: 8px;
+  background: rgba(0,0,0,0.05);
+  color: rgba(0,0,0,0.95);
+  padding: 8px 16px;
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 4px;
   font-weight: 600;
-  font-size: 16px;
+  font-size: 15px;
   cursor: pointer;
   transition: all 0.2s;
   text-align: center;
 }
-.btn-secondary:hover { background: var(--color-secondary); color: #FFFFFF; }
+.btn-secondary:hover { background: rgba(0,0,0,0.1); }
 .btn-secondary-white {
-  border-color: #FFFFFF;
-  color: #FFFFFF;
+  background: transparent;
+  border-color: rgba(255,255,255,0.4);
+  color: #ffffff;
 }
-.btn-secondary-white:hover { background: #FFFFFF; color: var(--color-secondary); }
+.btn-secondary-white:hover { background: rgba(255,255,255,0.1); }
 .btn-block { display: block; width: 100%; text-align: center; }
 .text-link {
   color: var(--color-primary-dark);
@@ -1032,12 +1266,22 @@ section { padding: var(--space-xl) 0; }
 /* ===== Cards ===== */
 .card {
   background: var(--color-bg);
-  border: 1px solid var(--color-border);
+  border: 1px solid rgba(0,0,0,0.1);
   border-radius: 12px;
   padding: 24px;
+  box-shadow:
+    rgba(0,0,0,0.04) 0px 4px 18px,
+    rgba(0,0,0,0.027) 0px 2px 7.8px,
+    rgba(0,0,0,0.02) 0px 0.8px 2.9px,
+    rgba(0,0,0,0.01) 0px 0.175px 1px;
   transition: box-shadow 0.2s;
 }
-.card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+.card:hover {
+  box-shadow:
+    rgba(0,0,0,0.08) 0px 8px 24px,
+    rgba(0,0,0,0.05) 0px 4px 10px,
+    rgba(0,0,0,0.03) 0px 1.5px 4px;
+}
 .card-center { text-align: center; }
 .card-image { margin-top: var(--space-sm); }
 .card-image-top { margin-bottom: var(--space-sm); }
@@ -1057,24 +1301,25 @@ section { padding: var(--space-xl) 0; }
 /* ===== Badges ===== */
 .point-badge {
   display: inline-block;
-  background: var(--color-primary);
-  color: var(--color-secondary);
-  font-size: 11px;
-  font-weight: 700;
+  background: #f2f9ff;
+  color: #097fe8;
+  font-size: 12px;
+  font-weight: 600;
   padding: 3px 10px;
-  border-radius: 4px;
+  border-radius: 9999px;
   margin-bottom: var(--space-xs);
-  letter-spacing: 0.05em;
+  letter-spacing: 0.125px;
 }
 .case-badge {
   display: inline-block;
-  background: var(--color-primary);
-  color: var(--color-secondary);
-  font-size: 11px;
-  font-weight: 700;
+  background: #f2f9ff;
+  color: #097fe8;
+  font-size: 12px;
+  font-weight: 600;
   padding: 3px 10px;
-  border-radius: 4px;
+  border-radius: 9999px;
   margin-bottom: var(--space-xs);
+  letter-spacing: 0.125px;
 }
 
 /* ===== Images ===== */
@@ -1220,17 +1465,18 @@ section { padding: var(--space-xl) 0; }
 .hero-grid-40-60 { grid-template-columns: 4fr 6fr; }
 .hero-text { display: flex; flex-direction: column; gap: var(--space-sm); }
 .hero-main-copy {
-  font-size: 40px;
+  font-size: 48px;
   font-weight: 700;
-  line-height: 1.4;
-  letter-spacing: 0.02em;
-  color: var(--color-secondary);
+  line-height: 1.1;
+  letter-spacing: -1.5px;
+  color: var(--color-text);
 }
-.hero-copy-52 { font-size: 52px; }
+.hero-copy-52 { font-size: 52px; letter-spacing: -1.875px; }
 .hero-sub-copy {
-  font-size: 16px;
+  font-size: 20px;
+  font-weight: 600;
   color: var(--color-text-light);
-  line-height: 1.8;
+  line-height: 1.5;
 }
 .hero-cta-row {
   display: flex;
@@ -1248,11 +1494,17 @@ section { padding: var(--space-xl) 0; }
 }
 .trust-badges-center { justify-content: center; }
 .trust-badge {
-  font-size: 13px;
+  display: inline-block;
+  background: #f2f9ff;
+  color: #097fe8;
+  font-size: 12px;
   font-weight: 600;
-  color: var(--color-text-light);
+  letter-spacing: 0.125px;
+  padding: 3px 12px;
+  border-radius: 9999px;
+  border: 1px solid rgba(0,117,222,0.2);
 }
-.trust-badge + .trust-badge::before { content: "・"; color: var(--color-border); }
+.trust-badge + .trust-badge { margin-left: 8px; }
 .hero-image img { width: 100%; border-radius: 8px; }
 .hero-fullwidth-img { margin-top: var(--space-lg); }
 .hero-fullwidth-img img { width: 100%; }
@@ -1277,7 +1529,7 @@ section { padding: var(--space-xl) 0; }
   font-family: Georgia, serif;
 }
 .message-quote-body { flex: 1; }
-.label-primary-op { color: rgba(255,215,0,0.7); }
+.label-primary-op { color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.1); }
 
 /* ===== S4: Problems ===== */
 .s4-layout0, .s4-layout4 { background: var(--color-bg); }
@@ -1297,7 +1549,7 @@ section { padding: var(--space-xl) 0; }
   width: 48px;
   height: 48px;
   background: var(--color-primary);
-  color: var(--color-secondary);
+  color: #ffffff;
   font-size: 20px;
   font-weight: 700;
   display: flex;
@@ -1319,7 +1571,7 @@ section { padding: var(--space-xl) 0; }
   width: 36px;
   height: 36px;
   background: var(--color-primary);
-  color: var(--color-secondary);
+  color: #ffffff;
   font-size: 16px;
   font-weight: 700;
   display: flex;
@@ -1347,7 +1599,7 @@ section { padding: var(--space-xl) 0; }
   width: 80px;
   height: 80px;
   background: var(--color-primary);
-  color: var(--color-secondary);
+  color: #ffffff;
   font-size: 36px;
   font-weight: 700;
   display: flex;
@@ -1406,7 +1658,7 @@ section { padding: var(--space-xl) 0; }
   height: 48px;
   border-radius: 50%;
   background: var(--color-primary);
-  color: var(--color-secondary);
+  color: #ffffff;
   font-size: 20px;
   font-weight: 700;
   display: flex;
@@ -1501,26 +1753,29 @@ section { padding: var(--space-xl) 0; }
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
+  min-width: 24px;
   height: 24px;
-  background: var(--color-primary);
-  color: var(--color-secondary);
-  font-size: 13px;
-  font-weight: 700;
-  border-radius: 4px;
+  background: #f2f9ff;
+  color: #097fe8;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 9999px;
+  padding: 0 8px;
   flex-shrink: 0;
+  letter-spacing: 0.125px;
 }
 .faq-num-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
+  min-width: 26px;
   height: 26px;
   background: var(--color-secondary);
-  color: var(--color-primary);
-  font-size: 14px;
+  color: #ffffff;
+  font-size: 13px;
   font-weight: 700;
-  border-radius: 4px;
+  border-radius: 9999px;
+  padding: 0 8px;
   flex-shrink: 0;
 }
 
@@ -1568,8 +1823,7 @@ section { padding: var(--space-xl) 0; }
 .form-checkbox { width: 16px; height: 16px; accent-color: var(--color-primary); cursor: pointer; }
 
 /* ===== S10: Closing ===== */
-.s10-layout0, .s10-layout1 { background: var(--color-primary-dark); }
-.s10-layout2 { background: var(--color-secondary); }
+.s10-layout0, .s10-layout1, .s10-layout2 { background: var(--color-secondary); }
 .closing-inner { text-align: center; }
 .closing-copy {
   font-size: 24px;
@@ -1617,6 +1871,225 @@ section { padding: var(--space-xl) 0; }
 .footer-copy-center { text-align: center; }
 .s11-layout2 .footer-inner { flex-direction: column; align-items: center; }
 
+/* ===== Pattern D: New Layout Classes ===== */
+
+/* S2 Layout 3 (ダーク) */
+.s2-layout3 { background: var(--color-secondary); padding: var(--space-xl) 0; }
+.hero-dark-inner { max-width: 720px; margin: 0 auto; text-align: center; }
+.hero-main-copy-white { color: #ffffff !important; }
+.hero-sub-copy-white { color: rgba(255,255,255,0.75) !important; }
+.label-white-op { color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.1) !important; }
+.trust-badge-dark {
+  background: rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.85);
+  border-color: rgba(255,255,255,0.2);
+  border-radius: 9999px;
+  padding: 3px 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.btn-secondary-dark {
+  display: inline-block;
+  background: transparent;
+  color: #ffffff;
+  padding: 8px 16px;
+  border: 1px solid rgba(255,255,255,0.4);
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.btn-secondary-dark:hover { background: rgba(255,255,255,0.1); }
+
+/* S3 Layout 3 (ツーカラム) */
+.s3-layout3 { background: var(--color-bg); }
+.message-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: start;
+  max-width: 1080px;
+  margin: 0 auto;
+}
+.message-2col-left {}
+.message-2col-right { padding-top: 48px; }
+
+/* S4 Layout 3 (ワイドカード) */
+.s4-layout3 { background: var(--color-bg); }
+.wide-cards { display: flex; flex-direction: column; gap: 20px; }
+.wide-card {
+  display: grid;
+  grid-template-columns: 56px 1fr 120px;
+  gap: 24px;
+  align-items: center;
+  background: var(--color-bg-alt);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 24px 32px;
+}
+.wide-card-num {
+  width: 56px;
+  height: 56px;
+  background: var(--color-primary);
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+.wide-card-text {}
+.wide-card-img img { width: 120px; height: 80px; object-fit: cover; border-radius: 8px; }
+
+/* S5 Layout 3 (グリッド2) */
+.s5-layout3 { background: var(--color-bg-alt); }
+.card-img-top { padding: 0; overflow: hidden; }
+.img-top { width: 100%; height: 200px; object-fit: cover; display: block; border-radius: 0; }
+.card-body { padding: 20px 24px 24px; }
+
+/* S6 Layout 3 (4カラム) */
+.s6-layout3 { background: var(--color-bg); }
+.cards-4col {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: var(--space-lg);
+}
+.card-4col { padding: 0; overflow: hidden; text-align: center; }
+.cat-img-sm img { width: 100%; height: 140px; object-fit: cover; display: block; }
+.card-body-sm { padding: 12px 16px 16px; }
+.card-title-sm { font-size: 14px; font-weight: 700; color: var(--color-secondary); margin-bottom: 4px; }
+.card-sub-sm { font-size: 12px; color: var(--color-text-light); line-height: 1.5; }
+
+/* S7 Layout 3 (2カラム) — uses .cards-2col already defined */
+.s7-layout3 { background: var(--color-bg-alt); }
+
+/* S8 Layout 3 (ジグザグ) */
+.s8-layout3 { background: var(--color-bg); }
+.zigzag-steps { display: flex; flex-direction: column; gap: 48px; }
+.zigzag-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: center;
+}
+.zigzag-row-rev {}
+.zigzag-img img { width: 100%; border-radius: 12px; }
+.zigzag-text {}
+.step-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-light);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+/* S9 Layout 3 (シンプルFAQ) */
+.s9-layout3 { background: var(--color-bg-alt); }
+.faq-simple-list {
+  max-width: 760px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.faq-simple-item {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 16px 20px;
+}
+.faq-simple-q {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-secondary);
+  margin: 0 0 8px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.faq-simple-a {
+  font-size: 14px;
+  color: var(--color-text-light);
+  margin: 0;
+  line-height: 1.7;
+  padding-left: 36px;
+}
+
+/* S10 Layout 3 (スプリット) */
+.s10-layout3 { padding: 0; }
+.closing-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 320px;
+}
+.closing-split-left {
+  background: var(--color-bg-alt);
+  padding: 64px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 24px;
+}
+.closing-split-right {
+  background: var(--color-secondary);
+  padding: 64px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 24px;
+}
+.closing-split-heading {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--color-secondary);
+  line-height: 1.3;
+  letter-spacing: -0.75px;
+  margin: 0;
+}
+.closing-split-body {
+  font-size: 15px;
+  color: rgba(255,255,255,0.75);
+  line-height: 1.8;
+  margin: 0;
+}
+
+/* S11 Layout 3 (4カラム) */
+.footer-4col {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 40px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid rgba(255,255,255,0.12);
+  margin-bottom: 24px;
+}
+.footer-4col-brand {}
+.footer-tagline-text {
+  font-size: 13px;
+  color: rgba(255,255,255,0.45);
+  margin-top: 10px;
+  line-height: 1.6;
+}
+.footer-4col-links {}
+.footer-col-head {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin: 0 0 12px 0;
+}
+.footer-link-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 /* ===== Responsive ===== */
 @media (max-width: 1023px) {
   .container { padding: 0 16px; }
@@ -1663,6 +2136,17 @@ section { padding: var(--space-xl) 0; }
   /* Quote */
   .message-quote { flex-direction: column; }
   .quote-mark { font-size: 80px; }
+
+  /* Pattern D responsive */
+  .message-2col { grid-template-columns: 1fr; gap: 32px; }
+  .message-2col-right { padding-top: 0; }
+  .wide-card { grid-template-columns: 56px 1fr; }
+  .wide-card-img { display: none; }
+  .cards-4col { grid-template-columns: repeat(2, 1fr); }
+  .zigzag-row, .zigzag-row-rev { grid-template-columns: 1fr; gap: 24px; }
+  .closing-split { grid-template-columns: 1fr; }
+  .closing-split-left, .closing-split-right { padding: 40px 24px; }
+  .footer-4col { grid-template-columns: 1fr 1fr; gap: 24px; }
 }`;
 }
 
