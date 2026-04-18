@@ -23,8 +23,8 @@
 1. `references/design-system.md` を読んで色・スペーシングルールを確認する
 2. `references/lp-structure.md` を読んで対象セクションの構造を確認する
 3. Figmaに新パターンのフレームを作成する
-   - fileKey: `jpGxPuHcGbWRXxCAPFotBf`（YO.Tec チーム）
-   - ページ: 対象セクションのページ（例: S2 Hero）
+   - fileKey: `jpGxPuHcGbWRXxCAPFotBf`（YO.Tec Professional チーム）
+   - ページ: `Pattern Overview`（全パターンを1ページで管理）
    - フレーム名: `{sectionKey}/{patternLabel}` 形式（例: `s2/D`）
 4. 後述の「コード変更ルール」に従って4ファイルを変更する
 5. `npm run build` を実行してエラーがないか確認する
@@ -187,7 +187,7 @@ step[0]/title     → data.s8.steps[0].title
 
 **正しい対応手順：**
 1. `references/design-system.md` を読む → ダーク = `#1A1A2E`（`var(--color-secondary)`）で対応可と確認
-2. Figmaの S2 Hero ページに `s2/D` フレームを作成
+2. FigmaのPattern Overview ページに `s2/D` フレームを作成
 3. `sectionLayouts.ts` に blocks 配列を追記
 4. `SectionRenderer.tsx` に `layout === 3` の JSX を追記
 5. `htmlGenerator.ts` に `layout === 3` の HTML を追記
@@ -216,9 +216,10 @@ lp-system/
 
 **Figmaファイル情報：**
 - fileKey: `jpGxPuHcGbWRXxCAPFotBf`
-- チーム: YO.Tec
-- ページ構成: `_Design System` / `S1 Header` 〜 `S11 Footer`
+- チーム: YO.Tec Professional
+- URL: `https://www.figma.com/design/jpGxPuHcGbWRXxCAPFotBf/lp-system`
+- ページ構成: `_Design System`（カラー・タイポグラフィ仕様）/ `Pattern Overview`（全44パターン一覧）
 
 ---
 
-*最終更新: 2026-04-15*
+*最終更新: 2026-04-16*

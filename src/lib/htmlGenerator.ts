@@ -95,6 +95,34 @@ function bgStyle(url?: string): string {
   return ` style="background-image: url('${url}'); background-size: cover; background-position: center;"`;
 }
 
+// ── Section-level HTML helpers ──────────────────────────────────────────
+
+/** Label + heading block shared across S3–S11 */
+function sectionHeader(
+  label: string,
+  heading: string,
+  opts?: { centered?: boolean; dark?: boolean }
+): string {
+  const centered = opts?.centered !== false;
+  const dark = opts?.dark ?? false;
+  const labelStyle = [
+    centered ? "display:block;text-align:center;" : "display:block;",
+    dark ? "color:rgba(255,255,255,0.8);background:rgba(255,255,255,0.1);" : "",
+  ].join("");
+  const headingStyle = centered ? "text-align:center;" : "";
+  const headingColor = dark ? "color:#ffffff;" : "";
+  return `<p class="section-label" style="${labelStyle}">${esc(label)}</p>
+    <h2 class="section-heading" style="${headingStyle}${headingColor}">${esc(heading)}</h2>`;
+}
+
+/** Primary + secondary CTA row */
+function ctaRow(cta1: string, cta2: string): string {
+  return `<div class="section-cta-row">
+      <a href="#contact" class="btn-primary">${esc(cta1)}</a>
+      <a href="#contact" class="btn-secondary">${esc(cta2)}</a>
+    </div>`;
+}
+
 // ────────────────────────────────────────────────────────────
 // セクション別HTML生成
 // ────────────────────────────────────────────────────────────
@@ -108,13 +136,16 @@ function renderS1(data: LPData, layout: LayoutIndex): string {
 
   if (layout === 0) {
     // Layout 0: 白背景、ロゴ左・ナビ中央・CTA右、border-bottom
+    const menuHtmlInline = s1.menuItems
+      .map((item) => `<a href="#" style="font-size:15px;font-weight:500;color:rgba(0,0,0,0.85);text-decoration:none;white-space:nowrap;">${esc(item)}</a>`)
+      .join("");
     return `<!-- S1: Header [Layout 0] -->
 <header class="s1 s1-layout0">
-  <div class="container s1-inner">
+  <div class="container s1-inner" style="height:80px;">
     <div class="s1-logo">
       <span class="logo-text">サービス名</span>
     </div>
-    <nav class="s1-nav">${menuHtml}</nav>
+    <nav class="s1-nav">${menuHtmlInline}</nav>
     <div class="s1-cta">
       <a href="#contact" class="btn-primary">${esc(s1.ctaText)}</a>
     </div>
@@ -211,12 +242,23 @@ function renderS2(data: LPData, layout: LayoutIndex): string {
   const s2Bg = bgStyle(data.images["s2_bg"]);
 
   if (layout === 0) {
-    // Layout 0: grid 6:4、左テキスト・右画像
-    return `<!-- S2: Hero [Layout 0] -->
-<section class="s2 s2-layout0"${s2Bg}>
-  <div class="container hero-grid hero-grid-60-40">
-    ${textBlock}
-    ${imgBlock}
+    // Layout 0: grid 6:4、左テキスト・右画像（Figma Pattern A）
+    const trustBadgesHtml = s2.trustBadges
+      .map((b, i) => `<span style="font-size:13px;color:#615d59;">${i > 0 ? "・ " : ""}${esc(b)}</span>`)
+      .join("");
+    return `<!-- S2: Hero [Layout A] -->
+<section style="background:#ffffff;padding:80px 0;min-height:600px;">
+  <div class="container">
+    <div style="display:grid;grid-template-columns:6fr 4fr;gap:48px;align-items:center;">
+      <div>
+        <span style="background:#f2f9ff;color:#097fe8;border-radius:9999px;padding:3px 10px;font-size:12px;font-weight:600;letter-spacing:0.125px;display:inline-block;margin-bottom:16px;">SOLUTION</span>
+        <h1 style="font-size:48px;font-weight:700;color:#31302e;letter-spacing:-1.5px;line-height:1.1;margin:0 0 24px 0;">${esc(s2.mainCopy)}</h1>
+        <p style="font-size:16px;color:#615d59;line-height:1.8;margin:0 0 32px 0;">${esc(s2.subCopy)}</p>
+        <a href="#contact" class="btn-primary" style="padding:10px 24px;font-size:15px;">${esc(s2.ctaText)}</a>
+        <div style="display:flex;gap:8px;margin-top:20px;flex-wrap:wrap;">${trustBadgesHtml}</div>
+      </div>
+      <div>${userImg(data.images, "s2_hero", 480, 400, "ヒーロービジュアル", "img-radius")}</div>
+    </div>
   </div>
 </section>`;
   }
@@ -284,8 +326,7 @@ function renderS3(data: LPData, layout: LayoutIndex): string {
 <section class="s3 s3-layout0"${s3Bg}>
   <div class="container">
     <div class="message-center">
-      <p class="section-label">OVERVIEW</p>
-      <h2 class="section-heading">${esc(s3.heading)}</h2>
+      ${sectionHeader("ABOUT", s3.heading)}
       <p class="body-text">${esc(s3.body)}</p>
     </div>
   </div>
@@ -346,18 +387,17 @@ function renderS4(data: LPData, layout: LayoutIndex): string {
   const s4Bg = bgStyle(data.images["s4_bg"]);
 
   if (layout === 0) {
-    // Layout 0: 3カラムカード、グレーアイコンボックス（48×48）、中央揃え
+    // Layout 0: 3カラムカード、青アイコンボックス（40×40）、左揃え（Figma Pattern A）
     const cards = s4.cards.map((card) => `
-      <div class="card card-center">
-        <div class="icon-box-gray">${placeholderImg(48, 48, card.iconHint)}</div>
-        <h3 class="card-title">${esc(card.heading)}</h3>
-        <p class="card-desc">${esc(card.description)}</p>
+      <div class="card" style="text-align:left;">
+        <div style="width:40px;height:40px;border-radius:8px;background:#f2f9ff;margin-bottom:16px;"></div>
+        <h3 style="font-size:20px;font-weight:700;color:#31302e;letter-spacing:-0.25px;margin:0 0 12px 0;">${esc(card.heading)}</h3>
+        <p style="font-size:14px;color:#615d59;line-height:1.8;margin:0;">${esc(card.description)}</p>
       </div>`).join("");
-    return `<!-- S4: Problems [Layout 0] -->
-<section class="s4 s4-layout0"${s4Bg}>
+    return `<!-- S4: Problems [Layout A] -->
+<section style="background:#ffffff;padding:80px 0;">
   <div class="container">
-    <p class="section-label">PROBLEMS</p>
-    <h2 class="section-heading">${esc(s4.sectionHeading)}</h2>
+    ${sectionHeader("PROBLEM", s4.sectionHeading)}
     <div class="cards-3col">${cards}
     </div>
   </div>
@@ -375,8 +415,7 @@ function renderS4(data: LPData, layout: LayoutIndex): string {
     return `<!-- S4: Problems [Layout 1] -->
 <section class="s4 s4-layout1"${s4Bg}>
   <div class="container">
-    <p class="section-label">PROBLEMS</p>
-    <h2 class="section-heading">${esc(s4.sectionHeading)}</h2>
+    ${sectionHeader("PROBLEMS", s4.sectionHeading)}
     <div class="cards-3col">${cards}
     </div>
   </div>
@@ -397,8 +436,7 @@ function renderS4(data: LPData, layout: LayoutIndex): string {
     return `<!-- S4: Problems [Layout 3: ワイドカード] -->
 <section class="s4 s4-layout3"${s4Bg}>
   <div class="container">
-    <p class="section-label">PROBLEMS</p>
-    <h2 class="section-heading">${esc(s4.sectionHeading)}</h2>
+    ${sectionHeader("PROBLEMS", s4.sectionHeading)}
     <div class="wide-cards">${cards}
     </div>
   </div>
@@ -417,8 +455,7 @@ function renderS4(data: LPData, layout: LayoutIndex): string {
   return `<!-- S4: Problems [Layout 2] -->
 <section class="s4 s4-layout2"${s4Bg}>
   <div class="container">
-    <p class="section-label">PROBLEMS</p>
-    <h2 class="section-heading">${esc(s4.sectionHeading)}</h2>
+    ${sectionHeader("PROBLEMS", s4.sectionHeading)}
     <div class="problem-list">${items}
     </div>
   </div>
@@ -431,19 +468,18 @@ function renderS5(data: LPData, layout: LayoutIndex): string {
   const s5Bg = bgStyle(data.images["s5_bg"]);
 
   if (layout === 0) {
-    // Layout 0: 3カラムカード、POINTバッジ→タイトル→説明→下部画像
+    // Layout 0: 3カラムカード、POINTラベル→画像→タイトル→説明（Figma Pattern A）
     const cards = s5.cards.map((card, i) => `
       <div class="card">
-        <span class="point-badge">${esc(card.pointLabel)}</span>
-        <h3 class="card-title">${esc(card.title)}</h3>
-        <p class="card-desc">${esc(card.description)}</p>
-        <div class="card-image">${userImg(data.images, `s5_${i}`, 280, 160, card.imageHint, "img-radius")}</div>
+        <span style="font-size:12px;font-weight:600;color:#0075de;letter-spacing:0.125px;">${esc(card.pointLabel)}</span>
+        <div style="margin:8px 0 12px;">${userImg(data.images, `s5_${i}`, 344, 80, card.imageHint, "img-radius")}</div>
+        <h3 style="font-size:18px;font-weight:700;color:#31302e;letter-spacing:-0.25px;margin:0 0 8px 0;">${esc(card.title)}</h3>
+        <p style="font-size:13px;color:#615d59;line-height:1.8;margin:0;">${esc(card.description)}</p>
       </div>`).join("");
-    return `<!-- S5: Features [Layout 0] -->
-<section class="s5 s5-layout0"${s5Bg}>
+    return `<!-- S5: Features [Layout A] -->
+<section style="background:#f6f5f4;padding:80px 0;">
   <div class="container">
-    <p class="section-label">FEATURES</p>
-    <h2 class="section-heading">${esc(s5.sectionHeading)}</h2>
+    ${sectionHeader("FEATURES", s5.sectionHeading)}
     <div class="cards-3col">${cards}
     </div>
   </div>
@@ -462,8 +498,7 @@ function renderS5(data: LPData, layout: LayoutIndex): string {
     return `<!-- S5: Features [Layout 1] -->
 <section class="s5 s5-layout1"${s5Bg}>
   <div class="container">
-    <p class="section-label">FEATURES</p>
-    <h2 class="section-heading">${esc(s5.sectionHeading)}</h2>
+    ${sectionHeader("FEATURES", s5.sectionHeading)}
     <div class="cards-3col">${cards}
     </div>
   </div>
@@ -484,8 +519,7 @@ function renderS5(data: LPData, layout: LayoutIndex): string {
     return `<!-- S5: Features [Layout 3: グリッド2] -->
 <section class="s5 s5-layout3"${s5Bg}>
   <div class="container">
-    <p class="section-label">FEATURES</p>
-    <h2 class="section-heading">${esc(s5.sectionHeading)}</h2>
+    ${sectionHeader("FEATURES", s5.sectionHeading)}
     <div class="cards-2col">${cards}
     </div>
   </div>
@@ -506,8 +540,7 @@ function renderS5(data: LPData, layout: LayoutIndex): string {
   return `<!-- S5: Features [Layout 2] -->
 <section class="s5 s5-layout2"${s5Bg}>
   <div class="container">
-    <p class="section-label">FEATURES</p>
-    <h2 class="section-heading">${esc(s5.sectionHeading)}</h2>
+    ${sectionHeader("FEATURES", s5.sectionHeading)}
     <div class="features-1col">${cards}
     </div>
   </div>
@@ -520,24 +553,22 @@ function renderS6(data: LPData, layout: LayoutIndex): string {
   const s6Bg = bgStyle(data.images["s6_bg"]);
 
   if (layout === 0) {
-    // Layout 0: 3×2グリッド、画像120px
+    // Layout 0: 3×2グリッド、カード全体bg #f6f5f4、overflow hidden（Figma Pattern A）
     const cards = s6.cards.map((card, i) => `
-      <div class="card card-center">
-        <div class="cat-img">${userImg(data.images, `s6_${i}`, 120, 120, card.imageHint, "img-radius")}</div>
-        <h3 class="card-title">${esc(card.name)}</h3>
-        <p class="card-desc">${esc(card.subText)}</p>
+      <div style="background:#f6f5f4;border:1px solid rgba(0,0,0,0.1);border-radius:12px;overflow:hidden;">
+        ${userImg(data.images, `s6_${i}`, 272, 80, card.imageHint)}
+        <div style="padding:16px;">
+          <p style="font-size:15px;font-weight:700;color:#31302e;margin:0 0 4px 0;">${esc(card.name)}</p>
+          <p style="font-size:12px;color:#615d59;margin:0;">${esc(card.subText)}</p>
+        </div>
       </div>`).join("");
-    return `<!-- S6: Categories [Layout 0] -->
-<section class="s6 s6-layout0"${s6Bg}>
+    return `<!-- S6: Categories [Layout A] -->
+<section style="background:#ffffff;padding:80px 0;">
   <div class="container">
-    <p class="section-label">CATEGORIES</p>
-    <h2 class="section-heading">${esc(s6.sectionHeading)}</h2>
+    ${sectionHeader("CATEGORIES", s6.sectionHeading)}
     <div class="cards-3col">${cards}
     </div>
-    <div class="section-cta-row">
-      <a href="#contact" class="btn-primary">${esc(s6.cta1)}</a>
-      <a href="#contact" class="btn-secondary">${esc(s6.cta2)}</a>
-    </div>
+    ${ctaRow(s6.cta1, s6.cta2)}
   </div>
 </section>`;
   }
@@ -553,14 +584,10 @@ function renderS6(data: LPData, layout: LayoutIndex): string {
     return `<!-- S6: Categories [Layout 1] -->
 <section class="s6 s6-layout1"${s6Bg}>
   <div class="container">
-    <p class="section-label">CATEGORIES</p>
-    <h2 class="section-heading">${esc(s6.sectionHeading)}</h2>
+    ${sectionHeader("CATEGORIES", s6.sectionHeading)}
     <div class="cards-2col">${cards}
     </div>
-    <div class="section-cta-row">
-      <a href="#contact" class="btn-primary">${esc(s6.cta1)}</a>
-      <a href="#contact" class="btn-secondary">${esc(s6.cta2)}</a>
-    </div>
+    ${ctaRow(s6.cta1, s6.cta2)}
   </div>
 </section>`;
   }
@@ -578,14 +605,10 @@ function renderS6(data: LPData, layout: LayoutIndex): string {
     return `<!-- S6: Categories [Layout 3: 4カラム] -->
 <section class="s6 s6-layout3"${s6Bg}>
   <div class="container">
-    <p class="section-label">CATEGORIES</p>
-    <h2 class="section-heading">${esc(s6.sectionHeading)}</h2>
+    ${sectionHeader("CATEGORIES", s6.sectionHeading)}
     <div class="cards-4col">${cards}
     </div>
-    <div class="section-cta-row">
-      <a href="#contact" class="btn-primary">${esc(s6.cta1)}</a>
-      <a href="#contact" class="btn-secondary">${esc(s6.cta2)}</a>
-    </div>
+    ${ctaRow(s6.cta1, s6.cta2)}
   </div>
 </section>`;
   }
@@ -602,14 +625,10 @@ function renderS6(data: LPData, layout: LayoutIndex): string {
   return `<!-- S6: Categories [Layout 2] -->
 <section class="s6 s6-layout2"${s6Bg}>
   <div class="container">
-    <p class="section-label">CATEGORIES</p>
-    <h2 class="section-heading">${esc(s6.sectionHeading)}</h2>
+    ${sectionHeader("CATEGORIES", s6.sectionHeading)}
     <div class="cat-list">${items}
     </div>
-    <div class="section-cta-row">
-      <a href="#contact" class="btn-primary">${esc(s6.cta1)}</a>
-      <a href="#contact" class="btn-secondary">${esc(s6.cta2)}</a>
-    </div>
+    ${ctaRow(s6.cta1, s6.cta2)}
   </div>
 </section>`;
 }
@@ -620,26 +639,26 @@ function renderS7(data: LPData, layout: LayoutIndex): string {
   const s7Bg = bgStyle(data.images["s7_bg"]);
 
   if (layout === 0) {
-    // Layout 0: 3カラムカード、画像上160px・テキスト下
+    // Layout 0: 3カラムカード、白bg+shadow、overflow hidden（Figma Pattern A）
     const cards = s7.cards.map((card, i) => `
-      <div class="card">
-        <div class="case-img">${userImg(data.images, `s7_${i}`, 320, 160, card.imageHint, "img-radius")}</div>
-        <h3 class="card-title">${esc(card.companyName)}</h3>
-        <p class="card-desc">${esc(card.summary)}</p>
+      <div style="background:#fff;border:1px solid rgba(0,0,0,0.1);border-radius:12px;box-shadow:0px 4px 18px 0px rgba(0,0,0,0.04);overflow:hidden;">
+        ${userImg(data.images, `s7_${i}`, 392, 120, card.imageHint)}
+        <div style="padding:24px;">
+          <p style="font-size:15px;font-weight:700;color:#31302e;margin:0 0 8px 0;">${esc(card.companyName)}</p>
+          <p style="font-size:13px;color:#615d59;line-height:1.8;margin:0;">${esc(card.summary)}</p>
+        </div>
       </div>`).join("");
-    return `<!-- S7: Case Studies [Layout 0] -->
-<section class="s7 s7-layout0"${s7Bg}>
+    return `<!-- S7: Case Studies [Layout A] -->
+<section style="background:#f6f5f4;padding:80px 0;">
   <div class="container">
-    <p class="section-label">CASE STUDIES</p>
-    <h2 class="section-heading">${esc(s7.sectionHeading)}</h2>
+    ${sectionHeader("CASE STUDY", s7.sectionHeading)}
     <div class="cards-3col">${cards}
     </div>
     <div class="section-link-row">
-      <a href="#" class="text-link">${esc(s7.linkText)}</a>
+      <a href="#" class="text-link">${esc(s7.linkText)} →</a>
     </div>
     <div class="section-cta-row">
       <a href="#contact" class="btn-primary">${esc(s7.cta1)}</a>
-      <a href="#contact" class="btn-secondary">${esc(s7.cta2)}</a>
     </div>
   </div>
 </section>`;
@@ -657,17 +676,13 @@ function renderS7(data: LPData, layout: LayoutIndex): string {
     return `<!-- S7: Case Studies [Layout 1] -->
 <section class="s7 s7-layout1"${s7Bg}>
   <div class="container">
-    <p class="section-label">CASE STUDIES</p>
-    <h2 class="section-heading">${esc(s7.sectionHeading)}</h2>
+    ${sectionHeader("CASE STUDIES", s7.sectionHeading)}
     <div class="cards-3col">${cards}
     </div>
     <div class="section-link-row">
       <a href="#" class="text-link">${esc(s7.linkText)}</a>
     </div>
-    <div class="section-cta-row">
-      <a href="#contact" class="btn-primary">${esc(s7.cta1)}</a>
-      <a href="#contact" class="btn-secondary">${esc(s7.cta2)}</a>
-    </div>
+    ${ctaRow(s7.cta1, s7.cta2)}
   </div>
 </section>`;
   }
@@ -686,17 +701,13 @@ function renderS7(data: LPData, layout: LayoutIndex): string {
     return `<!-- S7: Case Studies [Layout 3: 2カラム] -->
 <section class="s7 s7-layout3"${s7Bg}>
   <div class="container">
-    <p class="section-label">CASE STUDIES</p>
-    <h2 class="section-heading">${esc(s7.sectionHeading)}</h2>
+    ${sectionHeader("CASE STUDIES", s7.sectionHeading)}
     <div class="cards-2col">${cards}
     </div>
     <div class="section-link-row">
       <a href="#" class="text-link">${esc(s7.linkText)}</a>
     </div>
-    <div class="section-cta-row">
-      <a href="#contact" class="btn-primary">${esc(s7.cta1)}</a>
-      <a href="#contact" class="btn-secondary">${esc(s7.cta2)}</a>
-    </div>
+    ${ctaRow(s7.cta1, s7.cta2)}
   </div>
 </section>`;
   }
@@ -714,17 +725,13 @@ function renderS7(data: LPData, layout: LayoutIndex): string {
   return `<!-- S7: Case Studies [Layout 2] -->
 <section class="s7 s7-layout2"${s7Bg}>
   <div class="container">
-    <p class="section-label">CASE STUDIES</p>
-    <h2 class="section-heading">${esc(s7.sectionHeading)}</h2>
+    ${sectionHeader("CASE STUDIES", s7.sectionHeading)}
     <div class="cases-1col">${cards}
     </div>
     <div class="section-link-row">
       <a href="#" class="text-link">${esc(s7.linkText)}</a>
     </div>
-    <div class="section-cta-row">
-      <a href="#contact" class="btn-primary">${esc(s7.cta1)}</a>
-      <a href="#contact" class="btn-secondary">${esc(s7.cta2)}</a>
-    </div>
+    ${ctaRow(s7.cta1, s7.cta2)}
   </div>
 </section>`;
 }
@@ -735,21 +742,24 @@ function renderS8(data: LPData, layout: LayoutIndex): string {
   const s8Bg = bgStyle(data.images["s8_bg"]);
 
   if (layout === 0) {
-    // Layout 0: 横並びgrid（4列）、ゴールド円番号（48px）、→矢印
-    const steps = s8.steps.map((step, i) => `
-      <div class="flow-step">
-        <div class="flow-num-circle">${i + 1}</div>
-        <div class="flow-icon">${placeholderImg(48, 48, step.iconHint)}</div>
-        <h3 class="card-title">${esc(step.title)}</h3>
-        <p class="card-desc">${esc(step.description)}</p>
-        ${i < s8.steps.length - 1 ? '<div class="flow-arrow">&rarr;</div>' : ""}
-      </div>`).join("");
-    return `<!-- S8: Flow [Layout 0] -->
-<section class="s8 s8-layout0"${s8Bg}>
+    // Layout 0: flex横並び、青円番号（48px）、灰色矢印（Figma Pattern A）
+    const stepEls = s8.steps.map((step, i) => {
+      const stepHtml = `<div style="width:200px;text-align:center;">
+        <div style="width:48px;height:48px;border-radius:50%;background:#0075de;color:#ffffff;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;margin:0 auto 16px;">${i + 1}</div>
+        <h3 style="font-size:16px;font-weight:700;color:#31302e;text-align:center;margin:0 0 8px 0;">${esc(step.title)}</h3>
+        <p style="font-size:13px;color:#615d59;line-height:1.8;text-align:center;margin:0;">${esc(step.description)}</p>
+      </div>`;
+      if (i < s8.steps.length - 1) {
+        return stepHtml + `\n      <div style="font-size:20px;color:#ababab;align-self:flex-start;padding-top:14px;flex-shrink:0;">→</div>`;
+      }
+      return stepHtml;
+    }).join("\n      ");
+    return `<!-- S8: Flow [Layout A] -->
+<section style="background:#ffffff;padding:80px 0;">
   <div class="container">
-    <p class="section-label">FLOW</p>
-    <h2 class="section-heading">${esc(s8.sectionHeading)}</h2>
-    <div class="flow-grid">${steps}
+    ${sectionHeader("FLOW", s8.sectionHeading)}
+    <div style="display:flex;justify-content:center;align-items:flex-start;gap:0;margin-top:48px;">
+      ${stepEls}
     </div>
   </div>
 </section>`;
@@ -767,8 +777,7 @@ function renderS8(data: LPData, layout: LayoutIndex): string {
     return `<!-- S8: Flow [Layout 1] -->
 <section class="s8 s8-layout1"${s8Bg}>
   <div class="container">
-    <p class="section-label">FLOW</p>
-    <h2 class="section-heading">${esc(s8.sectionHeading)}</h2>
+    ${sectionHeader("FLOW", s8.sectionHeading)}
     <div class="flow-grid">${steps}
     </div>
   </div>
@@ -794,8 +803,7 @@ function renderS8(data: LPData, layout: LayoutIndex): string {
     return `<!-- S8: Flow [Layout 3: ジグザグ] -->
 <section class="s8 s8-layout3"${s8Bg}>
   <div class="container">
-    <p class="section-label">FLOW</p>
-    <h2 class="section-heading">${esc(s8.sectionHeading)}</h2>
+    ${sectionHeader("FLOW", s8.sectionHeading)}
     <div class="zigzag-steps">${steps}
     </div>
   </div>
@@ -817,8 +825,7 @@ function renderS8(data: LPData, layout: LayoutIndex): string {
   return `<!-- S8: Flow [Layout 2] -->
 <section class="s8 s8-layout2"${s8Bg}>
   <div class="container">
-    <p class="section-label">FLOW</p>
-    <h2 class="section-heading">${esc(s8.sectionHeading)}</h2>
+    ${sectionHeader("FLOW", s8.sectionHeading)}
     <div class="flow-vert">${steps}
     </div>
   </div>
@@ -891,19 +898,50 @@ function renderS9(data: LPData, layout: LayoutIndex): string {
         </div>`;
 
   if (layout === 0) {
-    // Layout 0: 2カラムgrid（1fr 1fr）、FAQ左・フォーム右、「Q.」CSSプレフィックス
-    const faqs = s9.faqs.map((faq, i) => makeFaqItem(faq, i, "plain")).join("");
-    return `<!-- S9: Form & FAQ [Layout 0] -->
-<section class="s9 s9-layout0"${s9Bg}>
+    // Layout 0: 2カラムgrid（1fr 1fr）、FAQ左（白カード Q./A.形式）・フォーム右（白カード）（Figma Pattern A）
+    const faqItems = s9.faqs.map((faq) => `
+        <div style="margin-bottom:0;">
+          <div style="background:#fff;border:1px solid rgba(0,0,0,0.1);border-radius:4px;padding:0 16px;height:48px;display:flex;align-items:center;">
+            <p style="font-size:14px;font-weight:600;color:#31302e;margin:0;">Q. ${esc(faq.question)}</p>
+          </div>
+          <p style="font-size:13px;color:#615d59;line-height:1.8;padding:8px 16px 16px;margin:0;">A. ${esc(faq.answer)}</p>
+        </div>`).join("");
+    return `<!-- S9: Form & FAQ [Layout A] -->
+<section style="background:#f6f5f4;padding:80px 0;" id="contact">
   <div class="container">
-    <div class="s9-grid">
-      <div class="faq-col">
-        <p class="section-label">FAQ</p>
-        <h2 class="section-heading">よくある質問</h2>
-        <div class="faq-list">${faqs}
+    <p class="section-label" style="display:block;text-align:center;">FAQ &amp; CONTACT</p>
+    <h2 class="section-heading" style="text-align:center;">よくある質問・お問い合わせ</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:48px;align-items:flex-start;">
+      <div>${faqItems}
+      </div>
+      <div style="background:#fff;border:1px solid rgba(0,0,0,0.1);border-radius:12px;padding:32px;box-shadow:0px 4px 18px 0px rgba(0,0,0,0.04);">
+        <h3 style="font-size:20px;font-weight:700;color:#31302e;margin:0 0 24px 0;">${esc(s9.formHeading)}</h3>
+        <div class="contact-form">
+          <div class="form-group">
+            <label class="form-label">お名前 <span class="required">*</span></label>
+            <input type="text" class="form-input" placeholder="山田 太郎" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">会社名 <span class="required">*</span></label>
+            <input type="text" class="form-input" placeholder="株式会社サンプル" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">メールアドレス <span class="required">*</span></label>
+            <input type="email" class="form-input" placeholder="example@company.co.jp" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">電話番号 <span class="required">*</span></label>
+            <input type="tel" class="form-input" placeholder="03-1234-5678" required>
+          </div>
+          <div class="form-group form-checkbox-group">
+            <label class="form-checkbox-label">
+              <input type="checkbox" class="form-checkbox" required>
+              <span>プライバシーポリシーに同意する</span>
+            </label>
+          </div>
+          <button type="submit" class="btn-primary btn-block" style="padding:12px 0;margin-top:8px;">${esc(data.s2.ctaText)}</button>
         </div>
       </div>
-      ${formHtml}
     </div>
   </div>
 </section>`;
@@ -938,8 +976,7 @@ function renderS9(data: LPData, layout: LayoutIndex): string {
     return `<!-- S9: FAQ [Layout 3: シンプルFAQ] -->
 <section class="s9 s9-layout3"${s9Bg}>
   <div class="container">
-    <p class="section-label">FAQ</p>
-    <h2 class="section-heading">よくある質問</h2>
+    ${sectionHeader("FAQ", "よくある質問")}
     <div class="faq-simple-list">${faqs}
     </div>
   </div>
@@ -970,16 +1007,14 @@ function renderS10(data: LPData, layout: LayoutIndex): string {
   const s10Bg = bgStyle(data.images["s10_bg"]);
 
   if (layout === 0) {
-    // Layout 0: primary-dark色背景、中央揃え、横並びCTA
-    return `<!-- S10: Closing [Layout 0] -->
-<section class="s10 s10-layout0"${s10Bg}>
+    // Layout 0: primary-dark色背景、中央揃え、インラインスタイルCTA（Figma Pattern A）
+    return `<!-- S10: Closing [Layout A] -->
+<section style="background:var(--color-primary-dark);padding:80px 0;text-align:center;">
   <div class="container">
-    <div class="closing-inner">
-      <p class="closing-copy">${esc(s10.microCopy)}</p>
-      <div class="closing-cta-row closing-cta-row-h">
-        <a href="#contact" class="btn-primary">${esc(s10.cta1)}</a>
-        <a href="#contact" class="btn-secondary btn-secondary-white">${esc(s10.cta2)}</a>
-      </div>
+    <h2 style="font-size:36px;font-weight:700;color:#ffffff;letter-spacing:-0.75px;margin:0 0 16px 0;">${esc(s10.microCopy)}</h2>
+    <div style="display:flex;gap:16px;justify-content:center;margin-top:32px;flex-wrap:wrap;">
+      <a href="#contact" style="display:inline-block;background:#ffffff;color:#0075de;padding:12px 24px;border-radius:4px;font-weight:600;font-size:15px;text-decoration:none;">${esc(s10.cta1)}</a>
+      <a href="#contact" style="display:inline-block;background:rgba(255,255,255,0.1);color:#ffffff;padding:12px 24px;border-radius:4px;font-weight:600;font-size:15px;border:1px solid rgba(255,255,255,0.4);text-decoration:none;">${esc(s10.cta2)}</a>
     </div>
   </div>
 </section>`;
@@ -1041,16 +1076,16 @@ function renderS11(data: LPData, layout: LayoutIndex): string {
     .join("");
 
   if (layout === 0) {
-    // Layout 0: secondary色背景、ロゴ左・リンク横並び右
-    return `<!-- S11: Footer [Layout 0] -->
-<footer class="s11 s11-layout0">
-  <div class="container footer-inner">
-    <div class="footer-logo">
-      <span class="logo-text logo-white">サービス名</span>
+    // Layout 0: secondary色背景、ロゴ左・リンク横並び右、border-top（Figma Pattern A）
+    return `<!-- S11: Footer [Layout A] -->
+<footer style="background:var(--color-secondary);color:#ffffff;padding:48px 0;">
+  <div class="container" style="border-top:1px solid rgba(255,255,255,0.1);padding-top:32px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:24px;margin-bottom:32px;">
+      <div style="font-size:18px;font-weight:700;color:#ffffff;letter-spacing:-0.5px;">サービス名</div>
+      <nav style="display:flex;flex-wrap:wrap;gap:24px;">${s11.links.map(l => `<a href="#" style="font-size:13px;color:rgba(255,255,255,0.6);text-decoration:none;">${esc(l)}</a>`).join("")}</nav>
     </div>
-    <nav class="footer-nav">${links}</nav>
+    <p style="font-size:13px;color:rgba(255,255,255,0.4);text-align:center;">${esc(s11.copyright)}</p>
   </div>
-  <div class="footer-copy">${esc(s11.copyright)}</div>
 </footer>`;
   }
 
@@ -1410,6 +1445,7 @@ section { padding: var(--space-xl) 0; }
 .s1-layout1 .s1-cta .btn-primary,
 .s1-layout2 .s1-cta .btn-primary { font-size: 14px; padding: 10px 20px; }
 .s1-layout0 .s1-cta .btn-primary { font-size: 14px; padding: 10px 20px; }
+.s1-layout0 .s1-inner { height: 80px; }
 
 /* Hamburger */
 .hamburger {
@@ -1823,7 +1859,7 @@ section { padding: var(--space-xl) 0; }
 .form-checkbox { width: 16px; height: 16px; accent-color: var(--color-primary); cursor: pointer; }
 
 /* ===== S10: Closing ===== */
-.s10-layout0, .s10-layout1, .s10-layout2 { background: var(--color-secondary); }
+.s10-layout1, .s10-layout2 { background: var(--color-secondary); }
 .closing-inner { text-align: center; }
 .closing-copy {
   font-size: 24px;
