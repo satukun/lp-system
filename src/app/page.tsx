@@ -117,240 +117,58 @@ export default function WizardPage() {
   // ── ウェルカム画面 ─────────────────────────────────────────
   if (phase === "welcome") {
     return (
-      <div style={{
-        background: "var(--col-bg)", minHeight: "100vh",
-        display: "flex", alignItems: "center", justifyContent: "center",
-        padding: "48px 24px", position: "relative", overflow: "hidden",
-      }}>
+      <div style={{ background: "var(--col-bg)", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "48px 24px" }}>
+        <div style={{ width: "100%", maxWidth: 440 }} className="fade-in">
 
-        {/* ── 背景: ドットグリッド ── */}
-        <div style={{
-          position: "absolute", inset: 0, pointerEvents: "none",
-          backgroundImage: "radial-gradient(rgba(0,0,0,0.055) 1px, transparent 1px)",
-          backgroundSize: "28px 28px",
-        }} />
-        {/* ウォームブロブ */}
-        <div style={{ position: "absolute", top: "-15%", right: "-8%", width: 560, height: 560, borderRadius: "50%", background: "radial-gradient(circle, rgba(245,242,239,1) 0%, transparent 65%)", pointerEvents: "none" }} />
-        <div style={{ position: "absolute", bottom: "-12%", left: "-6%", width: 440, height: 440, borderRadius: "50%", background: "radial-gradient(circle, rgba(245,242,239,0.8) 0%, transparent 65%)", pointerEvents: "none" }} />
-
-        {/* ── 本体 ── */}
-        <div style={{
-          width: "100%", maxWidth: 880,
-          display: "flex", alignItems: "center", gap: 72,
-          flexWrap: "wrap", justifyContent: "center",
-          position: "relative",
-        }} className="fade-in">
-
-          {/* ─ イラスト ─ */}
-          <div style={{ position: "relative", flexShrink: 0 }}>
-
-            {/* ブラウザウィンドウ */}
+          {/* ロゴ */}
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: 28 }}>
             <div style={{
-              borderRadius: 12, overflow: "hidden",
-              boxShadow: "rgba(0,0,0,0.4) 0px 0px 1px, rgba(0,0,0,0.1) 0px 12px 40px, rgba(78,50,23,0.05) 0px 24px 64px",
-            }}>
-              <svg width="420" height="272" viewBox="0 0 420 272" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                  <clipPath id="wc"><rect width="420" height="272" rx="12"/></clipPath>
-                </defs>
-                <g clipPath="url(#wc)">
-                  {/* Chrome bar */}
-                  <rect width="420" height="32" fill="#f0f0f0"/>
-                  <circle cx="18" cy="16" r="4.5" fill="#ff5f57"/>
-                  <circle cx="31" cy="16" r="4.5" fill="#febc2e"/>
-                  <circle cx="44" cy="16" r="4.5" fill="#28c840"/>
-                  <rect x="64" y="9" width="200" height="14" rx="7" fill="#fff"/>
-                  <rect x="64" y="9" width="200" height="14" rx="7" fill="none" stroke="#e5e5e5" strokeWidth="1"/>
-                  <rect x="270" y="12" width="30" height="8" rx="2" fill="#e5e5e5"/>
-                  <rect x="307" y="12" width="30" height="8" rx="2" fill="#e5e5e5"/>
-                  <rect x="344" y="12" width="30" height="8" rx="2" fill="#e5e5e5"/>
-                  <rect x="382" y="10" width="28" height="12" rx="3" fill="#e5e5e5"/>
-
-                  {/* Nav */}
-                  <rect x="0" y="32" width="420" height="26" fill="#fff"/>
-                  <rect x="10" y="40" width="40" height="9" rx="2" fill="#e8e8e8"/>
-                  <rect x="280" y="41" width="26" height="7" rx="2" fill="#e8e8e8"/>
-                  <rect x="314" y="41" width="26" height="7" rx="2" fill="#e8e8e8"/>
-                  <rect x="348" y="41" width="26" height="7" rx="2" fill="#e8e8e8"/>
-                  <rect x="382" y="37" width="30" height="15" rx="7" fill="#000"/>
-
-                  {/* Hero */}
-                  <rect x="0" y="58" width="420" height="68" fill="#0a0a0a"/>
-                  <rect x="130" y="69" width="160" height="10" rx="3" fill="rgba(255,255,255,0.65)"/>
-                  <rect x="150" y="84" width="120" height="7" rx="2" fill="rgba(255,255,255,0.28)"/>
-                  <rect x="164" y="97" width="92" height="20" rx="10" fill="#fff"/>
-                  <rect x="190" y="104" width="40" height="6" rx="2" fill="#aaa"/>
-
-                  {/* Features */}
-                  <rect x="0" y="126" width="420" height="62" fill="#f7f7f7"/>
-                  {/* Card 1 */}
-                  <rect x="10" y="132" width="126" height="50" rx="7" fill="#fff"/>
-                  <rect x="10" y="132" width="126" height="50" rx="7" fill="none" stroke="#ececec" strokeWidth="1"/>
-                  <rect x="20" y="142" width="28" height="28" rx="5" fill="#f0f0f0"/>
-                  <rect x="56" y="144" width="56" height="7" rx="2" fill="#e0e0e0"/>
-                  <rect x="56" y="156" width="44" height="5" rx="2" fill="#ebebeb"/>
-                  <rect x="56" y="165" width="36" height="5" rx="2" fill="#ebebeb"/>
-                  {/* Card 2 */}
-                  <rect x="147" y="132" width="126" height="50" rx="7" fill="#fff"/>
-                  <rect x="147" y="132" width="126" height="50" rx="7" fill="none" stroke="#ececec" strokeWidth="1"/>
-                  <rect x="157" y="142" width="28" height="28" rx="5" fill="#f0f0f0"/>
-                  <rect x="193" y="144" width="56" height="7" rx="2" fill="#e0e0e0"/>
-                  <rect x="193" y="156" width="44" height="5" rx="2" fill="#ebebeb"/>
-                  <rect x="193" y="165" width="36" height="5" rx="2" fill="#ebebeb"/>
-                  {/* Card 3 */}
-                  <rect x="284" y="132" width="126" height="50" rx="7" fill="#fff"/>
-                  <rect x="284" y="132" width="126" height="50" rx="7" fill="none" stroke="#ececec" strokeWidth="1"/>
-                  <rect x="294" y="142" width="28" height="28" rx="5" fill="#f0f0f0"/>
-                  <rect x="330" y="144" width="56" height="7" rx="2" fill="#e0e0e0"/>
-                  <rect x="330" y="156" width="44" height="5" rx="2" fill="#ebebeb"/>
-                  <rect x="330" y="165" width="36" height="5" rx="2" fill="#ebebeb"/>
-
-                  {/* CTA section */}
-                  <rect x="0" y="188" width="420" height="46" fill="#0075de"/>
-                  <rect x="120" y="197" width="180" height="9" rx="3" fill="rgba(255,255,255,0.6)"/>
-                  <rect x="162" y="212" width="96" height="16" rx="8" fill="#fff"/>
-                  <rect x="192" y="218" width="36" height="4" rx="2" fill="#aaa"/>
-
-                  {/* Footer */}
-                  <rect x="0" y="234" width="420" height="38" fill="#141414"/>
-                  <rect x="10" y="244" width="52" height="7" rx="2" fill="rgba(255,255,255,0.3)"/>
-                  <rect x="182" y="244" width="36" height="7" rx="2" fill="rgba(255,255,255,0.18)"/>
-                  <rect x="226" y="244" width="36" height="7" rx="2" fill="rgba(255,255,255,0.18)"/>
-                  <rect x="270" y="244" width="36" height="7" rx="2" fill="rgba(255,255,255,0.18)"/>
-                  <rect x="314" y="244" width="36" height="7" rx="2" fill="rgba(255,255,255,0.18)"/>
-                  <rect x="358" y="244" width="36" height="7" rx="2" fill="rgba(255,255,255,0.18)"/>
-                  <rect x="10" y="258" width="180" height="5" rx="2" fill="rgba(255,255,255,0.1)"/>
-                </g>
-                {/* Border */}
-                <rect width="420" height="272" rx="12" fill="none" stroke="#e5e5e5" strokeWidth="1"/>
-              </svg>
-            </div>
-
-            {/* ── フローティングバッジ ── */}
-            {/* セクション数 */}
-            <div style={{
-              position: "absolute", top: -14, right: -18,
-              display: "flex", alignItems: "center", gap: 6,
-              padding: "7px 14px", borderRadius: 9999,
-              background: "var(--col-bg)",
-              boxShadow: "var(--shadow-card)",
-              fontSize: 12, fontWeight: 500, color: "var(--col-text)",
-              whiteSpace: "nowrap",
-            }}>
-              <span style={{ fontSize: 16 }}>📐</span>
-              <span>11 セクション</span>
-            </div>
-            {/* パターン数 */}
-            <div style={{
-              position: "absolute", bottom: 40, left: -20,
-              display: "flex", alignItems: "center", gap: 6,
-              padding: "7px 14px", borderRadius: 9999,
-              background: "var(--col-bg)",
-              boxShadow: "var(--shadow-card)",
-              fontSize: 12, fontWeight: 500, color: "var(--col-text)",
-              whiteSpace: "nowrap",
-            }}>
-              <span style={{ fontSize: 16 }}>🎨</span>
-              <span>各 4 パターン</span>
-            </div>
-            {/* HTML出力 */}
-            <div style={{
-              position: "absolute", bottom: -14, right: 30,
-              display: "flex", alignItems: "center", gap: 6,
-              padding: "7px 14px", borderRadius: 9999,
-              background: "#000", color: "#fff",
-              boxShadow: "var(--shadow-card)",
-              fontSize: 12, fontWeight: 500,
-              whiteSpace: "nowrap",
-            }}>
-              <span style={{ fontSize: 16 }}>⚡</span>
-              <span>HTML 即出力</span>
-            </div>
+              width: 52, height: 52, borderRadius: 12,
+              background: "var(--col-surface)", border: "1px solid var(--col-border-2)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 15, fontWeight: 700, color: "var(--col-text)", letterSpacing: "-0.02em",
+            }}>LP</div>
           </div>
 
-          {/* ─ テキスト・CTA ─ */}
-          <div style={{ flex: 1, minWidth: 280, maxWidth: 360 }}>
+          <h1 style={{ fontSize: 28, fontWeight: 700, color: "var(--col-text)", textAlign: "center", marginBottom: 10, fontFamily: "Inter, sans-serif", letterSpacing: "-0.02em" }}>
+            LP生成ウィザード
+          </h1>
+          <p style={{ fontSize: 14, color: "var(--col-text-2)", textAlign: "center", lineHeight: 1.7, marginBottom: 6 }}>
+            質問に答えるだけで、toB向けLPが完成します。
+          </p>
+          <p style={{ fontSize: 13, color: "var(--col-text-3)", textAlign: "center", lineHeight: 1.7, marginBottom: 28 }}>
+            好きなセクションから自由に入力できます。<br />
+            確定したセクションからプレビューに積み上がっていきます。
+          </p>
 
-            {/* ロゴ */}
-            <div style={{ marginBottom: 24 }}>
-              <div style={{
-                width: 44, height: 44, borderRadius: 11,
-                background: "var(--col-action)",
-                boxShadow: "var(--shadow-card)",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 12, fontWeight: 700, color: "#fff", letterSpacing: "0.05em",
-              }}>LP</div>
-            </div>
-
-            <h1 style={{
-              fontSize: 40, fontWeight: 300, color: "var(--col-text)",
-              marginBottom: 14, fontFamily: "Inter, 'Noto Sans JP', sans-serif",
-              letterSpacing: "-0.8px", lineHeight: 1.08,
-            }}>
-              LP生成<br />ウィザード
-            </h1>
-            <p style={{ fontSize: 16, color: "var(--col-text-2)", lineHeight: 1.65, marginBottom: 6, letterSpacing: "0.01em" }}>
-              質問に答えるだけで、toB向けLPが完成します。
-            </p>
-            <p style={{ fontSize: 13, color: "var(--col-text-3)", lineHeight: 1.8, marginBottom: 28, letterSpacing: "0.01em" }}>
-              好きなセクションから自由に入力。<br />
-              確定したセクションからプレビューに積み上がります。
-            </p>
-
-            {/* フィーチャーチップ */}
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 28 }}>
-              {[
-                { icon: "✦", label: "コード不要" },
-                { icon: "✦", label: "リアルタイムプレビュー" },
-                { icon: "✦", label: "カラーパレット選択" },
-              ].map((f) => (
-                <span key={f.label} style={{
-                  display: "flex", alignItems: "center", gap: 5,
-                  padding: "4px 12px", borderRadius: 9999,
-                  background: "var(--col-surface)", boxShadow: "var(--shadow-inset)",
-                  fontSize: 12, color: "var(--col-text-2)", letterSpacing: "0.01em",
-                }}>
-                  <span style={{ fontSize: 9, color: "var(--col-text-3)" }}>{f.icon}</span>
-                  {f.label}
-                </span>
-              ))}
-            </div>
-
-            {/* Primary CTA */}
-            <button
-              onClick={() => setPhase("builder")}
-              style={{
-                width: "100%", padding: "13px 0", borderRadius: 9999,
-                background: "var(--col-action)", color: "#fff",
-                fontSize: 14, fontWeight: 500, border: "none", cursor: "pointer",
-                boxShadow: "var(--shadow-card)",
-                letterSpacing: "0.01em",
-                transition: "opacity 0.15s",
-              }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = "0.85"; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = "1"; }}
-            >
-              はじめる
-            </button>
-
-            {/* Secondary */}
-            <button
-              onClick={() => router.push("/editor")}
-              style={{
-                width: "100%", padding: "12px 0", marginTop: 10, borderRadius: 9999,
-                background: "var(--col-bg)", color: "var(--col-text-2)",
-                fontSize: 13, fontWeight: 400, border: "none", cursor: "pointer",
-                boxShadow: "var(--shadow-card)",
-                letterSpacing: "0.01em",
-                transition: "color 0.15s",
-              }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--col-text)"; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--col-text-2)"; }}
-            >
-              スキップしてエディタへ進む
-            </button>
-          </div>
-
+          <button
+            onClick={() => setPhase("builder")}
+            style={{
+              width: "100%", padding: "11px 0", borderRadius: 9999,
+              background: "var(--col-action)", color: "#fff",
+              fontSize: 14, fontWeight: 500, border: "none", cursor: "pointer",
+              boxShadow: "var(--shadow-card)",
+              transition: "opacity 0.15s",
+            }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = "0.85"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = "1"; }}
+          >
+            はじめる
+          </button>
+          <button
+            onClick={() => router.push("/editor")}
+            style={{
+              width: "100%", padding: "10px 0", marginTop: 8, borderRadius: 9999,
+              background: "var(--col-bg)", color: "var(--col-text-2)",
+              fontSize: 13, fontWeight: 400, border: "none", cursor: "pointer",
+              boxShadow: "var(--shadow-card)",
+              transition: "color 0.15s",
+            }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--col-text)"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--col-text-2)"; }}
+          >
+            スキップしてエディタへ進む
+          </button>
         </div>
       </div>
     );
