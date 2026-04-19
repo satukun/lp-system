@@ -34,11 +34,13 @@ export default function SectionCard({
       onDrop={onDrop}
       style={{
         background: "var(--col-bg)",
-        border: isDragOver ? "1px solid rgba(55,53,47,0.4)" : "1px solid var(--col-border)",
-        borderRadius: 8,
+        borderRadius: 12,
         overflow: "hidden",
-        opacity: hidden ? 0.5 : 1,
-        transition: "border-color 150ms, opacity 150ms",
+        opacity: hidden ? 0.45 : 1,
+        boxShadow: isDragOver
+          ? "rgba(0,0,0,0.15) 0px 0px 0px 1.5px, rgba(0,0,0,0.04) 0px 4px 8px"
+          : "var(--shadow-outline)",
+        transition: "box-shadow 150ms, opacity 150ms",
       }}
     >
       <div style={{ display: "flex", alignItems: "center" }}>
@@ -75,9 +77,9 @@ export default function SectionCard({
         >
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <span style={{
-              fontSize: 11, fontWeight: 700, padding: "2px 7px", borderRadius: 5,
-              background: "var(--col-surface-2)", border: "1px solid var(--col-border)",
-              color: "var(--col-text-2)",
+              fontSize: 10, fontWeight: 500, padding: "2px 8px", borderRadius: 9999,
+              background: "var(--col-surface)", boxShadow: "var(--shadow-inset)",
+              color: "var(--col-text-2)", letterSpacing: "0.04em",
             }}>
               {sectionId}
             </span>
@@ -135,7 +137,7 @@ export default function SectionCard({
         <div style={{ overflow: "hidden" }}>
           <div style={{
             padding: "12px 16px 16px",
-            borderTop: "1px solid var(--col-border)",
+            borderTop: "1px solid var(--col-border-2)",
             opacity: (open && !hidden) ? 1 : 0,
             transform: (open && !hidden) ? "translateY(0)" : "translateY(-4px)",
             transition: "opacity 220ms ease, transform 220ms ease",
