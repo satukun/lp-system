@@ -83,9 +83,29 @@ export interface FaqItem {
   answer: string;
 }
 
+export interface FormField {
+  id: string;
+  label: string;
+  type: 'text' | 'email' | 'tel' | 'select';
+  placeholder: string;
+  required: boolean;
+  options?: string[];
+}
+
+export interface FormConfig {
+  fields: FormField[];
+  submitLabel: string;
+  actionUrl: string;
+  adminEmail: string;
+  ccEmail: string;
+  privacyLabel: string;
+  successMessage: string;
+}
+
 export interface S9FormFaq {
   faqs: FaqItem[];
   formHeading: string;
+  formConfig: FormConfig;
 }
 
 export interface S10Closing {

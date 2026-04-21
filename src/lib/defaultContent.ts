@@ -148,6 +148,24 @@ export const defaultContent: LPData = {
       },
     ],
     formHeading: "まずは資料請求",
+    formConfig: {
+      fields: [
+        { id: "name",    label: "お名前",         type: "text",  placeholder: "山田 太郎",                required: true  },
+        { id: "company", label: "会社名",          type: "text",  placeholder: "株式会社サンプル",         required: true  },
+        { id: "email",   label: "メールアドレス",  type: "email", placeholder: "example@company.co.jp",   required: true  },
+        { id: "tel",     label: "電話番号",        type: "tel",   placeholder: "03-1234-5678",             required: false },
+        {
+          id: "size", label: "従業員数", type: "select", placeholder: "",  required: true,
+          options: ["選択してください", "1〜10名", "11〜50名", "51〜300名", "301名以上"],
+        },
+      ],
+      submitLabel: "資料を請求する",
+      actionUrl: "",
+      adminEmail: "",
+      ccEmail: "",
+      privacyLabel: "プライバシーポリシーに同意する",
+      successMessage: "お問い合わせありがとうございます。担当者よりご連絡いたします。",
+    },
   },
   s10: {
     microCopy: "まずは資料請求してみませんか？",

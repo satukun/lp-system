@@ -854,47 +854,33 @@ function renderS9(data: LPData, layout: LayoutIndex): string {
           </div>`;
   };
 
+  const cfg = s9.formConfig;
+  const actionAttr = cfg.actionUrl ? ` action="${esc(cfg.actionUrl)}" method="POST"` : ` onsubmit="return false;"`;
+  const formFields = cfg.fields.map((f) => {
+    const req = f.required ? ` required` : "";
+    const reqLabel = f.required ? ` <span class="required">*</span>` : "";
+    if (f.type === "select") {
+      const opts = (f.options ?? []).map((o) => `<option value="${esc(o)}">${esc(o)}</option>`).join("");
+      return `<div class="form-group"><label class="form-label">${esc(f.label)}${reqLabel}</label><select class="form-input form-select" name="${esc(f.id)}"${req}>${opts}</select></div>`;
+    }
+    return `<div class="form-group"><label class="form-label">${esc(f.label)}${reqLabel}</label><input type="${f.type}" class="form-input" name="${esc(f.id)}" placeholder="${esc(f.placeholder)}"${req}></div>`;
+  }).join("\n            ");
+
   const formHtml = `
         <div class="contact-form-wrap" id="contact">
           <h3 class="form-heading">${esc(s9.formHeading)}</h3>
           <p class="section-label">CONTACT</p>
-          <form class="contact-form" onsubmit="return false;">
-            <div class="form-group">
-              <label class="form-label">お名前 <span class="required">*</span></label>
-              <input type="text" class="form-input" placeholder="山田 太郎" required>
-            </div>
-            <div class="form-group">
-              <label class="form-label">会社名 <span class="required">*</span></label>
-              <input type="text" class="form-input" placeholder="株式会社サンプル" required>
-            </div>
-            <div class="form-group">
-              <label class="form-label">メールアドレス <span class="required">*</span></label>
-              <input type="email" class="form-input" placeholder="example@timee.co.jp" required>
-            </div>
-            <div class="form-group">
-              <label class="form-label">電話番号 <span class="required">*</span></label>
-              <input type="tel" class="form-input" placeholder="03-1234-5678" required>
-            </div>
-            <div class="form-group">
-              <label class="form-label">従業員数 <span class="required">*</span></label>
-              <select class="form-input form-select" required>
-                <option value="">選択してください</option>
-                <option value="1-10">1〜10名</option>
-                <option value="11-50">11〜50名</option>
-                <option value="51-100">51〜100名</option>
-                <option value="101-300">101〜300名</option>
-                <option value="301-1000">301〜1000名</option>
-                <option value="1001+">1001名以上</option>
-              </select>
-            </div>
+          <form class="contact-form"${actionAttr}>
+            ${formFields}
             <div class="form-group form-checkbox-group">
               <label class="form-checkbox-label">
                 <input type="checkbox" class="form-checkbox" required>
-                <span>プライバシーポリシーに同意する</span>
+                <span>${esc(cfg.privacyLabel)}</span>
               </label>
             </div>
-            <button type="submit" class="btn-primary btn-block">${esc(data.s2.ctaText)}</button>
+            <button type="submit" class="btn-primary btn-block">${esc(cfg.submitLabel)}</button>
           </form>
+          <div class="form-success" style="display:none;">${esc(cfg.successMessage)}</div>
         </div>`;
 
   if (layout === 0) {
@@ -916,31 +902,17 @@ function renderS9(data: LPData, layout: LayoutIndex): string {
       </div>
       <div style="background:#fff;border:1px solid rgba(0,0,0,0.1);border-radius:12px;padding:32px;box-shadow:0px 4px 18px 0px rgba(0,0,0,0.04);">
         <h3 style="font-size:20px;font-weight:700;color:#31302e;margin:0 0 24px 0;">${esc(s9.formHeading)}</h3>
-        <div class="contact-form">
-          <div class="form-group">
-            <label class="form-label">お名前 <span class="required">*</span></label>
-            <input type="text" class="form-input" placeholder="山田 太郎" required>
-          </div>
-          <div class="form-group">
-            <label class="form-label">会社名 <span class="required">*</span></label>
-            <input type="text" class="form-input" placeholder="株式会社サンプル" required>
-          </div>
-          <div class="form-group">
-            <label class="form-label">メールアドレス <span class="required">*</span></label>
-            <input type="email" class="form-input" placeholder="example@company.co.jp" required>
-          </div>
-          <div class="form-group">
-            <label class="form-label">電話番号 <span class="required">*</span></label>
-            <input type="tel" class="form-input" placeholder="03-1234-5678" required>
-          </div>
+        <form class="contact-form"${actionAttr}>
+          ${formFields}
           <div class="form-group form-checkbox-group">
             <label class="form-checkbox-label">
               <input type="checkbox" class="form-checkbox" required>
-              <span>プライバシーポリシーに同意する</span>
+              <span>${esc(cfg.privacyLabel)}</span>
             </label>
           </div>
-          <button type="submit" class="btn-primary btn-block" style="padding:12px 0;margin-top:8px;">${esc(data.s2.ctaText)}</button>
-        </div>
+          <button type="submit" class="btn-primary btn-block" style="padding:12px 0;margin-top:8px;">${esc(cfg.submitLabel)}</button>
+        </form>
+        <div class="form-success" style="display:none;">${esc(cfg.successMessage)}</div>
       </div>
     </div>
   </div>
