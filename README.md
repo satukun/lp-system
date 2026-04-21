@@ -47,6 +47,30 @@
 
 ---
 
+## 技術スタック
+
+| カテゴリ | 技術 | バージョン |
+|---|---|---|
+| **フレームワーク** | Next.js (App Router) | 16.2.2 |
+| **言語** | TypeScript | 5.x |
+| **UI ライブラリ** | React | 19.x |
+| **スタイリング** | CSS Variables + Tailwind CSS | 4.x |
+| **フォント** | Inter / Noto Sans JP (Google Fonts) | — |
+| **ユニットテスト** | Vitest | 3.x |
+| **E2E テスト** | Playwright | 1.59.x |
+| **ビルドツール** | Turbopack (Next.js 組み込み) | — |
+| **デザインツール** | Figma | fileKey: `jpGxPuHcGbWRXxCAPFotBf` |
+| **AI 開発支援** | Claude Code + Figma MCP | — |
+| **デプロイ** | Vercel（想定） | — |
+
+### 設計方針
+- **外部 UI ライブラリなし** — MUI・shadcn 等は不使用。CSS 変数とインラインスタイルで完結
+- **外部 CDN なし** — 生成 HTML は fully standalone（CSS・JS すべてインライン）
+- **状態管理ライブラリなし** — `useState` / `localStorage` のみ
+- **DB なし** — MVP はブラウザストレージのみ（バックエンド連携は将来計画）
+
+---
+
 ## AIハーネスの設計
 
 `.claude/agents/` に4つの専門エージェントが定義されており、
