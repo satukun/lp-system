@@ -209,6 +209,14 @@ npx playwright test   # E2E テスト
 | ⑥ | **Zustand 導入** | 状態管理が複雑になったタイミングで導入 |
 | ⑦ | **Vercel デプロイ** | 本番公開 |
 
+### インフラ / CI・CD
+
+| 優先度 | 実装内容 | 概要 |
+|---|---|---|
+| ① | **GitHub Actions 設定** | push / PR をトリガーに `npm run build` → Vitest → Playwright を自動実行 |
+| ② | **Vitest テスト整備** | `src/` 配下にユニットテストを追加（現状テストファイルがなく `npm run test` が空振り）|
+| ③ | **Playwright テスト整備** | `tests/e2e/` のスペックを実際の画面仕様に合わせて充実させる |
+
 > **Cloudflare** — インフラ検討候補として保留。Vercel デプロイ後に改めて判断する。
 > **Notion 連携** — 対象外（除外済み）。
 
