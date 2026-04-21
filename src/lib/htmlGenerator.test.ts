@@ -73,16 +73,16 @@ describe("generateHtml: セクションコメント", () => {
   it("各セクションに <!-- SN: Name [Layout N] --> コメントが含まれる", () => {
     const html = generate();
     expect(html).toContain("<!-- S1: Header [Layout 0] -->");
-    expect(html).toContain("<!-- S2: Hero [Layout 0] -->");
+    expect(html).toContain("<!-- S2: Hero [Layout A] -->");
     expect(html).toContain("<!-- S3: Message [Layout 0] -->");
-    expect(html).toContain("<!-- S4: Problems [Layout 0] -->");
-    expect(html).toContain("<!-- S5: Features [Layout 0] -->");
-    expect(html).toContain("<!-- S6: Categories [Layout 0] -->");
-    expect(html).toContain("<!-- S7: Case Studies [Layout 0] -->");
-    expect(html).toContain("<!-- S8: Flow [Layout 0] -->");
-    expect(html).toContain("<!-- S9: Form & FAQ [Layout 0] -->");
-    expect(html).toContain("<!-- S10: Closing [Layout 0] -->");
-    expect(html).toContain("<!-- S11: Footer [Layout 0] -->");
+    expect(html).toContain("<!-- S4: Problems [Layout A] -->");
+    expect(html).toContain("<!-- S5: Features [Layout A] -->");
+    expect(html).toContain("<!-- S6: Categories [Layout A] -->");
+    expect(html).toContain("<!-- S7: Case Studies [Layout A] -->");
+    expect(html).toContain("<!-- S8: Flow [Layout A] -->");
+    expect(html).toContain("<!-- S9: Form & FAQ [Layout A] -->");
+    expect(html).toContain("<!-- S10: Closing [Layout A] -->");
+    expect(html).toContain("<!-- S11: Footer [Layout A] -->");
   });
 });
 
@@ -90,28 +90,28 @@ describe("generateHtml: セクションコメント", () => {
 // カラーパレットテスト
 // ────────────────────────────────────────────────────────────
 describe("generateHtml: カラーパレット", () => {
-  it("パレットA: --color-primary が #FFD700 になる", () => {
+  it("パレットA: --color-primary が #0075de になる", () => {
     const html = generate({ palette: "A" });
-    expect(html).toContain("--color-primary: #FFD700;");
-    expect(html).toContain("--color-secondary: #1A1A2E;");
+    expect(html).toContain("--color-primary: #0075de;");
+    expect(html).toContain("--color-secondary: #31302e;");
   });
 
-  it("パレットB: --color-primary がブルー系になる", () => {
+  it("パレットB: --color-primary がネイビー系になる", () => {
     const html = generate({ palette: "B" });
-    expect(html).toContain("--color-primary: #2563EB;");
-    expect(html).toContain("--color-secondary: #0F172A;");
+    expect(html).toContain("--color-primary: #213183;");
+    expect(html).toContain("--color-secondary: #31302e;");
   });
 
-  it("パレットC: --color-primary がグリーン系になる", () => {
+  it("パレットC: --color-primary がティール系になる", () => {
     const html = generate({ palette: "C" });
-    expect(html).toContain("--color-primary: #16A34A;");
-    expect(html).toContain("--color-secondary: #14271A;");
+    expect(html).toContain("--color-primary: #2a9d99;");
+    expect(html).toContain("--color-secondary: #31302e;");
   });
 
-  it("各パレットで --color-text が #333333 になる", () => {
+  it("各パレットで --color-text が rgba(0,0,0,0.95) になる", () => {
     for (const p of ["A", "B", "C"] as ColorPalette[]) {
       const html = generate({ palette: p });
-      expect(html).toContain("--color-text: #333333;");
+      expect(html).toContain("--color-text: rgba(0,0,0,0.95);");
     }
   });
 });
